@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33403.182
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WmiPnp", "WmiPnp\WmiPnp.csproj", "{55718644-3BA4-4A7E-9111-6D491ACD3C45}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xm4BatteryLevelConsole", "Xm4BatteryLevelConsole\Xm4BatteryLevelConsole.csproj", "{020B6A05-0F44-45B6-BABC-F7C0BF09E8D3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{55718644-3BA4-4A7E-9111-6D491ACD3C45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55718644-3BA4-4A7E-9111-6D491ACD3C45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55718644-3BA4-4A7E-9111-6D491ACD3C45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55718644-3BA4-4A7E-9111-6D491ACD3C45}.Release|Any CPU.Build.0 = Release|Any CPU
+		{020B6A05-0F44-45B6-BABC-F7C0BF09E8D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{020B6A05-0F44-45B6-BABC-F7C0BF09E8D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{020B6A05-0F44-45B6-BABC-F7C0BF09E8D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{020B6A05-0F44-45B6-BABC-F7C0BF09E8D3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {012BC168-056B-4EF2-9432-90A52B991209}
+	EndGlobalSection
+EndGlobal
