@@ -1,4 +1,6 @@
-# WmiPnp
+# WMI For Plug-and-Play Devices
+
+> WMI = Windows Management Interface.
 
 The primary goal is to get battery level of WH-1000XM4 headphones.
 
