@@ -1,5 +1,4 @@
 ﻿using LanguageExt;
-using System.CodeDom;
 using System.Management;
 using WmiPnp.Extensions;
 
@@ -15,6 +14,14 @@ public class PnpEntity
     public string? PnpDeviceId;
 
     private ManagementObject? _entity = null;
+
+    public Some<DeviceProperty> UpdateProperty( Some<DeviceProperty> deviceProperty )
+        => GetDeviceProperty( deviceProperty.Value.Key )
+        .Some( x => {
+            deviceProperty.Value.Data = x.Data;
+            return deviceProperty;
+        } )
+        .None( () => deviceProperty );
 
     /// <summary>
     /// Get device property

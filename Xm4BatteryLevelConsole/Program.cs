@@ -5,22 +5,29 @@ const string BluetoothDevice_BatteryLevelKey = "{104EA319-6EE2-4701-BD47-8DDBF42
 
 var entity =
     PnpEntity
-    .ByFriendlyName( 
+    .ByFriendlyName(
         BluetoothDevice_FriendlyName );
 
 entity
-.IfSome( e => {
-    var xm4 =
-        PnpEntity
-        .ByDeviceId( e.DeviceId! )
-        .IfSome( xm4 => {
-            Console.WriteLine( $"--> {xm4?.Name}: {xm4?.Description}" );
-            var pr = xm4.GetDeviceProperty( BluetoothDevice_BatteryLevelKey );
+    .IfSome( e => {
+        var xm4 =
+            PnpEntity
+            .ByDeviceId( e.DeviceId! )
+            .IfSome( xm4 => {
+                Console.WriteLine( $"--> {xm4?.Name}: {xm4?.Description}" );
+                var pr = xm4!.GetDeviceProperty( BluetoothDevice_BatteryLevelKey );
 
-            Console.WriteLine(
-                pr
-                .Some( x => x.Data )
-                .None( () => "[x] Key not found" ) );
-        } );
-} );
+                while ( !Console.KeyAvailable ) {
+                    Console.WriteLine(
+                        pr
+                        .Some( dp => {
+                            xm4.UpdateProperty( dp );
+                            return dp.Data;
+                        } )
+                        .None( () => "[x] Key not found" ) );
+
+                    Thread.Sleep( 1000 );
+                }
+            } );
+    } );
 
