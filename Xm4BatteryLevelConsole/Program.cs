@@ -8,20 +8,19 @@ var entity =
     .ByFriendlyName( 
         BluetoothDevice_FriendlyName );
 
-var e =
-    entity
-    .IfSome( e => {
-        var xm4 =
-            PnpEntity
-            .ByDeviceId( e.DeviceId! )
-            .IfSome( xm4 => {
-                Console.WriteLine( $"--> {xm4?.Name}: {xm4?.Description}" );
-                var pr = xm4.GetDeviceProperty( BluetoothDevice_BatteryLevelKey );
+entity
+.IfSome( e => {
+    var xm4 =
+        PnpEntity
+        .ByDeviceId( e.DeviceId! )
+        .IfSome( xm4 => {
+            Console.WriteLine( $"--> {xm4?.Name}: {xm4?.Description}" );
+            var pr = xm4.GetDeviceProperty( BluetoothDevice_BatteryLevelKey );
 
-                Console.WriteLine(
-                    pr
-                    .Some( x => x.Data )
-                    .None( () => "[x] Key not found" ) );
-            } );
-    } );
+            Console.WriteLine(
+                pr
+                .Some( x => x.Data )
+                .None( () => "[x] Key not found" ) );
+        } );
+} );
 

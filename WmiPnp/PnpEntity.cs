@@ -49,7 +49,7 @@ public class PnpEntity
             out var dataValue );
 
         var noValidDataValue =
-            typeValue == (uint)CimType.None
+            typeValue == (uint)DataType.Empty
             || dataValue is null;
 
         if ( noValidDataValue )
