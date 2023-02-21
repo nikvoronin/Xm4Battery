@@ -1,5 +1,6 @@
 ﻿using LanguageExt;
 using System.Management;
+using System.Xml.Linq;
 using WmiPnp.Extensions;
 
 namespace WmiPnp;
@@ -43,18 +44,71 @@ public class PnpEntity
 
         var d = new Dictionary<string, object>( ps );
 
-        // TODO type must not be == 0 ie CimType.None
+        var t = (uint)ss.GetPropertyValue( DeviceProperty.Type_PropertyField );
+        var noValue =
+            t == (uint)CimType.None;
+        if ( noValue ) return Option<DeviceProperty>.None;
 
         DeviceProperty dp =
             new(
-                deviceId: ss.ValueOf( "DeviceID" ),
-                key: ss.ValueOf( "key" ),
-                type: (uint)ss.GetPropertyValue( "Type" )
+                deviceId: ss.ValueOf( DeviceProperty.DeviceID_PropertyField ),
+                key: ss.ValueOf( DeviceProperty.Key_PropertyField ),
+                type: t
             );
 
-        d.TryGetValue( "Data", out dp.Data );
+        _ = d.TryGetValue(
+            DeviceProperty.Data_PropertyField,
+            out dp.Data );
 
         return dp;
+    }
+
+    private static Option<PnpEntity> EntityOrNone( string where )
+    {
+        Option<PnpEntity> entity = Option<PnpEntity>.None;
+
+        try {
+            var searcher =
+                new ManagementObjectSearcher(
+                    Select_Win32PnpEntity_Where
+                    + where );
+
+            var collection = searcher.Get();
+
+            var mo =
+                collection
+                .Cast<ManagementBaseObject>()
+                .FirstOrDefault();
+
+            var deviceFound = mo is not null;
+            if ( deviceFound )
+                entity = ToPnpEntity( mo! );
+        }
+        catch { }
+
+        return entity;
+    }
+
+    /// <summary>
+    /// Find exact one entity by given name
+    /// </summary>
+    /// <param name="name">The name or part of its for entities</param>
+    /// <returns>PNP entity or None</returns>
+    public static Option<PnpEntity> ByFriendlyName( string name )
+        => EntityOrNone( where: $"Name='{name}'" );
+
+    /// <summary>
+    /// Find entity by exact equal device id
+    /// </summary>
+    /// <param name="id">DeviceID or PNPDeviceID</param>
+    /// <returns>PnpEntity or None</returns>
+    public static Option<PnpEntity> ByDeviceId( string id )
+    {
+        id = id.Replace( "\\", "\\\\" );
+
+        return
+            EntityOrNone( 
+                where: $"DeviceID='{id}' OR PNPDeviceId='{id}'" );
     }
 
     /// <summary>
@@ -62,7 +116,7 @@ public class PnpEntity
     /// </summary>
     /// <param name="name">The name or part of its for entities</param>
     /// <returns>List of found entities or empty list</returns>
-    public static IEnumerable<PnpEntity> ByFriendlyName( string name )
+    public static IEnumerable<PnpEntity> LikeFriendlyName( string name )
     {
         IEnumerable<PnpEntity> entities = List.empty<PnpEntity>();
 
@@ -82,39 +136,6 @@ public class PnpEntity
         catch { }
 
         return entities;
-    }
-
-    /// <summary>
-    /// Find entity by exact equal device id
-    /// </summary>
-    /// <param name="id">DeviceID or PNPDeviceID</param>
-    /// <returns>PnpEntity or None</returns>
-    public static Option<PnpEntity> ByDeviceId( string id )
-    {
-        Option<PnpEntity> entity = Option<PnpEntity>.None;
-
-        try {
-            id = id.Replace( "\\", "\\\\" );
-
-            var searcher =
-                new ManagementObjectSearcher(
-                    Select_Win32PnpEntity_Where
-                    + $"DeviceID='{id}' OR PNPDeviceId='{id}'" );
-
-            var collection = searcher.Get();
-
-            var mo =
-                collection
-                .Cast<ManagementBaseObject?>()
-                .FirstOrDefault();
-
-            var deviceFound = mo is not null;
-            if ( deviceFound )
-                entity = ToPnpEntity( mo! );
-        }
-        catch { }
-
-        return entity;
     }
 
     private static PnpEntity ToPnpEntity(

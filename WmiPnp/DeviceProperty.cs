@@ -23,4 +23,10 @@ public class DeviceProperty
         KeyName = keyName ?? key;
         Data = data;
     }
+
+    public const string Type_PropertyField = "Type";
+    public const string DeviceID_PropertyField = "DeviceID";
+    public const string Key_PropertyField = "key";
+    public const string KeyName_PropertyField = "keyName";
+    public const string Data_PropertyField = "Data";
 }
