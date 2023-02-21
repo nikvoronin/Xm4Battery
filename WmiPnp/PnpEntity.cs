@@ -111,10 +111,12 @@ public class PnpEntity
     /// Find entity by exact equal device id
     /// </summary>
     /// <param name="id">DeviceID or PNPDeviceID</param>
+    /// <param name="duplicateSlashes">Duplicate slashes by default, so '\' becomes '\\'.</param>
     /// <returns>PnpEntity or None</returns>
-    public static Option<PnpEntity> ByDeviceId( string id )
+    public static Option<PnpEntity> ByDeviceId( string id, bool duplicateSlashes = true )
     {
-        id = id.Replace( "\\", "\\\\" );
+        if ( duplicateSlashes )
+            id = id.Replace( "\\", "\\\\" );
 
         return
             EntityOrNone(
