@@ -1,6 +1,6 @@
 ﻿using LanguageExt;
+using System.CodeDom;
 using System.Management;
-using System.Xml.Linq;
 using WmiPnp.Extensions;
 
 namespace WmiPnp;
@@ -27,7 +27,7 @@ public class PnpEntity
 
         var args = new object[] { new string[] { key }, null! };
         try {
-            _entity.InvokeMethod( "GetDeviceProperties", args );
+            _entity.InvokeMethod( GetDeviceProperties_MethodName, args );
         }
         catch ( ManagementException ) {
             // Not found or wrong key
@@ -35,30 +35,33 @@ public class PnpEntity
         }
 
         ManagementBaseObject? ss = ( args[1] as ManagementBaseObject[] )?[0];
-        if (ss is null) return Option<DeviceProperty>.None;
+        if ( ss is null ) return Option<DeviceProperty>.None;
 
         var ps =
-            ss.Properties
-            .Cast<PropertyData>()
-            .Select( x => new KeyValuePair<string, object>( x.Name, x.Value ) );
+            new Dictionary<string, object>(
+                ss.Properties
+                .Cast<PropertyData>()
+                .Select( x => new KeyValuePair<string, object>( x.Name, x.Value ) ) );
 
-        var d = new Dictionary<string, object>( ps );
+        var typeValue = (uint)ss.GetPropertyValue( DeviceProperty.Type_PropertyField );
+        _ = ps.TryGetValue(
+            DeviceProperty.Data_PropertyField,
+            out var dataValue );
 
-        var t = (uint)ss.GetPropertyValue( DeviceProperty.Type_PropertyField );
-        var noValue =
-            t == (uint)CimType.None;
-        if ( noValue ) return Option<DeviceProperty>.None;
+        var noValidDataValue =
+            typeValue == (uint)CimType.None
+            || dataValue is null;
+
+        if ( noValidDataValue )
+            return Option<DeviceProperty>.None;
 
         DeviceProperty dp =
             new(
                 deviceId: ss.ValueOf( DeviceProperty.DeviceID_PropertyField ),
                 key: ss.ValueOf( DeviceProperty.Key_PropertyField ),
-                type: t
+                type: typeValue,
+                data: dataValue
             );
-
-        _ = d.TryGetValue(
-            DeviceProperty.Data_PropertyField,
-            out dp.Data );
 
         return dp;
     }
@@ -95,7 +98,7 @@ public class PnpEntity
     /// <param name="name">The name or part of its for entities</param>
     /// <returns>PNP entity or None</returns>
     public static Option<PnpEntity> ByFriendlyName( string name )
-        => EntityOrNone( where: $"Name='{name}'" );
+        => EntityOrNone( where: $"{Name_FieldName}='{name}'" );
 
     /// <summary>
     /// Find entity by exact equal device id
@@ -107,8 +110,8 @@ public class PnpEntity
         id = id.Replace( "\\", "\\\\" );
 
         return
-            EntityOrNone( 
-                where: $"DeviceID='{id}' OR PNPDeviceId='{id}'" );
+            EntityOrNone(
+                where: $"{DeviceId_FieldName}='{id}' OR {PnpDeviceId_FieldName}='{id}'" );
     }
 
     /// <summary>
@@ -124,14 +127,14 @@ public class PnpEntity
             var searcher =
                 new ManagementObjectSearcher(
                     Select_Win32PnpEntity_Where
-                    + $"Name LIKE '%{name}%'" );
+                    + $"{Name_FieldName} LIKE '%{name}%'" );
 
             var collection = searcher.Get();
 
             entities =
                 collection
                 .Cast<ManagementBaseObject>()
-                .Select( o => ToPnpEntity(o) );
+                .Select( o => ToPnpEntity( o ) );
         }
         catch { }
 
@@ -141,11 +144,11 @@ public class PnpEntity
     private static PnpEntity ToPnpEntity(
         ManagementBaseObject entity )
         => new() {
-            Name = entity.ValueOf( "Name" ),
-            Description = entity.ValueOf( "Description" ),
-            ClassGuid = entity.ValueOf( "ClassGuid" ),
-            DeviceId = entity.ValueOf( "DeviceID" ),
-            PnpDeviceId = entity.ValueOf( "PNPDeviceID" ),
+            Name = entity.ValueOf( Name_FieldName ),
+            Description = entity.ValueOf( Description_FieldName ),
+            ClassGuid = entity.ValueOf( ClassGuid_FieldName ),
+            DeviceId = entity.ValueOf( DeviceId_FieldName ),
+            PnpDeviceId = entity.ValueOf( PnpDeviceId_FieldName ),
             _entity =
                 entity as ManagementObject
                 ?? throw new NotSupportedException( "Not a ManagementObject." ),
@@ -153,4 +156,12 @@ public class PnpEntity
 
     const string Select_Win32PnpEntity_Where =
        "Select Name,Description,ClassGuid,DeviceID,PNPDeviceID From Win32_PnPEntity WHERE ";
+
+    public const string Name_FieldName = "Name";
+    public const string Description_FieldName = "Description";
+    public const string ClassGuid_FieldName = "ClassGuid";
+    public const string DeviceId_FieldName = "DeviceID";
+    public const string PnpDeviceId_FieldName = "PNPDeviceID";
+
+    public const string GetDeviceProperties_MethodName = "GetDeviceProperties";
 }
