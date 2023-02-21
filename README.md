@@ -17,7 +17,7 @@ The primary goal is to get battery level of WH-1000XM4 headphones.
 ### Is Connected
 
 - Key = `{83DA6326-97A6-4088-9453-A1923F573B29} 15`
-- Type = 17
+- Type = 17 (Boolean)
 
 Data = False → device is disconnected
 
@@ -25,15 +25,15 @@ Data = False → device is disconnected
 Data : False
 DeviceID : BTHENUM\DEV_F84E17FE9B55\8&37022D96&0&BLUETOOTHDEVICE_F84E17FE9B55
 key : {83DA6326-97A6-4088-9453-A1923F573B29} 15
-KeyName : {83DA6326-97A6-4088-9453-A1923F573B29} 15
-Type : 17
+KeyName : --same as the key above--
+Type : 17 (Boolean)
 ```
 
 ### Last Arrival Date
 
 - Key = `{83DA6326-97A6-4088-9453-A1923F573B29} 102`
 - KeyName = DEVPKEY_Device_LastArrivalDate
-- Type = 16
+- Type = 16 (FileTime)
 
 Data = 20230131090906.098359+180 → 2023 Jan 31, 9:09:06 GMT+3
 
@@ -42,7 +42,7 @@ Data : 20230131090906.098359+180
 DeviceID : BTHHFENUM\BTHHFPAUDIO\9&2DBCFC8&0&97
 key : {83DA6326-97A6-4088-9453-A1923F573B29} 102
 KeyName : DEVPKEY_Device_LastArrivalDate
-Type : 16
+Type : 16 (FileTime)
 ```
 
 ### Last Removal Date
