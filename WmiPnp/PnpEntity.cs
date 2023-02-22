@@ -14,13 +14,46 @@ public class PnpEntity
     public string? PnpDeviceId;
 
     private ManagementObject? _entity = null;
+    public IEnumerable<DeviceProperty> Properties { get; private set; }
+        = List.empty<DeviceProperty>();
+
+    /// <summary>
+    /// Update and store device properties in <see cref="Properties" /> field
+    /// </summary>
+    /// <returns>List of device properties with current data</returns>
+    public IEnumerable<DeviceProperty> UpdateProperties()
+    {
+        ArgumentNullException.ThrowIfNull( _entity ); // TODO do not allow mandatory fields to be a null
+
+        ManagementBaseObject inParams =
+            _entity.GetMethodParameters( GetDeviceProperties_MethodName );
+
+        ManagementBaseObject outParams =
+            _entity.InvokeMethod( GetDeviceProperties_MethodName, inParams, null );
+
+        var enumerator = outParams.Properties.GetEnumerator();
+        enumerator.MoveNext();
+        var mbos = enumerator.Current.Value as ManagementBaseObject[];
+        Properties =
+            mbos
+            ?.Cast<ManagementBaseObject>()
+            .Select( p =>
+                new DeviceProperty (
+                    deviceId: p.ValueOf( DeviceProperty.DeviceID_PropertyField ),
+                    key: p.ValueOf( DeviceProperty.Key_PropertyField ),
+                    keyName: p.ValueOf( DeviceProperty.KeyName_PropertyField ),
+                    type: (uint)p.GetPropertyValue( DeviceProperty.Type_PropertyField ),
+                    data: p.GetPropertyValue( DeviceProperty.Data_PropertyField ) 
+                    )
+                )
+            ?? List.empty<DeviceProperty>();
+
+        return Properties;
+    }
 
     public Some<DeviceProperty> UpdateProperty( Some<DeviceProperty> deviceProperty )
         => GetDeviceProperty( deviceProperty.Value.Key )
-        .Some( x => {
-            deviceProperty.Value.Data = x.Data;
-            return deviceProperty;
-        } )
+        .Some( x => deviceProperty = x )
         .None( () => deviceProperty );
 
     /// <summary>
