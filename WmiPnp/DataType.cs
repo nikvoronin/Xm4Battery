@@ -67,12 +67,8 @@
         /// <summary>
         /// TRUE if DataType is reserved
         /// </summary>
-        public static bool Reserved( this DataType dataType )
-        {
-            var dt = (uint)dataType;
-            return
-                ( dt >= 26 && dt <= 4097 )
-                || ( dt >= 8218 && dt <= 4294967295 );
-        }
+        public static bool Reserved( this uint dt )
+            => ( dt >= 26 && dt <= 4097 )
+            || ( dt >= 8218 && dt <= 4294967295 );
     }
 }
