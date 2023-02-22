@@ -5,7 +5,9 @@ VisualStudioVersion = 17.4.33403.182
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WmiPnp", "WmiPnp\WmiPnp.csproj", "{55718644-3BA4-4A7E-9111-6D491ACD3C45}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xm4BatteryLevelConsole", "Xm4BatteryLevelConsole\Xm4BatteryLevelConsole.csproj", "{020B6A05-0F44-45B6-BABC-F7C0BF09E8D3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xm4BatteryLevelConsole", "Xm4BatteryLevelConsole\Xm4BatteryLevelConsole.csproj", "{020B6A05-0F44-45B6-BABC-F7C0BF09E8D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WmiPnp.Xm4", "WmiPnp.Xm4\WmiPnp.Xm4.csproj", "{FA0678AC-24ED-40CB-AF93-36CE0DC7459C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{020B6A05-0F44-45B6-BABC-F7C0BF09E8D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{020B6A05-0F44-45B6-BABC-F7C0BF09E8D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{020B6A05-0F44-45B6-BABC-F7C0BF09E8D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA0678AC-24ED-40CB-AF93-36CE0DC7459C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA0678AC-24ED-40CB-AF93-36CE0DC7459C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA0678AC-24ED-40CB-AF93-36CE0DC7459C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA0678AC-24ED-40CB-AF93-36CE0DC7459C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
