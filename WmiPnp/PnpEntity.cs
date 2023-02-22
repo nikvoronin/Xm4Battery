@@ -1,6 +1,5 @@
 ﻿using LanguageExt;
 using System.Management;
-using WmiPnp.Extensions;
 
 namespace WmiPnp;
 
@@ -206,4 +205,12 @@ public class PnpEntity
     public const string PnpDeviceId_FieldName = "PNPDeviceID";
 
     public const string GetDeviceProperties_MethodName = "GetDeviceProperties";
+}
+
+public static class ManagementObjectExtensions
+{
+    public static string ValueOf(
+        this ManagementBaseObject o,
+        string name )
+        => (string)o.GetPropertyValue( name );
 }

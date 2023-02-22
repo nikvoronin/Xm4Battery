@@ -16,8 +16,7 @@ void ProcessEntity( Some<PnpEntity> xm4entity )
     Console.WriteLine( $"--> {xm4.Name}: {xm4.Description}" );
     var pr = xm4.GetDeviceProperty( BluetoothDevice_BatteryLevelKey );
 
-    _ = xm4.UpdateProperties();
-    foreach ( var p in xm4.Properties )
+    foreach ( var p in xm4.UpdateProperties() )
         Console.WriteLine( $"{p.KeyName}: {p.Data}" );
 
     Console.WriteLine();
