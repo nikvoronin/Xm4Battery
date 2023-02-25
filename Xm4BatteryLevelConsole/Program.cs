@@ -1,13 +1,24 @@
 ﻿using LanguageExt;
 using WmiPnp;
+using WmiPnp.Xm4;
+
+Xm4Entity
+    .Create()
+    .IfSome( xm4 => {
+        while ( !Console.KeyAvailable ) {
+            Console.Write( $"\rBattery Level: {xm4.BatteryLevel}%" );
+
+            Thread.Sleep( 1000 );
+        }
+    } );
 
 const string BluetoothDevice_FriendlyName = "WH-1000XM4 Hands-Free AG";
 const string BluetoothDevice_BatteryLevelKey = "{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2";
 
-PnpEntity
-    .ByFriendlyName(
-        BluetoothDevice_FriendlyName )
-    .IfSome( e => ProcessEntity( e ) );
+//PnpEntity
+//    .ByFriendlyName(
+//        BluetoothDevice_FriendlyName )
+//    .IfSome( e => ProcessEntity( e ) );
 
 void ProcessEntity( Some<PnpEntity> xm4entity )
 {

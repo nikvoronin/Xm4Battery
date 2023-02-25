@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\WmiPnp.Xm4\WmiPnp.Xm4.csproj" />
     <ProjectReference Include="..\WmiPnp\WmiPnp.csproj" />
   </ItemGroup>
 
