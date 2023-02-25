@@ -1,9 +1,27 @@
-﻿namespace WmiPnp.Xm4
+﻿using LanguageExt;
+using static LanguageExt.Compositions<A>;
+
+namespace WmiPnp.Xm4
 {
     public class Xm4Entity
     {
         private PnpEntity _xm4;
 
+        private Xm4Entity( PnpEntity xm4 )
+        { 
+            _xm4 = xm4;
+        }
+
+        public Option<Xm4Entity> Create()
+        {
+            var ox = PnpEntity.ByFriendlyName( PnpEntity_FriendlyName );
+            Option<Xm4Entity> self = Option<Xm4Entity>.None;
+            ox.IfSome( xm4 => {
+                self = new Xm4Entity( xm4 );
+            } );
+
+            return self;
+        }
 
         const string PnpEntity_FriendlyName = "WH-1000XM4 Hands-Free AG";
         const string DeviceProperty_BatteryLevelKey = "{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2";
