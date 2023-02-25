@@ -5,8 +5,9 @@ using WmiPnp.Xm4;
 Xm4Entity
     .Create()
     .IfSome( xm4 => {
+        Console.WriteLine( "Press any key to stop polling..." );
         while ( !Console.KeyAvailable ) {
-            Console.Write( $"\rBattery Level: {xm4.BatteryLevel}%" );
+            Console.Write( $"\r[{DateTime.Now:T}] Battery Level: {xm4.BatteryLevel}%" );
 
             Thread.Sleep( 1000 );
         }
