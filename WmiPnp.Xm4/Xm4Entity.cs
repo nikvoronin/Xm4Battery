@@ -6,12 +6,15 @@ namespace WmiPnp.Xm4
     {
         private readonly PnpEntity _xm4;
 
+        // TODO: create options with public access
+        private static readonly TimeSpan BatteryLevel_UpdateInterval = TimeSpan.FromMinutes( 5 );
+
         private Xm4Entity( PnpEntity xm4 )
         {
             _xm4 = xm4;
             _batteryLevel =
                 new( () =>
-                    _xm4.GetDeviceProperty( DeviceProperty_BatteryLevel )
+                    _xm4.GetDeviceProperty( PnpEntity.DeviceProperty_BatteryLevel )
                     .Some( dp => dp )
                     .None( () => throw new InvalidOperationException( "Can not call battery level function" ) ) );
         }
@@ -21,6 +24,15 @@ namespace WmiPnp.Xm4
             .ByFriendlyName( PnpEntity_FriendlyName )
             .Some( xm4 => (Option<Xm4Entity>)new Xm4Entity( xm4 ) )
             .None( Option<Xm4Entity>.None );
+
+        public static Option<Xm4Entity> CreateBy( string friendlyNameExact )
+            => PnpEntity
+            .ByFriendlyName( friendlyNameExact ?? PnpEntity_FriendlyName )
+            .Some( xm4 => (Option<Xm4Entity>)new Xm4Entity( xm4 ) )
+            .None( Option<Xm4Entity>.None );
+
+        public static Option<Xm4Entity> CreateUnsafe( Some<PnpEntity> e )
+            => new Xm4Entity( e );
 
         private DateTimeOffset _batteryLevel_lastAccess = DateTimeOffset.MinValue;
         private readonly Lazy<DeviceProperty> _batteryLevel;
@@ -41,13 +53,8 @@ namespace WmiPnp.Xm4
                 return _batteryLevelCached;
             }
         }
-
-        static readonly TimeSpan BatteryLevel_UpdateInterval = TimeSpan.FromMinutes( 5 );
-        const string PnpEntity_FriendlyName = "WH-1000XM4 Hands-Free AG";
-        const string DeviceProperty_BatteryLevel = "{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2";
-        const string DeviceProperty_IsConnected = "{83DA6326-97A6-4088-9453-A1923F573B29} 15";
-
-        const string DEVPKEY_Bluetooth_LastConnectedTime = "{2BD67D8B-8BEB-48D5-87E0-6CDA3428040A} 11";
-        const string DEVPKEY_Bluetooth_LastConnectedTime2 = "{2BD67D8B-8BEB-48D5-87E0-6CDA3428040A} 5";
+        
+        public const string PnpEntity_FriendlyName
+            = "WH-1000XM4 Hands-Free AG";
     }
 }

@@ -205,6 +205,16 @@ public class PnpEntity
     public const string PnpDeviceId_FieldName = "PNPDeviceID";
 
     public const string GetDeviceProperties_MethodName = "GetDeviceProperties";
+
+    public const string DeviceProperty_BatteryLevel
+        = "{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2";
+    public const string DeviceProperty_IsConnected
+        = "{83DA6326-97A6-4088-9453-A1923F573B29} 15";
+
+    public const string DEVPKEY_Bluetooth_LastConnectedTime
+        = "{2BD67D8B-8BEB-48D5-87E0-6CDA3428040A} 11";
+    public const string DEVPKEY_Bluetooth_LastConnectedTime2
+        = "{2BD67D8B-8BEB-48D5-87E0-6CDA3428040A} 5";
 }
 
 public static class ManagementObjectExtensions
