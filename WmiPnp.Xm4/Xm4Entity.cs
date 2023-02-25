@@ -12,16 +12,11 @@ namespace WmiPnp.Xm4
             _xm4 = xm4;
         }
 
-        public Option<Xm4Entity> Create()
-        {
-            var ox = PnpEntity.ByFriendlyName( PnpEntity_FriendlyName );
-            Option<Xm4Entity> self = Option<Xm4Entity>.None;
-            ox.IfSome( xm4 => {
-                self = new Xm4Entity( xm4 );
-            } );
-
-            return self;
-        }
+        public static Option<Xm4Entity> Create()
+            => PnpEntity
+            .ByFriendlyName( PnpEntity_FriendlyName )
+            .Some( xm4 => (Option<Xm4Entity>) new Xm4Entity( xm4 ) )
+            .None( Option<Xm4Entity>.None );
 
         const string PnpEntity_FriendlyName = "WH-1000XM4 Hands-Free AG";
         const string DeviceProperty_BatteryLevelKey = "{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2";
