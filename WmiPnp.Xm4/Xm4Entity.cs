@@ -1,5 +1,4 @@
 ﻿using LanguageExt;
-using static LanguageExt.Compositions<A>;
 
 namespace WmiPnp.Xm4
 {
