@@ -4,15 +4,20 @@
 
 The primary goal is to get battery level of WH-1000XM4 headphones.
 
+- [How To Find PNP Device](#how-to-find-pnp-device)
+  - [PnpEntity](#pnpentity)
+- [Device Properties](#device-properties)
+  - [Get / Update Specific Property](#get--update-specific-property)
+  - [Get Em All](#get-em-all)
 - [Specific Device Properties](#specific-device-properties)
-    - [Battery Level](#battery-level)
-    - [Is Connected](#is-connected)
-    - [Last Arrival Date](#last-arrival-date)
-    - [Last Removal Date](#last-removal-date)
+  - [Battery Level](#battery-level)
+  - [Is Connected](#is-connected)
+  - [Last Arrival Date](#last-arrival-date)
+  - [Last Removal Date](#last-removal-date)
 - [XM4 Specific Properties](#xm4-specific-properties)
-    - [DEVPKEY\_Device\_DevNodeStatus](#devpkey_device_devnodestatus)
-    - [DEVPKEY\_Bluetooth\_LastConnectedTime](#devpkey_bluetooth_lastconnectedtime)
-    - [?Last Connected Time](#last-connected-time)
+  - [DEVPKEY\_Device\_DevNodeStatus](#devpkey_device_devnodestatus)
+  - [DEVPKEY\_Bluetooth\_LastConnectedTime](#devpkey_bluetooth_lastconnectedtime)
+  - [?Last Connected Time](#last-connected-time)
 - [Biblio](#biblio)
 
 ## How To Find PNP Device
@@ -25,7 +30,7 @@ First we should know the `name` or `device id` of the device we фку working w
 
 All of methods produce instances of `PnpEntity` or `Result.Fail` if the given device was not found.
 
-### Result&lt;PnpEntity&gt;
+### PnpEntity
 
 ```csharp
 Result<PnpEntity> result =
@@ -37,9 +42,9 @@ if ( result.IsSuccess ) {
 }
 ```
 
-## Get Device Property
+## Device Properties
 
-### Specific Property
+### Get / Update Specific Property
 
 ```csharp
 ...
@@ -50,7 +55,7 @@ Result<DeviceProperty> propertyResult =
 
 if ( propertyResult.IsSuccess ) {
     DeviceProperty dp = propertyResult.Value;
-    
+
     while ( !Console.KeyAvailable ) {
         bool connected = (bool)(dp.Data ?? false);
 
@@ -74,6 +79,15 @@ foreach( var p in properties ) {
     Console.WriteLine( $"{p.KeyName}: {p.Data}" );
     ...
 }
+```
+
+The same but with a cached list of the last update result
+
+```csharp
+_ = btDevice.UpdateProperties();
+
+foreach( var p in btDevice.Properties ) {
+    ...
 ```
 
 ## Specific Device Properties
