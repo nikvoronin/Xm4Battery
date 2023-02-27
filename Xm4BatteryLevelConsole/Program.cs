@@ -6,7 +6,11 @@ if ( xm4result.IsFailed ) return;
 var xm4 = xm4result.Value;
 Console.WriteLine( "Press any key to stop polling..." );
 while ( !Console.KeyAvailable ) {
-    Console.Write( $"\r[{DateTime.Now:T}] Battery Level: {xm4.BatteryLevel}%" );
+    var status =
+        xm4.IsConnected ? $"{DateTime.Now:T}"
+        : "Disconnected / Last Known";
+
+    Console.Write( $"\r[{status}] Battery Level: {xm4.BatteryLevel}%                  " );
 
     Thread.Sleep( 1000 );
 }
