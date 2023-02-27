@@ -71,7 +71,7 @@ public class PnpEntity
             // Not found or wrong key
             return
                 Result.Fail(
-                    new Error( $"Exception when invoking method {GetDeviceProperties_MethodName}" )
+                    new Error( $"Entity not found or wrong key. Exception when invoke method {GetDeviceProperties_MethodName}" )
                     .CausedBy( e ) );
         }
 
@@ -110,7 +110,7 @@ public class PnpEntity
 
     private static Result<PnpEntity> EntityOrNone( string where )
     {
-        Result<PnpEntity> entity = Result.Fail( "No entity" );
+        Result<PnpEntity> entity = Result.Fail( $"No entity WHERE=`{where}`" );
 
         try {
             var searcher =
