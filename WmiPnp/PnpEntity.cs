@@ -76,7 +76,6 @@ public class PnpEntity
             _entity.InvokeMethod( GetDeviceProperties_MethodName, args );
         }
         catch ( ManagementException e ) {
-            // Not found or wrong key
             return
                 Result.Fail(
                     new Error( $"Entity not found or wrong key. Exception when invoke method {GetDeviceProperties_MethodName}" )
