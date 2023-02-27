@@ -4,11 +4,38 @@
 
 The primary goal is to get battery level of WH-1000XM4 headphones.
 
-- WMI
-- Win32_PnPEntity, PNPDeviceID
-- GetDeviceProperties
-- {104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2
-- ManagementBaseObject, ManagementObject, ManagementObjectCollection
+- [Specific Device Properties](#specific-device-properties)
+    - [Battery Level](#battery-level)
+    - [Is Connected](#is-connected)
+    - [Last Arrival Date](#last-arrival-date)
+    - [Last Removal Date](#last-removal-date)
+- [XM4 Specific Properties](#xm4-specific-properties)
+    - [DEVPKEY\_Device\_DevNodeStatus](#devpkey_device_devnodestatus)
+    - [DEVPKEY\_Bluetooth\_LastConnectedTime](#devpkey_bluetooth_lastconnectedtime)
+    - [?Last Connected Time](#last-connected-time)
+- [Biblio](#biblio)
+
+## How To Find PNP Device
+
+First we should know the `name` or `device id` of the device we will be working with or at least part of the device name.
+
+- ByFriendlyName ( exact a friendly name )
+- ByDeviceId ( exact a device id, like {GUID} pid )
+- LikeFriendlyName ( a part of a friendly name ) - returns a list of found devices: `IEnumerable<PnpEntity>` or empty list.
+
+All of methods produce instances of `PnpEntity` or `Result.Fail` if the given device was not found.
+
+### Result&lt;PnpEntity&gt;
+
+```csharp
+Result<PnpEntity> result =
+    PnpEntity.ByFriendlyName( "The Bluetooth Device #42" );
+
+if ( result.IsSuccess ) {
+    PnpEntity btDevice = result.Value;
+    ...
+}
+```
 
 ## Specific Device Properties
 
