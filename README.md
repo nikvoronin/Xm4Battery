@@ -17,7 +17,7 @@ The primary goal is to get battery level of WH-1000XM4 headphones.
 
 ## How To Find PNP Device
 
-First we should know the `name` or `device id` of the device we will be working with or at least part of the device name.
+First we should know the `name` or `device id` of the device we фку working with or at least a part of the device name.
 
 - ByFriendlyName ( exact a friendly name )
 - ByDeviceId ( exact a device id, like {GUID} pid )
@@ -33,6 +33,45 @@ Result<PnpEntity> result =
 
 if ( result.IsSuccess ) {
     PnpEntity btDevice = result.Value;
+    ...
+}
+```
+
+## Get Device Property
+
+### Specific Property
+
+```csharp
+...
+PnpEntity btDevice = result.Value;
+
+Result<DeviceProperty> propertyResult =
+    btDevice.GetDeviceProperty( PnpEntity.DeviceProperty_IsConnected );
+
+if ( propertyResult.IsSuccess ) {
+    DeviceProperty dp = propertyResult.Value;
+    
+    while ( !Console.KeyAvailable ) {
+        bool connected = (bool)(dp.Data ?? false);
+
+        Console.WriteLine(
+            $"{btDevice.Name} is {(connected ? "connected" : "disconnected")}" );
+
+        btDevice.UpdateProperty( dp );
+    }    
+}
+```
+
+### Get Em All
+
+```csharp
+...
+PnpEntity btDevice = result.Value;
+
+IEnumerable<DeviceProperty> properties = btDevice.UpdateProperties();
+
+foreach( var p in properties ) {
+    Console.WriteLine( $"{p.KeyName}: {p.Data}" );
     ...
 }
 ```
@@ -103,3 +142,4 @@ Contains the same data as the [DEVPKEY_Bluetooth_LastConnectedTime](#devpkey_blu
 
 - [Enumerating windows device](https://www.codeproject.com/articles/14412/enumerating-windows-device). Enumerating the device using the SetupDi* API provided with WinXP. CodeProject // 17 Jun 2006
 - [How to get the details for each enumerated device?](https://social.msdn.microsoft.com/Forums/en-US/65086709-cee8-4efa-a794-b32979abb0ea/how-to-get-the-details-for-each-enumerated-device?forum=vbgeneral) MSDN, Archived Forums 421-440, Visual Basic.
+- [Query battery level for WH-1000XM4 wireless headphones](https://gist.github.com/nikvoronin/e8fc8a1631dd0e851f1ab821d0e3cf01) by PowerShell script.
