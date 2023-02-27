@@ -50,9 +50,17 @@ public class PnpEntity
         return Properties;
     }
 
-    public DeviceProperty UpdateProperty( DeviceProperty deviceProperty )
-        => GetDeviceProperty( deviceProperty.Key )
-        .Value;
+    public Result<DeviceProperty> UpdateProperty( DeviceProperty deviceProperty )
+    {
+        var result = GetDeviceProperty( deviceProperty.Key );
+
+        deviceProperty.Data =
+            result.ValueOrDefault?.Data;
+
+        return
+            result.IsSuccess ? deviceProperty
+            : result;
+    }
 
     /// <summary>
     /// Get device property

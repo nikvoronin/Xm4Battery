@@ -122,7 +122,8 @@ Key = {83da6326-97a6-4088-9453-a1923f573b29} 103
 
 ## XM4 Specific Properties
 
-PnpEntity for xm4 has exact friendly name = `WH-1000XM4 Hands-Free AG`.
+- `WH-1000XM4 Hands-Free AG` - exact name for PnpEntity to get a **BATTERY LEVEL** of the xm4.
+- `WH-1000XM4` - exact name for PnpEntity to get a **STATE** of the xm4.
 
 ### DEVPKEY_Device_DevNodeStatus
 

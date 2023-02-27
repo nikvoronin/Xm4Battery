@@ -15,6 +15,10 @@ while ( !Console.KeyAvailable ) {
     Thread.Sleep( 1000 );
 }
 
+if ( !xm4.IsConnected ) {
+    Console.WriteLine( $"Last connected time: ???" );
+}
+
 //PnpEntity
 //    .ByFriendlyName(
 //        Xm4Entity.PnpEntity_FriendlyName )

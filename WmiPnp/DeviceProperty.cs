@@ -6,7 +6,7 @@ public class DeviceProperty
     public readonly string Key; // ex. {540B947E-8B40-45BC-A8A2-6A0B894CBDA2} 8
     public readonly string KeyName; // ex. DEVPKEY_Device_InLocalMachineContainer
     public readonly uint Type; // TODO use CimType if it is possible
-    public readonly object? Data;
+    public object? Data;
 
     public DeviceProperty(
         string deviceId,
