@@ -1,48 +1,46 @@
-﻿using LanguageExt;
-using WmiPnp;
-using WmiPnp.Xm4;
+﻿using WmiPnp.Xm4;
 
-Xm4Entity
-    .Create()
-    .IfSome( xm4 => {
-        Console.WriteLine( "Press any key to stop polling..." );
-        while ( !Console.KeyAvailable ) {
-            Console.Write( $"\r[{DateTime.Now:T}] Battery Level: {xm4.BatteryLevel}%" );
+var xm4result = Xm4Entity.Create();
+if ( xm4result.IsFailed ) return;
 
-            Thread.Sleep( 1000 );
-        }
-    } );
+var xm4 = xm4result.Value;
+Console.WriteLine( "Press any key to stop polling..." );
+while ( !Console.KeyAvailable ) {
+    Console.Write( $"\r[{DateTime.Now:T}] Battery Level: {xm4.BatteryLevel}%" );
+
+    Thread.Sleep( 1000 );
+}
 
 //PnpEntity
 //    .ByFriendlyName(
 //        Xm4Entity.PnpEntity_FriendlyName )
 //    .IfSome( e => ProcessEntity( e ) );
 
-void ProcessEntity( Some<PnpEntity> xm4entity )
-{
-    var xm4 = xm4entity.Value;
+//void ProcessEntity( Result<PnpEntity> xm4entity )
+//{
+//    var xm4 = xm4entity.Value;
 
-    Console.WriteLine( $"--> {xm4.Name}: {xm4.Description}" );
-    var pr = xm4.GetDeviceProperty( PnpEntity.DeviceProperty_BatteryLevel );
+//    Console.WriteLine( $"--> {xm4.Name}: {xm4.Description}" );
+//    var pr = xm4.GetDeviceProperty( PnpEntity.DeviceProperty_BatteryLevel );
 
-    foreach ( var p in xm4.UpdateProperties() )
-        Console.WriteLine( $"{p.KeyName}: {p.Data}" );
+//    foreach ( var p in xm4.UpdateProperties() )
+//        Console.WriteLine( $"{p.KeyName}: {p.Data}" );
 
-    Console.WriteLine();
+//    Console.WriteLine();
 
-    while ( !Console.KeyAvailable ) {
-        var level =
-            pr
-            .Some( dp => {
-                xm4.UpdateProperty( dp );
-                return dp.Data;
-            } )
-            .None( () => "[x] Key not found" );
+//    while ( !Console.KeyAvailable ) {
+//        var level =
+//            pr
+//            .Some( dp => {
+//                xm4.UpdateProperty( dp );
+//                return dp.Data;
+//            } )
+//            .None( () => "[x] Key not found" );
 
-        Console.Write( $"\rBattery Level: {level}%" );
+//        Console.Write( $"\rBattery Level: {level}%" );
 
-        Thread.Sleep( 1000 );
-    }
+//        Thread.Sleep( 1000 );
+//    }
 
-    Console.WriteLine();
-}
+//    Console.WriteLine();
+//}

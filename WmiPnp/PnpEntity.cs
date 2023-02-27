@@ -1,4 +1,4 @@
-﻿using LanguageExt;
+﻿using FluentResults;
 using System.Management;
 
 namespace WmiPnp;
@@ -14,7 +14,7 @@ public class PnpEntity
 
     private ManagementObject? _entity = null;
     public IEnumerable<DeviceProperty> Properties { get; private set; }
-        = List.empty<DeviceProperty>();
+        = Enumerable.Empty<DeviceProperty>();
 
     /// <summary>
     /// Update and store device properties in <see cref="Properties" /> field
@@ -45,22 +45,21 @@ public class PnpEntity
                     data: p.GetPropertyValue( DeviceProperty.Data_PropertyField ) 
                     )
                 )
-            ?? List.empty<DeviceProperty>();
+            ?? Enumerable.Empty<DeviceProperty>();
 
         return Properties;
     }
 
-    public Some<DeviceProperty> UpdateProperty( Some<DeviceProperty> deviceProperty )
-        => GetDeviceProperty( deviceProperty.Value.Key )
-        .Some( x => deviceProperty = x )
-        .None( () => deviceProperty );
+    public DeviceProperty UpdateProperty( DeviceProperty deviceProperty )
+        => GetDeviceProperty( deviceProperty.Key )
+        .Value;
 
     /// <summary>
     /// Get device property
     /// </summary>
     /// <param name="key">Device property --key or --keyName</param>
     /// <returns></returns>
-    public Option<DeviceProperty> GetDeviceProperty( string key )
+    public Result<DeviceProperty> GetDeviceProperty( string key )
     {
         ArgumentNullException.ThrowIfNull( _entity ); // TODO do not allow mandatory fields to be a null
 
@@ -68,13 +67,17 @@ public class PnpEntity
         try {
             _entity.InvokeMethod( GetDeviceProperties_MethodName, args );
         }
-        catch ( ManagementException ) {
+        catch ( ManagementException e ) {
             // Not found or wrong key
-            return Option<DeviceProperty>.None;
+            return
+                Result.Fail(
+                    new Error( $"Exception when invoking method {GetDeviceProperties_MethodName}" )
+                    .CausedBy( e ) );
         }
 
         ManagementBaseObject? ss = ( args[1] as ManagementBaseObject[] )?[0];
-        if ( ss is null ) return Option<DeviceProperty>.None;
+        if ( ss is null )
+            return Result.Fail( $"Method {GetDeviceProperties_MethodName} returns nothing." );
 
         var ps =
             new Dictionary<string, object>(
@@ -92,7 +95,7 @@ public class PnpEntity
             || dataValue is null;
 
         if ( noValidDataValue )
-            return Option<DeviceProperty>.None;
+            return Result.Fail( $"No valid data value: type={typeValue}; data:`{dataValue}`." );
 
         DeviceProperty dp =
             new(
@@ -105,9 +108,9 @@ public class PnpEntity
         return dp;
     }
 
-    private static Option<PnpEntity> EntityOrNone( string where )
+    private static Result<PnpEntity> EntityOrNone( string where )
     {
-        Option<PnpEntity> entity = Option<PnpEntity>.None;
+        Result<PnpEntity> entity = Result.Fail( "No entity" );
 
         try {
             var searcher =
@@ -136,7 +139,7 @@ public class PnpEntity
     /// </summary>
     /// <param name="name">The name or part of its for entities</param>
     /// <returns>PNP entity or None</returns>
-    public static Option<PnpEntity> ByFriendlyName( string name )
+    public static Result<PnpEntity> ByFriendlyName( string name )
         => EntityOrNone( where: $"{Name_FieldName}='{name}'" );
 
     /// <summary>
@@ -145,7 +148,7 @@ public class PnpEntity
     /// <param name="id">DeviceID or PNPDeviceID</param>
     /// <param name="duplicateSlashes">Duplicate slashes by default, so '\' becomes '\\'.</param>
     /// <returns>PnpEntity or None</returns>
-    public static Option<PnpEntity> ByDeviceId( string id, bool duplicateSlashes = true )
+    public static Result<PnpEntity> ByDeviceId( string id, bool duplicateSlashes = true )
     {
         if ( duplicateSlashes )
             id = id.Replace( "\\", "\\\\" );
@@ -162,7 +165,7 @@ public class PnpEntity
     /// <returns>List of found entities or empty list</returns>
     public static IEnumerable<PnpEntity> LikeFriendlyName( string name )
     {
-        IEnumerable<PnpEntity> entities = List.empty<PnpEntity>();
+        IEnumerable<PnpEntity> entities = Enumerable.Empty<PnpEntity>();
 
         try {
             var searcher =

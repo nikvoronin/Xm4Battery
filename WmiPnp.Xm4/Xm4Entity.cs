@@ -1,4 +1,4 @@
-﻿using LanguageExt;
+﻿using FluentResults;
 
 namespace WmiPnp.Xm4
 {
@@ -13,25 +13,24 @@ namespace WmiPnp.Xm4
         {
             _xm4 = xm4;
             _batteryLevel =
-                new( () =>
-                    _xm4.GetDeviceProperty( PnpEntity.DeviceProperty_BatteryLevel )
-                    .Some( dp => dp )
-                    .None( () => throw new InvalidOperationException( "Can not call battery level function" ) ) );
+                new ( _xm4.GetDeviceProperty( PnpEntity.DeviceProperty_BatteryLevel ).Value );
         }
 
-        public static Option<Xm4Entity> Create()
-            => PnpEntity
-            .ByFriendlyName( PnpEntity_FriendlyName )
-            .Some( xm4 => (Option<Xm4Entity>)new Xm4Entity( xm4 ) )
-            .None( Option<Xm4Entity>.None );
+        public static Result<Xm4Entity> Create()
+            => CreateBy( PnpEntity_FriendlyName );
 
-        public static Option<Xm4Entity> CreateBy( string friendlyNameExact )
-            => PnpEntity
-            .ByFriendlyName( friendlyNameExact ?? PnpEntity_FriendlyName )
-            .Some( xm4 => (Option<Xm4Entity>)new Xm4Entity( xm4 ) )
-            .None( Option<Xm4Entity>.None );
+        public static Result<Xm4Entity> CreateBy( string friendlyNameExact )
+        {
+            var result =
+                PnpEntity
+                .ByFriendlyName( friendlyNameExact ?? PnpEntity_FriendlyName );
 
-        public static Option<Xm4Entity> CreateUnsafe( Some<PnpEntity> e )
+            return
+                result.IsSuccess ? new Xm4Entity( result.Value )
+                : Result.Fail( $"Can not create `{PnpEntity_FriendlyName}` entity" );
+        }
+
+        public static Result<Xm4Entity> CreateUnsafe( PnpEntity e )
             => new Xm4Entity( e );
 
         private DateTimeOffset _batteryLevel_lastUpdate = DateTimeOffset.MinValue;
