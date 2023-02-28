@@ -222,7 +222,10 @@ public class PnpEntity
         = "{83DA6326-97A6-4088-9453-A1923F573B29} 15";
 
     public const string DEVPKEY_Bluetooth_LastConnectedTime
+        = "DEVPKEY_Bluetooth_LastConnectedTime";
+    public const string DeviceProperty_LastConnectedTime
         = "{2BD67D8B-8BEB-48D5-87E0-6CDA3428040A} 11";
+
     public const string DEVPKEY_Bluetooth_LastConnectedTime2
         = "{2BD67D8B-8BEB-48D5-87E0-6CDA3428040A} 5";
 }
