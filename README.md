@@ -4,23 +4,68 @@
 
 The primary goal is to get battery level of WH-1000XM4 headphones.
 
-- [How To Find PNP Device](#how-to-find-pnp-device)
-  - [PnpEntity](#pnpentity)
-- [Device Properties](#device-properties)
-  - [Get / Update Specific Property](#get--update-specific-property)
-  - [Get Em All](#get-em-all)
+- [Xm4Entity](#xm4entity)
+  - [Create XM4 Instance](#create-xm4-instance)
+  - [Is Connected or Not?](#is-connected-or-not)
+  - [What Is The Last Connected Time?](#what-is-the-last-connected-time)
+  - [Headphones Battery Level](#headphones-battery-level)
+- [PnpEntity](#pnpentity)
+  - [How To Find PNP Device?](#how-to-find-pnp-device)
+  - [Get / Update Specific Device Property](#get--update-specific-device-property)
+  - [Enumerate Device Properties](#enumerate-device-properties)
 - [Specific Device Properties](#specific-device-properties)
   - [Battery Level](#battery-level)
   - [Is Connected](#is-connected)
   - [Last Arrival Date](#last-arrival-date)
   - [Last Removal Date](#last-removal-date)
-- [XM4 Specific Properties](#xm4-specific-properties)
+- [XM4 Related Properties](#xm4-related-properties)
   - [DEVPKEY\_Device\_DevNodeStatus](#devpkey_device_devnodestatus)
   - [DEVPKEY\_Bluetooth\_LastConnectedTime](#devpkey_bluetooth_lastconnectedtime)
   - [?Last Connected Time](#last-connected-time)
-- [Biblio](#biblio)
+- [Links](#links)
 
-## How To Find PNP Device
+## Xm4Entity
+
+### Create XM4 Instance
+
+```csharp
+var xm4result = Xm4Entity.Create();
+if ( xm4result.IsFailed ) return; // headphones did not found at all
+
+Xm4Entity _xm4 = xm4result.Value;
+```
+
+### Is Connected or Not?
+
+```csharp
+...
+bool connected = _xm4.IsConnected;
+```
+
+### What Is The Last Connected Time?
+
+```csharp
+Result\<DateTime\> dt = _xm4.LastConnectedTime;
+```
+
+```csharp
+if ( !_xm4.IsConnected )
+    Console.WriteLine( $"Last connected time: {_xm4.LastConnectedTime.Value}.\n" );
+else
+    var it_is_true = _xm4.LastConnectedTime.IsFailed; // can not get the last connection time
+```
+
+We can not get the last connection time if headphones is online and connected.
+
+### Headphones Battery Level
+
+Can get actual battery level if connected or last known one (if not connected).
+
+```csharp
+int level = _xm4.BatteryLevel;
+```
+
+## PnpEntity
 
 First we should know the `name` or `device id` of the device we фку working with or at least a part of the device name.
 
@@ -30,7 +75,7 @@ First we should know the `name` or `device id` of the device we фку working w
 
 All of methods produce instances of `PnpEntity` or `Result.Fail` if the given device was not found.
 
-### PnpEntity
+### How To Find PNP Device?
 
 ```csharp
 Result<PnpEntity> result =
@@ -42,9 +87,7 @@ if ( result.IsSuccess ) {
 }
 ```
 
-## Device Properties
-
-### Get / Update Specific Property
+### Get / Update Specific Device Property
 
 ```csharp
 ...
@@ -67,7 +110,7 @@ if ( propertyResult.IsSuccess ) {
 }
 ```
 
-### Get Em All
+### Enumerate Device Properties
 
 ```csharp
 ...
@@ -120,7 +163,7 @@ Data = 20230131090906.098359+180 → 2023 Jan 31, 9:09:06 GMT+3
 
 Key = {83da6326-97a6-4088-9453-a1923f573b29} 103
 
-## XM4 Specific Properties
+## XM4 Related Properties
 
 - `WH-1000XM4 Hands-Free AG` - exact name for PnpEntity to get a **BATTERY LEVEL** --only-- of the xm4.
 - `WH-1000XM4` - exact name for PnpEntity to get a **STATE** of the xm4.
@@ -153,7 +196,7 @@ Contains the same data as the [DEVPKEY_Bluetooth_LastConnectedTime](#devpkey_blu
 - Key = `{2BD67D8B-8BEB-48D5-87E0-6CDA3428040A} 5`
 - Type = 16 (FileTime)
 
-## Biblio
+## Links
 
 - [Enumerating windows device](https://www.codeproject.com/articles/14412/enumerating-windows-device). Enumerating the device using the SetupDi* API provided with WinXP. CodeProject // 17 Jun 2006
 - [How to get the details for each enumerated device?](https://social.msdn.microsoft.com/Forums/en-US/65086709-cee8-4efa-a794-b32979abb0ea/how-to-get-the-details-for-each-enumerated-device?forum=vbgeneral) MSDN, Archived Forums 421-440, Visual Basic.

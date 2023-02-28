@@ -3,7 +3,7 @@
 var xm4result = Xm4Entity.Create();
 if ( xm4result.IsFailed ) return;
 
-var xm4 = xm4result.Value;
+Xm4Entity xm4 = xm4result.Value;
 if ( !xm4.IsConnected )
     Console.WriteLine( $"Last connected time: {xm4.LastConnectedTime.Value}.\n" );
 
