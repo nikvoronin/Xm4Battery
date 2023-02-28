@@ -1,4 +1,5 @@
 ﻿using FluentResults;
+using System.Management;
 
 namespace WmiPnp.Xm4
 {
@@ -94,11 +95,13 @@ namespace WmiPnp.Xm4
                     _xm4.GetDeviceProperty(
                         PnpEntity.DeviceProperty_LastConnectedTime );
 
-                if ( dtResult.IsSuccess )
-                    return DateTime.Parse( dtResult.Value.Data as string );
-
                 return
-                    Result.Fail( "Can not find `LastConnectedTime` property. It is possible the device is still connected." );
+                    dtResult.IsSuccess
+                    ? ManagementDateTimeConverter
+                        .ToDateTime( dtResult.Value.Data as string )
+                        .ToUniversalTime()
+                    : Result.Fail(
+                        "Can not find `LastConnectedTime` property. It is possible the device is still connected." );
             }
         }
 
