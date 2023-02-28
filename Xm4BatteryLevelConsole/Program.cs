@@ -16,5 +16,5 @@ while ( !Console.KeyAvailable ) {
 }
 
 if ( !xm4.IsConnected ) {
-    Console.WriteLine( $"\nLast connected time: ???" );
+    Console.WriteLine( $"\nLast connected time: {xm4.LastConnectedTime}" );
 }

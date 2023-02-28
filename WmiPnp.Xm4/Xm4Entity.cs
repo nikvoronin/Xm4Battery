@@ -88,6 +88,20 @@ namespace WmiPnp.Xm4
             }
         }
 
+        public Result<DateTime> LastConnectedTime {
+            get {
+                var dtResult =
+                    _xm4.GetDeviceProperty(
+                        PnpEntity.DeviceProperty_LastConnectedTime );
+
+                if ( dtResult.IsSuccess )
+                    return DateTime.Parse( dtResult.Value.Data as string );
+
+                return
+                    Result.Fail( "Can not find `LastConnectedTime` property. It is possible the device is still connected." );
+            }
+        }
+
         public const string HandsFree_PnpEntity_FriendlyName
             = "WH-1000XM4 Hands-Free AG"; // Battery level related
         public const string Headphones_PnpEntity_FriendlyName
