@@ -45,7 +45,7 @@ bool connected = _xm4.IsConnected;
 ### What Is The Last Connected Time?
 
 ```csharp
-Result\<DateTime\> dt = _xm4.LastConnectedTime;
+Result<DateTime> dt = _xm4.LastConnectedTime;
 ```
 
 ```csharp
@@ -59,7 +59,7 @@ We can not get the last connection time if headphones is online and connected.
 
 ### Headphones Battery Level
 
-Can get actual battery level if connected or last known one (if not connected).
+Can get actual battery level if headphones are connected or the last known level (headphones are not connected).
 
 ```csharp
 int level = _xm4.BatteryLevel;
