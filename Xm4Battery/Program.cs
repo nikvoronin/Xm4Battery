@@ -94,7 +94,8 @@ namespace Xm4Battery
 
             var brush =
                 level switch {
-                    > 0 and <= 20 => Brushes.Red,
+                    > 0 and <= 10 => Brushes.Red,
+                    > 0 and <= 20 => Brushes.Orange,
                     > 0 and <= 40 => Brushes.Yellow,
                     _ => Brushes.White
                 };
