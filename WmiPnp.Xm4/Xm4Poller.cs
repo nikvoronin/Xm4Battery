@@ -20,7 +20,7 @@
 
         public void Start()
         {
-            if ( _cts is null ) return;
+            if ( _cts is not null ) return;
 
             _cts = new();
             Thread thread = new( ThreadWorker );
