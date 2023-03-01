@@ -118,7 +118,7 @@ namespace Xm4Battery
 
         private static void Xm4state_BatteryLevelChanged( object? sender, int level )
         {
-            _notifyIcon.Icon = CreateLevelIcon( 100 );
+            _notifyIcon.Icon = CreateLevelIcon( level );
             _notifyIcon.Text = $"{AppName} {level}%";
         }
 
