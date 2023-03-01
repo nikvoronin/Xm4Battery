@@ -2,7 +2,7 @@
 
 > WMI = Windows Management Interface.
 
-The primary goal is to get battery level of WH-1000XM4 headphones.
+The primary project goal is to get battery level of WH-1000XM4 headphones.
 
 - [Xm4Entity](#xm4entity)
   - [Create XM4 Instance](#create-xm4-instance)
