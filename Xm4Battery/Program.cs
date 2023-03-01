@@ -84,7 +84,7 @@ namespace Xm4Battery
                 level switch {
                     100 => "F", // Full
                     > 0 and < 100 => level.ToString()[..^1],
-                    _ => "x" // disconnected
+                    _ => "X" // disconnected
                 };
 
             var sizeS =
@@ -97,6 +97,7 @@ namespace Xm4Battery
                     > 0 and <= 10 => Brushes.Red,
                     > 0 and <= 20 => Brushes.Orange,
                     > 0 and <= 40 => Brushes.Yellow,
+                    <= 0 => Brushes.Gray,
                     _ => Brushes.White
                 };
 
@@ -119,14 +120,20 @@ namespace Xm4Battery
 
         private static void Xm4state_BatteryLevelChanged( object? sender, int level )
         {
-            _notifyIcon.Icon = CreateLevelIcon( level );
+            var xm4 = sender as Xm4Entity;
+            
+            var connected = xm4?.IsConnected ?? false;
+            if (connected)
+                _notifyIcon.Icon = CreateLevelIcon( level );
+
             _notifyIcon.Text = $"{AppName} {level}%";
         }
 
         private static void Xm4state_ConnectionChanged( object? sender, bool connected )
         {
-            if ( !connected )
-                _notifyIcon.Icon = _disconnectIcon;
+            _notifyIcon.Icon =
+                connected ? CreateLevelIcon( ( sender as Xm4Entity )!.BatteryLevel )
+                : _disconnectIcon;
         }
 
         const string AppName = "XM4 Battery Level";
