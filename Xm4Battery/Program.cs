@@ -121,19 +121,31 @@ namespace Xm4Battery
         private static void Xm4state_BatteryLevelChanged( object? sender, int level )
         {
             var xm4 = sender as Xm4Entity;
-            
-            var connected = xm4?.IsConnected ?? false;
-            if (connected)
-                _notifyIcon.Icon = CreateLevelIcon( level );
 
-            _notifyIcon.Text = $"{AppName} {level}%";
+            var lastConnectedTime = string.Empty;
+            var connected = xm4?.IsConnected ?? false;
+            if ( connected )
+                _notifyIcon.Icon = CreateLevelIcon( level );
+            else
+                lastConnectedTime = $"\n{xm4!.LastConnectedTime.Value:F}";
+
+            _notifyIcon.Text = $"{AppName} {level}%{lastConnectedTime}";
         }
 
         private static void Xm4state_ConnectionChanged( object? sender, bool connected )
         {
+            var xm4 = sender as Xm4Entity;
+            var level = xm4?.BatteryLevel ?? 0;
+
             _notifyIcon.Icon =
-                connected ? CreateLevelIcon( ( sender as Xm4Entity )!.BatteryLevel )
+                connected ? CreateLevelIcon( level )
                 : _disconnectIcon;
+
+            var lastConnectedTime =
+                connected ? string.Empty
+                : $"\n{xm4!.LastConnectedTime.Value:F}";
+
+            _notifyIcon.Text = $"{AppName} {level}%{lastConnectedTime}";
         }
 
         const string AppName = "XM4 Battery Level";
