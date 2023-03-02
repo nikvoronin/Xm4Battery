@@ -4,6 +4,11 @@
 
 The primary project goal is to get battery level of WH-1000XM4 headphones.
 
+![xm4battery-trayicon-230303](https://user-images.githubusercontent.com/11328666/222558052-b05eacab-6a9a-4d45-8d23-e94b1f33f9a7.jpg)
+
+- [Xm4Battery](#xm4battery)
+  - [Interface](#interface)
+  - [Tray Icon Mods](#tray-icon-mods)
 - [Xm4Entity](#xm4entity)
   - [Create XM4 Instance](#create-xm4-instance)
   - [Is Connected or Not?](#is-connected-or-not)
@@ -23,6 +28,48 @@ The primary project goal is to get battery level of WH-1000XM4 headphones.
   - [DEVPKEY\_Bluetooth\_LastConnectedTime](#devpkey_bluetooth_lastconnectedtime)
   - [?Last Connected Time](#last-connected-time)
 - [Links](#links)
+
+## Xm4Battery
+
+WinForms window-less trayicon application. Ready to run app is available at the [Latest Release](https://github.com/nikvoronin/WmiPnp/releases/latest) section.
+
+System requirements: Windows 10 x64, .NET 6.0.
+
+### Interface
+
+- F - 100% or fully charged
+- 9..5 - 90..50%
+- 4..3 yellow - 40..30%
+- 2 orange - 20%
+- 1 red - 10%
+- X - headphones disconnected, gray background. Tooltip displays last known battery level and the last connected date/time.
+
+`Right Mouse Button` opens context menu:
+
+- About - lead to this page.
+- Quit - close and unload application at all.
+
+### Tray Icon Mods
+
+Background colors defined at the `CreateLevelIcon` method:
+
+```csharp
+var brush =
+    level switch {
+        > 0 and <= 10 => Brushes.Red,
+        > 0 and <= 20 => Brushes.Orange,
+        > 0 and <= 40 => Brushes.Yellow,
+        <= 0 => Brushes.Gray,
+        _ => Brushes.White
+    };
+```
+
+Font for icon symbols/digits:
+
+```csharp
+static readonly Font _notifyIconFont
+    = new ( "Segoe UI", 16, FontStyle.Regular );
+```
 
 ## Xm4Entity
 
