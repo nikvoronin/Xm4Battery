@@ -3,7 +3,11 @@
     public class Xm4Poller : IDisposable
     {
         // TODO: create options with public access
-        private static readonly TimeSpan PollInterval = TimeSpan.FromSeconds( 1 );
+        private static readonly TimeSpan PollInterval
+            = TimeSpan.FromSeconds( 1 );
+        private static readonly TimeSpan BatteryLevel_UpdateInterval
+            = TimeSpan.FromMinutes( 5 );
+
 
         private readonly Xm4Entity _xm4;
         private CancellationTokenSource? _cts = null;
@@ -34,18 +38,9 @@
 
             int batteryLevel = -1;
             bool connection = false;
+            DateTimeOffset lastUpdatedBatteryLevel = DateTimeOffset.MinValue;
+
             while ( !token.IsCancellationRequested ) {
-                var currentLevel = _xm4.BatteryLevel;
-
-                var batteryLevelChanged =
-                    batteryLevel != currentLevel;
-                if ( batteryLevelChanged )
-                    OnBatteryLevelChanged( currentLevel );
-
-                batteryLevel = currentLevel;
-
-                if ( token.IsCancellationRequested ) break;
-
                 var currentConnection = _xm4.IsConnected;
 
                 var connectionChanged =
@@ -54,6 +49,24 @@
                     OnConnectionChanged( currentConnection );
 
                 connection = currentConnection;
+
+                if ( token.IsCancellationRequested ) break;
+
+                var updateBatteryLevel =
+                    ( DateTimeOffset.UtcNow - lastUpdatedBatteryLevel ) > BatteryLevel_UpdateInterval
+                    || batteryLevel < 1
+                    || connectionChanged;
+
+                if ( updateBatteryLevel ) {
+                    var currentLevel = _xm4.BatteryLevel;
+
+                    if ( batteryLevel != currentLevel )
+                        OnBatteryLevelChanged( currentLevel );
+
+                    batteryLevel = currentLevel;
+
+                    lastUpdatedBatteryLevel = DateTimeOffset.UtcNow;
+                }
 
                 Thread.Sleep( PollInterval );
             }

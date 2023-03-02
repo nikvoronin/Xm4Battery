@@ -8,9 +8,6 @@ namespace WmiPnp.Xm4
         private readonly PnpEntity _xm4;
         private readonly PnpEntity _handsFree;
 
-        // TODO: create options with public access
-        private static readonly TimeSpan BatteryLevel_UpdateInterval = TimeSpan.FromMinutes( 5 );
-
         private Xm4Entity( PnpEntity handsFree, PnpEntity xm4 )
         {
             _handsFree = handsFree;
@@ -57,25 +54,14 @@ namespace WmiPnp.Xm4
                 batteryEntity,
                 stateEntity );
 
-        private DateTimeOffset _batteryLevel_lastUpdate = DateTimeOffset.MinValue;
-        private byte _batteryLevelCached = 0;
         public int BatteryLevel {
             get {
-                var update =
-                    ( DateTimeOffset.UtcNow - _batteryLevel_lastUpdate ) > BatteryLevel_UpdateInterval
-                    || _batteryLevelCached < 1;
+                var batteryLevel =
+                    _handsFree.GetDeviceProperty(
+                        PnpEntity.DeviceProperty_BatteryLevel )
+                    .Value;
 
-                if ( update ) {
-                    var batteryLevel =
-                        _handsFree.GetDeviceProperty(
-                            PnpEntity.DeviceProperty_BatteryLevel )
-                        .Value;
-
-                    _batteryLevelCached = (byte)( batteryLevel.Data ?? 0 );
-                    _batteryLevel_lastUpdate = DateTimeOffset.UtcNow;
-                }
-
-                return _batteryLevelCached;
+                return (byte)( batteryLevel.Data ?? 0 );
             }
         }
 
