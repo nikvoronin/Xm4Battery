@@ -114,7 +114,7 @@ int level = _xm4.BatteryLevel;
 
 ## PnpEntity
 
-First we should know the `name` or `device id` of the device we фку working with or at least a part of the device name.
+First we should know the `name` or `device id` of the device we are working with or at least a part of the device name.
 
 - ByFriendlyName ( exact a friendly name )
 - ByDeviceId ( exact a device id, like {GUID} pid )
