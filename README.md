@@ -2,7 +2,7 @@
 
 > WMI = Windows Management Interface.
 
-The primary project goal is to get battery level of WH-1000XM4 headphones.
+The primary project goal is to get battery level of `WH-1000XM4` headphones.
 
 ![xm4battery-trayicon-230303](https://user-images.githubusercontent.com/11328666/222558052-b05eacab-6a9a-4d45-8d23-e94b1f33f9a7.jpg)
 
@@ -37,12 +37,12 @@ System requirements: Windows 10 x64, .NET 6.0.
 
 ### Interface
 
-- F - 100% or fully charged
-- 9..5 - 90..50%
-- 4..3 yellow - 40..30%
-- 2 orange - 20%
-- 1 red - 10%
-- X - headphones disconnected, gray background. Tooltip displays last known battery level and the last connected date/time.
+- **F** - 100% or fully charged
+- **9..5** - 90..50%
+- **4..3** yellow - 40..30%
+- **2** orange - 20%
+- **1** red - 10%
+- **X** - headphones disconnected, gray background. Tooltip displays last known battery level and the last connected date/time.
 
 `Right Mouse Button` opens context menu:
 
@@ -51,7 +51,7 @@ System requirements: Windows 10 x64, .NET 6.0.
 
 ### Tray Icon Mods
 
-Background colors defined at the `CreateLevelIcon` method:
+Background colors defined at the `CreateIconForLevel` method:
 
 ```csharp
 var brush =
@@ -69,6 +69,47 @@ Font for icon symbols/digits:
 ```csharp
 static readonly Font _notifyIconFont
     = new ( "Segoe UI", 16, FontStyle.Regular );
+```
+
+## Xm4Poller
+
+Automatically updates a state of xm4 headphones.
+
+### Start-Stop Polling
+
+```csharp
+var xm4result = Xm4Entity.Create();
+if ( xm4result.IsFailed ) return 1;
+
+Xm4Entity xm4 = xm4result.Value;
+
+Xm4Poller statePoll = new ( xm4 );
+statePoll.ConnectionChanged += Xm4state_ConnectionChanged;
+statePoll.BatteryLevelChanged += Xm4state_BatteryLevelChanged;
+statePoll.Start();
+
+Application.Run(); // run WinForms app, for ex
+
+// application closed, quit
+statePoll.Stop();
+```
+
+### Connection Changed
+
+```csharp
+private static void Xm4state_ConnectionChanged( object? sender, bool connected )
+{
+    var xm4 = sender as Xm4Entity;
+    ...
+```
+
+### Battery Level Changed
+
+```csharp
+private static void Xm4state_BatteryLevelChanged( object? sender, int batteryLevel )
+{
+    var xm4 = sender as Xm4Entity;
+    ...
 ```
 
 ## Xm4Entity
@@ -102,11 +143,11 @@ else
     var it_is_true = _xm4.LastConnectedTime.IsFailed; // can not get the last connection time
 ```
 
-We can not get the last connection time if headphones is online and connected.
+We can not get the last connected time if headphones is online and connected.
 
 ### Headphones Battery Level
 
-Can get actual battery level if headphones are connected or the last known level (headphones are not connected).
+Can get the actual battery level if headphones are connected OR the last known level if headphones are not connected.
 
 ```csharp
 int level = _xm4.BatteryLevel;
@@ -114,11 +155,11 @@ int level = _xm4.BatteryLevel;
 
 ## PnpEntity
 
-First we should know the `name` or `device id` of the device we фку working with or at least a part of the device name.
+First we should know the `name` or `device id` of the device we are working with or at least a part of the device name.
 
 - ByFriendlyName ( exact a friendly name )
 - ByDeviceId ( exact a device id, like {GUID} pid )
-- LikeFriendlyName ( a part of a friendly name ) - returns a list of found devices: `IEnumerable<PnpEntity>` or empty list.
+- LikeFriendlyName ( a part of a friendly name ) - returns a list of founded devices `IEnumerable<PnpEntity>` or empty list otherwise.
 
 All of methods produce instances of `PnpEntity` or `Result.Fail` if the given device was not found.
 
@@ -128,7 +169,7 @@ All of methods produce instances of `PnpEntity` or `Result.Fail` if the given de
 Result<PnpEntity> result =
     PnpEntity.ByFriendlyName( "The Bluetooth Device #42" );
 
-if ( result.IsSuccess ) {
+if ( result.IsSuccess ) { // device found
     PnpEntity btDevice = result.Value;
     ...
 }
@@ -171,7 +212,7 @@ foreach( var p in properties ) {
 }
 ```
 
-The same but with a cached list of the last update result
+The same but with a cached list of the last updated properties
 
 ```csharp
 _ = btDevice.UpdateProperties();
@@ -212,7 +253,7 @@ Key = {83da6326-97a6-4088-9453-a1923f573b29} 103
 
 ## XM4 Related Properties
 
-- `WH-1000XM4 Hands-Free AG` - exact name for PnpEntity to get a **BATTERY LEVEL** --only-- of the xm4.
+- `WH-1000XM4 Hands-Free AG` - exact name for PnpEntity to get a **BATTERY LEVEL** only.
 - `WH-1000XM4` - exact name for PnpEntity to get a **STATE** of the xm4.
 
 ### DEVPKEY_Device_DevNodeStatus
@@ -228,7 +269,7 @@ Key = {83da6326-97a6-4088-9453-a1923f573b29} 103
 
 ### DEVPKEY_Bluetooth_LastConnectedTime
 
-This is only property to retrieve a last connection date-time of xm4. This property does not present when headphones are connected.
+This is only property to retrieve a last connection date-time of xm4. This property presents only when headphones are DISconnected.
 
 - Key = `{2BD67D8B-8BEB-48D5-87E0-6CDA3428040A} 11`
 - KeyName = DEVPKEY_Bluetooth_LastConnectedTime
