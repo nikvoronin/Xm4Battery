@@ -6,19 +6,19 @@ The primary project goal is to get battery level of `WH-1000XM4` headphones.
 
 ![xm4battery-trayicon-230303](https://user-images.githubusercontent.com/11328666/222558052-b05eacab-6a9a-4d45-8d23-e94b1f33f9a7.jpg)
 
-- [Xm4Battery](#xm4battery)
+- [Xm4Battery Application](#xm4battery-application)
   - [Interface](#interface)
   - [Tray Icon Mods](#tray-icon-mods)
-- [Xm4Poller](#xm4poller)
+- [Xm4Poller Class](#xm4poller-class)
   - [Start-Stop Polling](#start-stop-polling)
   - [Connection Changed](#connection-changed)
   - [Battery Level Changed](#battery-level-changed)
-- [Xm4Entity](#xm4entity)
+- [Xm4Entity Class](#xm4entity-class)
   - [Create XM4 Instance](#create-xm4-instance)
   - [Is Connected or Not?](#is-connected-or-not)
   - [What Is The Last Connected Time?](#what-is-the-last-connected-time)
   - [Headphones Battery Level](#headphones-battery-level)
-- [PnpEntity](#pnpentity)
+- [PnpEntity Class](#pnpentity-class)
   - [How To Find PNP Device?](#how-to-find-pnp-device)
   - [Get / Update Specific Device Property](#get--update-specific-device-property)
   - [Enumerate Device Properties](#enumerate-device-properties)
@@ -33,7 +33,7 @@ The primary project goal is to get battery level of `WH-1000XM4` headphones.
   - [?Last Connected Time](#last-connected-time)
 - [Links](#links)
 
-## Xm4Battery
+## Xm4Battery Application
 
 WinForms window-less trayicon application. Ready to run app is available at the [Latest Release](https://github.com/nikvoronin/WmiPnp/releases/latest) section.
 
@@ -75,7 +75,7 @@ static readonly Font _notifyIconFont
     = new ( "Segoe UI", 16, FontStyle.Regular );
 ```
 
-## Xm4Poller
+## Xm4Poller Class
 
 Automatically updates a state of xm4 headphones.
 
@@ -116,7 +116,7 @@ private static void Xm4state_BatteryLevelChanged( object? sender, int batteryLev
     ...
 ```
 
-## Xm4Entity
+## Xm4Entity Class
 
 ### Create XM4 Instance
 
@@ -157,7 +157,7 @@ Can get the actual battery level if headphones are connected OR the last known l
 int level = _xm4.BatteryLevel;
 ```
 
-## PnpEntity
+## PnpEntity Class
 
 First we should know the `name` or `device id` of the device we are working with or at least a part of the device name.
 
