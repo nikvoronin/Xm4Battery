@@ -72,10 +72,7 @@
             }
         }
 
-        public void Stop()
-        {
-            _cts?.Cancel();
-        }
+        public void Stop() => _cts?.Cancel();
 
         private void OnConnectionChanged( bool connected )
         {
