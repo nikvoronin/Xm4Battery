@@ -6,9 +6,7 @@ namespace Xm4Battery
     internal static class Program
     {
 #pragma warning disable CS8618
-        static Xm4Poller _xm4state;
-        static NotifyIcon _notifyIcon;
-        static Icon _disconnectIcon;
+        static NotifyIcon _notifyIconControl;
 #pragma warning restore CS8618
 
         [STAThread]
@@ -19,26 +17,24 @@ namespace Xm4Battery
             var xm4result = Xm4Entity.Create();
             if ( xm4result.IsFailed ) return 1;
 
-            _disconnectIcon = CreateLevelIcon();
-
-            _notifyIcon = new() {
+            _notifyIconControl = new() {
                 Text = AppName,
                 Visible = true,
-                Icon = _disconnectIcon,
+                Icon = CreateIconForLevel( DisconnectedLevel ),
                 ContextMenuStrip = CreateContextMenu(),
             };
 
             Xm4Entity xm4 = xm4result.Value;
-            _xm4state = new Xm4Poller( xm4 );
-            _xm4state.ConnectionChanged += Xm4state_ConnectionChanged;
-            _xm4state.BatteryLevelChanged += Xm4state_BatteryLevelChanged;
-            _xm4state.Start();
+            Xm4Poller statePoll = new ( xm4 );
+            statePoll.ConnectionChanged += Xm4state_ConnectionChanged;
+            statePoll.BatteryLevelChanged += Xm4state_BatteryLevelChanged;
+            statePoll.Start();
 
             Application.Run();
 
-            _notifyIcon.Visible = false;
-            _notifyIcon.Dispose();
-            _xm4state.Stop();
+            _notifyIconControl.Visible = false;
+            _notifyIconControl.Dispose();
+            statePoll.Stop();
             return 0;
         }
 
@@ -69,10 +65,10 @@ namespace Xm4Battery
         static readonly Font _notifyIconFont
             = new ( "Segoe UI", 16, FontStyle.Regular );
 
-        private static Icon CreateLevelIcon( int level = -1 )
+        private static Icon CreateIconForLevel( int level )
         {
-            int iw = 32;
-            int ih = 32;
+            const int iw = NotifyIconDefault_WidthPx;
+            const int ih = NotifyIconDefault_HeightPx;
 
             using Bitmap icoBitmap = new( iw, ih );
             using var g = Graphics.FromImage( icoBitmap );
@@ -80,17 +76,7 @@ namespace Xm4Battery
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            var iconText =
-                level switch {
-                    100 => "F", // Full
-                    > 0 and < 100 => level.ToString()[..^1],
-                    _ => "X" // disconnected
-                };
-
-            var sizeS =
-                g.MeasureString(
-                    iconText,
-                    _notifyIconFont );
+            // icon background
 
             var brush =
                 level switch {
@@ -104,6 +90,20 @@ namespace Xm4Battery
             g.FillRectangle(
                 brush,
                 1, 1, iw - 2, ih - 2 );
+
+            // icon text: battery level or status
+
+            var iconText =
+                level switch {
+                    100 => "F", // Fully charged
+                    > 0 and < 100 => level.ToString()[..^1],
+                    _ => "X" // Disconnected
+                };
+
+            var sizeS =
+                g.MeasureString(
+                    iconText,
+                    _notifyIconFont );
 
             g.DrawString(
                 iconText
@@ -129,7 +129,7 @@ namespace Xm4Battery
         private static void Xm4state_ConnectionChanged( object? sender, bool connected )
         {
             var xm4 = sender as Xm4Entity;
-            var level = xm4?.BatteryLevel ?? 0;
+            var level = xm4?.BatteryLevel ?? DisconnectedLevel;
 
             UpdateNotifyIcon( xm4!, connected, level );
         }
@@ -139,17 +139,21 @@ namespace Xm4Battery
             bool connected,
             int level )
         {
-            _notifyIcon.Icon =
-                connected ? CreateLevelIcon( level )
-                : _disconnectIcon;
+            _notifyIconControl.Icon =
+                CreateIconForLevel( 
+                    connected ? level 
+                    : DisconnectedLevel );
 
             var at =
                 connected ? string.Empty
                 : $"\n{xm4!.LastConnectedTime.Value:F}";
 
-            _notifyIcon.Text = $"{AppName} {level}%{at}";
+            _notifyIconControl.Text = $"{AppName} {level}%{at}";
         }
 
+        const int NotifyIconDefault_WidthPx = 32;
+        const int NotifyIconDefault_HeightPx = 32;
+        const int DisconnectedLevel = 0;
         const string AppName = "XM4 Battery Level";
         const string GithubProjectUrl = "https://github.com/nikvoronin/WmiPnp";
     }
