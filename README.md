@@ -2,23 +2,23 @@
 
 > WMI = Windows Management Interface.
 
-The primary project goal is to get battery level of `WH-1000XM4` headphones.
+The primary goal of the project is to get battery level of `WH-1000XM4` headphones.
 
 ![xm4battery-trayicon-230303](https://user-images.githubusercontent.com/11328666/222558052-b05eacab-6a9a-4d45-8d23-e94b1f33f9a7.jpg)
 
 - [Xm4Battery Application](#xm4battery-application)
   - [Interface](#interface)
   - [Tray Icon Mods](#tray-icon-mods)
-- [Xm4Poller Class](#xm4poller-class)
+- [Xm4Poller](#xm4poller)
   - [Start-Stop Polling](#start-stop-polling)
   - [Connection Changed](#connection-changed)
   - [Battery Level Changed](#battery-level-changed)
-- [Xm4Entity Class](#xm4entity-class)
+- [Xm4Entity](#xm4entity)
   - [Create XM4 Instance](#create-xm4-instance)
   - [Is Connected or Not?](#is-connected-or-not)
   - [What Is The Last Connected Time?](#what-is-the-last-connected-time)
   - [Headphones Battery Level](#headphones-battery-level)
-- [PnpEntity Class](#pnpentity-class)
+- [PnpEntity](#pnpentity)
   - [How To Find PNP Device?](#how-to-find-pnp-device)
   - [Get / Update Specific Device Property](#get--update-specific-device-property)
   - [Enumerate Device Properties](#enumerate-device-properties)
@@ -68,16 +68,16 @@ var brush =
     };
 ```
 
-Font for icon symbols/digits:
+Font for notify icon (battery level and headphones status):
 
 ```csharp
 static readonly Font _notifyIconFont
     = new ( "Segoe UI", 16, FontStyle.Regular );
 ```
 
-## Xm4Poller Class
+## Xm4Poller
 
-Automatically updates a state of xm4 headphones.
+Automatically updates a status of xm4 headphones.
 
 ### Start-Stop Polling
 
@@ -94,7 +94,7 @@ statePoll.Start();
 
 Application.Run(); // run WinForms app, for ex
 
-// application closed, quit
+// application was closed, quit
 statePoll.Stop();
 ```
 
@@ -116,7 +116,7 @@ private static void Xm4state_BatteryLevelChanged( object? sender, int batteryLev
     ...
 ```
 
-## Xm4Entity Class
+## Xm4Entity
 
 ### Create XM4 Instance
 
@@ -136,6 +136,8 @@ bool connected = _xm4.IsConnected;
 
 ### What Is The Last Connected Time?
 
+We can not get the last connected time if headphones is online and connected. This property has meaning only when headphones are DISconnected.
+
 ```csharp
 Result<DateTime> dt = _xm4.LastConnectedTime;
 ```
@@ -147,8 +149,6 @@ else
     var it_is_true = _xm4.LastConnectedTime.IsFailed; // can not get the last connection time
 ```
 
-We can not get the last connected time if headphones is online and connected.
-
 ### Headphones Battery Level
 
 Can get the actual battery level if headphones are connected OR the last known level if headphones are not connected.
@@ -157,7 +157,7 @@ Can get the actual battery level if headphones are connected OR the last known l
 int level = _xm4.BatteryLevel;
 ```
 
-## PnpEntity Class
+## PnpEntity
 
 First we should know the `name` or `device id` of the device we are working with or at least a part of the device name.
 
