@@ -34,7 +34,7 @@
         NTStatus = 24,
         StringIndirect = 25,
         Reserved = 26,
-        // 26..4097
+        // Reserved 26..4097
         SByteArray = 4098,
         Binary = 4099,
         Int16Array = 4100,
@@ -59,13 +59,13 @@
         StringIndirectList = 4119,
         Unknown = 4120,
         TBD = 8217,
-        // 8218..4294967295
+        // Reserved 8218..4294967295
     }
 
     public static class DataTypeExtensions
     {
         /// <summary>
-        /// TRUE if DataType is reserved
+        /// TRUE if a value of DataType is reserved
         /// </summary>
         public static bool Reserved( this uint dt )
             => ( dt >= 26 && dt <= 4097 )

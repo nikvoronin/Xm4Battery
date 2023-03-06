@@ -17,9 +17,9 @@ public class PnpEntity
         = Enumerable.Empty<DeviceProperty>();
 
     /// <summary>
-    /// Update and store device properties in <see cref="Properties" /> field
+    /// Update and store device properties in <see cref="Properties" /> field.
     /// </summary>
-    /// <returns>List of device properties with current data</returns>
+    /// <returns>List of device properties with current data.</returns>
     public IEnumerable<DeviceProperty> UpdateProperties()
     {
         ArgumentNullException.ThrowIfNull( _entity ); // TODO do not allow mandatory fields to be a null
@@ -30,19 +30,22 @@ public class PnpEntity
         ManagementBaseObject outParams =
             _entity.InvokeMethod( GetDeviceProperties_MethodName, inParams, null );
 
-        var enumerator = outParams.Properties.GetEnumerator();
-        enumerator.MoveNext();
-        var mbos = enumerator.Current.Value as ManagementBaseObject[];
+        var mbos =
+            outParams.Properties
+            .Cast<PropertyData>()
+            .FirstOrDefault()
+            ?.Value as ManagementBaseObject[];
+
         Properties =
             mbos
             ?.Cast<ManagementBaseObject>()
             .Select( p =>
-                new DeviceProperty (
+                new DeviceProperty(
                     deviceId: p.ValueOf( DeviceProperty.DeviceID_PropertyField ),
                     key: p.ValueOf( DeviceProperty.Key_PropertyField ),
                     keyName: p.ValueOf( DeviceProperty.KeyName_PropertyField ),
                     type: (uint)p.GetPropertyValue( DeviceProperty.Type_PropertyField ),
-                    data: p.GetPropertyValue( DeviceProperty.Data_PropertyField ) 
+                    data: p.GetPropertyValue( DeviceProperty.Data_PropertyField )
                     )
                 )
             ?? Enumerable.Empty<DeviceProperty>();
@@ -104,13 +107,12 @@ public class PnpEntity
         if ( noValidDataValue )
             return Result.Fail( $"No valid data value: type={typeValue}; data:`{dataValue}`." );
 
-        DeviceProperty dp =
-            new(
-                deviceId: ss.ValueOf( DeviceProperty.DeviceID_PropertyField ),
-                key: ss.ValueOf( DeviceProperty.Key_PropertyField ),
-                type: typeValue,
-                data: dataValue
-            );
+        DeviceProperty dp = new(
+            deviceId: ss.ValueOf( DeviceProperty.DeviceID_PropertyField ),
+            key: ss.ValueOf( DeviceProperty.Key_PropertyField ),
+            type: typeValue,
+            data: dataValue
+        );
 
         return dp;
     }
@@ -144,8 +146,8 @@ public class PnpEntity
     /// <summary>
     /// Find exact one entity by given name
     /// </summary>
-    /// <param name="name">The name or part of its for entities</param>
-    /// <returns>PNP entity or None</returns>
+    /// <param name="name">Full name of a device</param>
+    /// <returns>PnpEntity or Fail</returns>
     public static Result<PnpEntity> ByFriendlyName( string name )
         => EntityOrNone( where: $"{Name_FieldName}='{name}'" );
 
@@ -154,7 +156,7 @@ public class PnpEntity
     /// </summary>
     /// <param name="id">DeviceID or PNPDeviceID</param>
     /// <param name="duplicateSlashes">Duplicate slashes by default, so '\' becomes '\\'.</param>
-    /// <returns>PnpEntity or None</returns>
+    /// <returns>PnpEntity or Fail</returns>
     public static Result<PnpEntity> ByDeviceId( string id, bool duplicateSlashes = true )
     {
         if ( duplicateSlashes )
@@ -168,7 +170,7 @@ public class PnpEntity
     /// <summary>
     /// Find one or more entities by given name
     /// </summary>
-    /// <param name="name">The name or part of its for entities</param>
+    /// <param name="name">Part of the device name</param>
     /// <returns>List of found entities or empty list</returns>
     public static IEnumerable<PnpEntity> LikeFriendlyName( string name )
     {
