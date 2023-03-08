@@ -6,7 +6,9 @@
         private static readonly TimeSpan PollInterval
             = TimeSpan.FromSeconds( 1 );
         private static readonly TimeSpan BatteryLevel_UpdateInterval
-            = TimeSpan.FromMinutes( 5 );
+            = TimeSpan.FromMinutes( 1 );
+        private static readonly TimeSpan Pause_WhenConnected_BeforeButteryUpdate
+            = TimeSpan.FromSeconds( 5 );
 
 
         private readonly Xm4Entity _xm4;
@@ -56,6 +58,11 @@
                     ( DateTimeOffset.UtcNow - lastUpdatedBatteryLevel ) > BatteryLevel_UpdateInterval
                     || batteryLevel < 1
                     || connectionChanged;
+
+                // Pause a little after headphones connected ('connection' is true)
+                // but before start updating battery level
+                if ( connectionChanged && connection )
+                    Thread.Sleep( Pause_WhenConnected_BeforeButteryUpdate );
 
                 if ( updateBatteryLevel ) {
                     var currentLevel = _xm4.BatteryLevel;
