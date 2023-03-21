@@ -45,10 +45,12 @@ namespace Xm4Battery
             contextMenu.Items.AddRange( new ToolStripItem[] {
                 new ToolStripMenuItem( "&About Xm4Battery",
                     null, ( sender, args ) => {
-                        Process.Start(
-                            new ProcessStartInfo(
-                                "cmd", $"/c start {GithubProjectUrl}") { 
-                                CreateNoWindow = true });
+                        try {
+                            Process.Start(
+                                new ProcessStartInfo(
+                                    "cmd", $"/c start {GithubProjectUrl}") {
+                                    CreateNoWindow = true });
+                        } catch {}
                     } ),
 
                 new ToolStripSeparator(),
