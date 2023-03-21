@@ -25,7 +25,7 @@ namespace Xm4Battery
             };
 
             Xm4Entity xm4 = xm4result.Value;
-            Xm4Poller statePoll = new ( xm4 );
+            Xm4Poller statePoll = new( xm4 );
             statePoll.ConnectionChanged += Xm4state_ConnectionChanged;
             statePoll.BatteryLevelChanged += Xm4state_BatteryLevelChanged;
             statePoll.Start();
@@ -40,7 +40,7 @@ namespace Xm4Battery
 
         private static ContextMenuStrip CreateContextMenu()
         {
-            ContextMenuStrip contextMenu = new ();
+            ContextMenuStrip contextMenu = new();
 
             contextMenu.Items.AddRange( new ToolStripItem[] {
                 new ToolStripMenuItem( "&About Xm4Battery",
@@ -59,13 +59,13 @@ namespace Xm4Battery
                     null, ( sender, args ) => {
                         Application.Exit();
                     } ),
-            });
+            } );
 
             return contextMenu;
         }
 
         static readonly Font _notifyIconFont
-            = new ( "Segoe UI", 16, FontStyle.Regular );
+            = new( "Segoe UI", 16, FontStyle.Regular );
 
         private static Icon CreateIconForLevel( int level )
         {
@@ -142,8 +142,8 @@ namespace Xm4Battery
             int level )
         {
             _notifyIconControl.Icon =
-                CreateIconForLevel( 
-                    connected ? level 
+                CreateIconForLevel(
+                    connected ? level
                     : DisconnectedLevel );
 
             var at =
