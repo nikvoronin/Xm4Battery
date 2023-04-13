@@ -46,7 +46,7 @@ System requirements: Windows 10 x64, .NET 6.0.
 - **4..3** yellow - 40..30%
 - **2** orange - 20%
 - **1** red - 10%
-- **X** - headphones disconnected, gray background. Tooltip displays last known battery level and the last connected date/time.
+- **X** - headphones disconnected, gray background. Tooltip shows the last known battery level and the last connected date/time.
 
 `Right Mouse Button` opens context menu:
 
@@ -77,7 +77,7 @@ static readonly Font _notifyIconFont
 
 ## Xm4Poller
 
-Automatically updates a status of xm4 headphones.
+Automatically updates status of xm4 headphones.
 
 ### Start-Stop Polling
 
@@ -143,15 +143,16 @@ Result<DateTime> dt = _xm4.LastConnectedTime;
 ```
 
 ```csharp
-if ( !_xm4.IsConnected )
+bool disconnected = !_xm4.IsConnected;
+if ( disconnected )
     Console.WriteLine( $"Last connected time: {_xm4.LastConnectedTime.Value}.\n" );
 else
-    var it_is_true = _xm4.LastConnectedTime.IsFailed; // can not get the last connection time
+    var it_is_true = _xm4.LastConnectedTime.IsFailed; // can not get the last connected time
 ```
 
 ### Headphones Battery Level
 
-Can get the actual battery level if headphones are connected OR the last known level if headphones are not connected.
+It can get the actual battery level if headphones are connected OR the last known level if headphones are not connected.
 
 ```csharp
 int level = _xm4.BatteryLevel;
@@ -159,10 +160,10 @@ int level = _xm4.BatteryLevel;
 
 ## PnpEntity
 
-First we should know the `name` or `device id` of the device we are working with or at least a part of the device name.
+First, we should know the `name` or `device id` of the device we are working with or at least a part of the device name.
 
 - ByFriendlyName ( exact a friendly name )
-- ByDeviceId ( exact a device id, like {GUID} pid )
+- ByDeviceId ( exact a device id, like `{GUID} pid` )
 - LikeFriendlyName ( a part of a friendly name ) - returns a list of founded devices `IEnumerable<PnpEntity>` or empty list otherwise.
 
 All of methods produce instances of `PnpEntity` or `Result.Fail` if the given device was not found.
