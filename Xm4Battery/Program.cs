@@ -18,7 +18,7 @@ namespace Xm4Battery
             if ( xm4result.IsFailed ) return 1;
 
             _notifyIconControl = new() {
-                Text = AppName,
+                Text = NotifyIcon_BatteryLevelTitle,
                 Visible = true,
                 Icon = CreateIconForLevel( DisconnectedLevel ),
                 ContextMenuStrip = CreateContextMenu(),
@@ -35,6 +35,7 @@ namespace Xm4Battery
             _notifyIconControl.Visible = false;
             _notifyIconControl.Dispose();
             statePoll.Stop();
+
             return 0;
         }
 
@@ -43,7 +44,7 @@ namespace Xm4Battery
             ContextMenuStrip contextMenu = new();
 
             contextMenu.Items.AddRange( new ToolStripItem[] {
-                new ToolStripMenuItem( "&About Xm4Battery",
+                new ToolStripMenuItem( $"&About {AppName} {AppVersion}",
                     null, ( sender, args ) => {
                         try {
                             Process.Start(
@@ -150,13 +151,15 @@ namespace Xm4Battery
                 connected ? string.Empty
                 : $"\n{xm4!.LastConnectedTime.Value:F}";
 
-            _notifyIconControl.Text = $"{AppName} {level}%{at}";
+            _notifyIconControl.Text = $"{NotifyIcon_BatteryLevelTitle} ⚡{level}%{at}";
         }
 
         const int NotifyIconDefault_WidthPx = 32;
         const int NotifyIconDefault_HeightPx = 32;
         const int DisconnectedLevel = 0;
-        const string AppName = "XM4 Battery Level";
+        const string NotifyIcon_BatteryLevelTitle = "XM4 Battery Level";
+        const string AppName = "Xm4Battery";
+        const string AppVersion = "23.4.26";
         const string GithubProjectUrl = "https://github.com/nikvoronin/WmiPnp";
     }
 }

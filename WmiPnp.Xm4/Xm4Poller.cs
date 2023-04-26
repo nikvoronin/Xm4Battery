@@ -7,8 +7,7 @@
             = TimeSpan.FromSeconds( 1 );
         private static readonly TimeSpan BatteryLevel_UpdateInterval
             = TimeSpan.FromMinutes( 1 );
-        private static readonly TimeSpan Pause_WhenConnected_BeforeButteryUpdate
-            = TimeSpan.FromSeconds( 5 );
+        private const int LinearBackoffFactor = 2;
 
 
         private readonly Xm4Entity _xm4;
@@ -39,30 +38,33 @@
                 (CancellationToken)( o ?? CancellationToken.None );
 
             int batteryLevel = -1;
-            bool connection = false;
-            DateTimeOffset lastUpdatedBatteryLevel = DateTimeOffset.MinValue;
+            bool connected = false;
+            DateTimeOffset lastUpdatedTime = DateTimeOffset.MinValue;
+            TimeSpan currentUpdateInterval = TimeSpan.FromSeconds( 1 );
 
             while ( !token.IsCancellationRequested ) {
                 var currentConnection = _xm4.IsConnected;
 
                 var connectionChanged =
-                    connection != currentConnection;
-                if ( connectionChanged )
+                    connected != currentConnection;
+                if (connectionChanged) {
+                    currentUpdateInterval = TimeSpan.FromSeconds( 1 );
                     OnConnectionChanged( currentConnection );
+                }
 
-                connection = currentConnection;
+                connected = currentConnection;
 
                 if ( token.IsCancellationRequested ) break;
 
                 var updateBatteryLevel =
-                    ( DateTimeOffset.UtcNow - lastUpdatedBatteryLevel ) > BatteryLevel_UpdateInterval
+                    ( DateTimeOffset.UtcNow - lastUpdatedTime ) > currentUpdateInterval
                     || batteryLevel < 1
                     || connectionChanged;
 
                 // Pause a little after headphones connected ('connection' is true)
                 // but before start updating battery level
-                if ( connectionChanged && connection )
-                    Thread.Sleep( Pause_WhenConnected_BeforeButteryUpdate );
+                if (currentUpdateInterval < BatteryLevel_UpdateInterval)
+                    currentUpdateInterval *= LinearBackoffFactor;
 
                 if ( updateBatteryLevel ) {
                     var currentLevel = _xm4.BatteryLevel;
@@ -72,7 +74,7 @@
 
                     batteryLevel = currentLevel;
 
-                    lastUpdatedBatteryLevel = DateTimeOffset.UtcNow;
+                    lastUpdatedTime = DateTimeOffset.UtcNow;
                 }
 
                 Thread.Sleep( PollInterval );
@@ -92,6 +94,5 @@
             var eh = BatteryLevelChanged;
             eh?.Invoke( _xm4, level );
         }
-
     }
 }
