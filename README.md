@@ -4,7 +4,7 @@
 
 The primary goal of the project is to get battery level of `WH-1000XM4` headphones.
 
-![xm4battery-trayicon-230303](https://user-images.githubusercontent.com/11328666/222558052-b05eacab-6a9a-4d45-8d23-e94b1f33f9a7.jpg)
+![emoji_flash_bullet_battery_level_v23-5-2](https://user-images.githubusercontent.com/11328666/235766399-44585bee-0e8f-4d21-b96a-81b58b9e83d2.jpg)
 
 - [Xm4Battery Application](#xm4battery-application)
   - [Interface](#interface)
