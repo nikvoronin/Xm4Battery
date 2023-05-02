@@ -85,7 +85,7 @@ namespace Xm4Battery
                 level switch {
                     > 0 and <= 10 => Brushes.Red,
                     > 0 and <= 20 => Brushes.Orange,
-                    > 0 and <= 40 => Brushes.Yellow,
+                    > 0 and <= 30 => Brushes.Yellow,
                     <= 0 => Brushes.Gray,
                     _ => Brushes.White
                 };
@@ -159,7 +159,7 @@ namespace Xm4Battery
         const int DisconnectedLevel = 0;
         const string NotifyIcon_BatteryLevelTitle = "XM4 Battery Level";
         const string AppName = "Xm4Battery";
-        const string AppVersion = "23.4.26";
+        const string AppVersion = "23.5.2";
         const string GithubProjectUrl = "https://github.com/nikvoronin/WmiPnp";
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace WmiPnp.Xm4
+﻿using System.Diagnostics;
+
+namespace WmiPnp.Xm4
 {
     public class Xm4Poller : IDisposable
     {
@@ -61,12 +63,12 @@
                     || batteryLevel < 1
                     || connectionChanged;
 
-                // Pause a little after headphones connected ('connection' is true)
-                // but before start updating battery level
-                if (currentUpdateInterval < BatteryLevel_UpdateInterval)
-                    currentUpdateInterval *= LinearBackoffFactor;
-
                 if ( updateBatteryLevel ) {
+                    // Pause a little after headphones connected ('connection' is true)
+                    // but before start updating battery level
+                    if (currentUpdateInterval < BatteryLevel_UpdateInterval)
+                        currentUpdateInterval *= LinearBackoffFactor;
+
                     var currentLevel = _xm4.BatteryLevel;
 
                     if ( batteryLevel != currentLevel )
