@@ -91,9 +91,43 @@ namespace WmiPnp.Xm4
             }
         }
 
+        private IEnumerable<PnpEntity> _bluetoothDevices
+            => PnpEntity.LikeFriendlyNameForClass(
+                name: Headphones_PnpEntity_FriendlyName,
+                className: Bluetooth_PnpClassName );
+
+        /// <summary>
+        /// Try connect already paired bluetooth headphones.
+        /// Application have to be runned under the Administrative rights
+        /// </summary>
+        public void TryConnect()
+        {
+            foreach (var bt in _bluetoothDevices) {
+                bt.Disable();
+                bt.Enable();
+            }
+        }
+
+        /// <summary>
+        /// Try disconnect already paired bluetooth headphones.
+        /// Application have to be runned under the Administrative rights
+        /// </summary>
+        public void TryDisconnect()
+        {
+            var lst = _bluetoothDevices.ToList();
+            lst.Reverse();
+            foreach (var bt in lst) {
+                bt.Disable();
+                Thread.Sleep( 100 ); // TODO: Is it meaningful?
+                bt.Disable();
+            }
+        }
+
         public const string HandsFree_PnpEntity_FriendlyName
             = "WH-1000XM4 Hands-Free AG"; // Battery level related
         public const string Headphones_PnpEntity_FriendlyName
             = "WH-1000XM4"; // Headphones state related
+
+        public const string Bluetooth_PnpClassName = "Bluetooth";
     }
 }

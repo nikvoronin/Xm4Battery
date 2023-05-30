@@ -4,8 +4,11 @@ var xm4result = Xm4Entity.Create();
 if ( xm4result.IsFailed ) return;
 
 Xm4Entity xm4 = xm4result.Value;
-if ( !xm4.IsConnected )
+if (!xm4.IsConnected) {
     Console.WriteLine( $"Last connected time: {xm4.LastConnectedTime.Value}.\n" );
+
+    xm4.TryConnect();
+}
 
 int sx = 0;
 Console.WriteLine( "Press any key to stop polling..." );

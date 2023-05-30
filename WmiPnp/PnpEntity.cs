@@ -122,9 +122,7 @@ public class PnpEntity
         ArgumentNullException.ThrowIfNull( _entity );
 
         try {
-            _entity.InvokeMethod(
-                Enable_MethodName
-                , new object[] { null! } );
+            _entity.InvokeMethod( Enable_MethodName, null, null );
         }
         catch (ManagementException e) {
             return
@@ -141,9 +139,7 @@ public class PnpEntity
         ArgumentNullException.ThrowIfNull( _entity );
 
         try {
-            _entity.InvokeMethod(
-                Disable_MethodName
-                , new object[] { null! } );
+            _entity.InvokeMethod( Disable_MethodName, null, null );
         }
         catch (ManagementException e) {
             return

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Security.Principal;
 using WmiPnp.Xm4;
 
 namespace Xm4Battery
@@ -15,7 +16,7 @@ namespace Xm4Battery
             ApplicationConfiguration.Initialize();
 
             var xm4result = Xm4Entity.Create();
-            if ( xm4result.IsFailed ) return 1;
+            if (xm4result.IsFailed) return 1;
 
             _notifyIconControl = new() {
                 Text = NotifyIcon_BatteryLevelTitle,
@@ -39,12 +40,41 @@ namespace Xm4Battery
             return 0;
         }
 
+        private static bool IsAdministrator
+            => new WindowsPrincipal( WindowsIdentity.GetCurrent() )
+            .IsInRole( WindowsBuiltInRole.Administrator );
+
         private static ContextMenuStrip CreateContextMenu()
         {
             ContextMenuStrip contextMenu = new();
 
             contextMenu.Items.AddRange( new ToolStripItem[] {
-                new ToolStripMenuItem( $"&About {AppName} {AppVersion}",
+                new ToolStripMenuItem(
+                    "&Connect",
+                    null, ( sender, args ) => {
+                        // TODO: do connect
+                    } ) {
+                    Name = ConnectCtxMenuItem,
+                    Enabled = true,
+                    Visible = IsAdministrator
+                },
+
+                new ToolStripMenuItem(
+                    "&Disconnect",
+                    null, ( sender, args ) => {
+                        // TODO: do disconnect
+                    } ) {
+                    Name = DisconnectCtxMenuItem,
+                    Enabled = false,
+                    Visible = IsAdministrator
+                },
+
+                new ToolStripSeparator() {
+                    Visible = IsAdministrator
+                },
+
+                new ToolStripMenuItem(
+                    $"&About {AppName} {AppVersion}",
                     null, ( sender, args ) => {
                         try {
                             Process.Start(
@@ -56,7 +86,8 @@ namespace Xm4Battery
 
                 new ToolStripSeparator(),
 
-                new ToolStripMenuItem( "&Quit",
+                new ToolStripMenuItem(
+                    "&Quit",
                     null, ( sender, args ) => {
                         Application.Exit();
                     } ),
@@ -129,11 +160,22 @@ namespace Xm4Battery
             UpdateNotifyIcon( xm4!, connected, level );
         }
 
+        private static void UpdateContextMenuItems( ContextMenuStrip menu, bool connected )
+        {
+            menu.Items[ConnectCtxMenuItem]
+                .Enabled = !connected;
+            menu.Items[DisconnectCtxMenuItem]
+                .Enabled = connected;
+        }
+
         private static void Xm4state_ConnectionChanged( object? sender, bool connected )
         {
             var xm4 = sender as Xm4Entity;
             var level = xm4?.BatteryLevel ?? DisconnectedLevel;
 
+            UpdateContextMenuItems(
+                _notifyIconControl.ContextMenuStrip
+                , connected );
             UpdateNotifyIcon( xm4!, connected, level );
         }
 
@@ -154,12 +196,14 @@ namespace Xm4Battery
             _notifyIconControl.Text = $"{NotifyIcon_BatteryLevelTitle} ⚡{level}%{at}";
         }
 
+        const string ConnectCtxMenuItem = nameof( ConnectCtxMenuItem );
+        const string DisconnectCtxMenuItem = nameof( DisconnectCtxMenuItem );
         const int NotifyIconDefault_WidthPx = 32;
         const int NotifyIconDefault_HeightPx = 32;
         const int DisconnectedLevel = 0;
         const string NotifyIcon_BatteryLevelTitle = "XM4 Battery Level";
         const string AppName = "Xm4Battery";
-        const string AppVersion = "23.5.2";
+        const string AppVersion = "3.6.1";
         const string GithubProjectUrl = "https://github.com/nikvoronin/WmiPnp";
     }
 }
