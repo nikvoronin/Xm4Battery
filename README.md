@@ -22,15 +22,9 @@ The primary goal of the project is to get battery level of `WH-1000XM4` headphon
   - [How To Find PNP Device?](#how-to-find-pnp-device)
   - [Get / Update Specific Device Property](#get--update-specific-device-property)
   - [Enumerate Device Properties](#enumerate-device-properties)
-- [Specific Device Properties](#specific-device-properties)
-  - [Battery Level](#battery-level)
-  - [Is Connected](#is-connected)
-  - [Last Arrival Date](#last-arrival-date)
-  - [Last Removal Date](#last-removal-date)
+- [Device Specific Properties](#device-specific-properties)
 - [XM4 Related Properties](#xm4-related-properties)
-  - [DEVPKEY\_Device\_DevNodeStatus](#devpkey_device_devnodestatus)
-  - [DEVPKEY\_Bluetooth\_LastConnectedTime](#devpkey_bluetooth_lastconnectedtime)
-  - [?Last Connected Time](#last-connected-time)
+- [Windows Radio](#windows-radio)
 - [Links](#links)
 
 ## Xm4Battery Application
@@ -226,10 +220,11 @@ foreach( var p in btDevice.Properties ) {
     ...
 ```
 
-## Specific Device Properties
+## Device Specific Properties
 
 > Key = {GUID} pid
 
+<!-- omit in toc -->
 ### Battery Level
 
 - Key = `{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2`
@@ -237,6 +232,7 @@ foreach( var p in btDevice.Properties ) {
 
 `Data` is in percents
 
+<!-- omit in toc -->
 ### Is Connected
 
 - Key = `{83DA6326-97A6-4088-9453-A1923F573B29} 15`
@@ -244,6 +240,7 @@ foreach( var p in btDevice.Properties ) {
 
 Data = False → device is disconnected
 
+<!-- omit in toc -->
 ### Last Arrival Date
 
 - Key = `{83DA6326-97A6-4088-9453-A1923F573B29} 102`
@@ -252,6 +249,7 @@ Data = False → device is disconnected
 
 Data = 20230131090906.098359+180 → 2023 Jan 31, 9:09:06 GMT+3
 
+<!-- omit in toc -->
 ### Last Removal Date
 
 Key = {83da6326-97a6-4088-9453-a1923f573b29} 103
@@ -261,6 +259,7 @@ Key = {83da6326-97a6-4088-9453-a1923f573b29} 103
 - `WH-1000XM4 Hands-Free AG` - exact name for PnpEntity to get a **BATTERY LEVEL** only.
 - `WH-1000XM4` - exact name for PnpEntity to get a **STATE** of the xm4.
 
+<!-- omit in toc -->
 ### DEVPKEY_Device_DevNodeStatus
 
 > Instead of this bit flags, we can use [Is Connected](#is-connected) property to retrieve a connection status of xm4.
@@ -272,6 +271,7 @@ Key = {83da6326-97a6-4088-9453-a1923f573b29} 103
 - Connected = 25190410 (fall bit#25): value & 0x20000 == 0
 - Disconnected = 58744842 (set bit#25): value & 0x20000 == 0x20000
 
+<!-- omit in toc -->
 ### DEVPKEY_Bluetooth_LastConnectedTime
 
 This is only property to retrieve a last connection date-time of xm4. This property presents only when headphones are DISconnected.
@@ -282,6 +282,7 @@ This is only property to retrieve a last connection date-time of xm4. This prope
 
 For ex.: Data = 20230131090906.098359+180 → 2023 Jan 31, 9:09:06, GMT+3
 
+<!-- omit in toc -->
 ### ?Last Connected Time
 
 Contains the same data as the [DEVPKEY_Bluetooth_LastConnectedTime](#devpkey_bluetooth_lastconnectedtime) property. Same behavior.
@@ -291,6 +292,7 @@ Contains the same data as the [DEVPKEY_Bluetooth_LastConnectedTime](#devpkey_blu
 
 ## Windows Radio
 
+<!-- omit in toc -->
 ### Preparation
 
 There is a way to use UWP functions from desktop application. Just setup a `TargetFramework` in `YourProject.csproj` to use specific version of dotNet-framework-windows-only like: `netX.x-windows10.0.xxxxx.x`. For example:
@@ -302,6 +304,7 @@ There is a way to use UWP functions from desktop application. Just setup a `Targ
     ...
 ```
 
+<!-- omit in toc -->
 ### Switch system bluetooth on and off
 
 Now we can use `Windows.Devices.Radios` namespace:
@@ -336,6 +339,7 @@ private async Task InternalBluetoothState( bool enable )
 }
 ```
 
+<!-- omit in toc -->
 ### Notes
 
 We can also use `Windows.Devices.Bluetooth` namespace or even `Windows.Devices.***` for other peripheral devices.
