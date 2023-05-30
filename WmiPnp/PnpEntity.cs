@@ -22,7 +22,7 @@ public class PnpEntity
     /// <returns>List of device properties with current data.</returns>
     public IEnumerable<DeviceProperty> UpdateProperties()
     {
-        ArgumentNullException.ThrowIfNull( _entity ); // TODO do not allow mandatory fields to be a null
+        ArgumentNullException.ThrowIfNull( _entity );
 
         ManagementBaseObject inParams =
             _entity.GetMethodParameters( GetDeviceProperties_MethodName );
@@ -117,9 +117,48 @@ public class PnpEntity
         return dp;
     }
 
-    private static Result<PnpEntity> EntityOrNone( string where )
+    public Result Enable()
     {
-        Result<PnpEntity> entity = Result.Fail( $"No entity WHERE=`{where}`" );
+        ArgumentNullException.ThrowIfNull( _entity );
+
+        try {
+            _entity.InvokeMethod(
+                Enable_MethodName
+                , new object[] { null! } );
+        }
+        catch (ManagementException e) {
+            return
+                Result.Fail(
+                    new Error( $"Entity not found or wrong key. Exception when invoke method {Enable_MethodName}" )
+                    .CausedBy( e ) );
+        }
+
+        return Result.Ok();
+    }
+
+    public Result Disable()
+    {
+        ArgumentNullException.ThrowIfNull( _entity );
+
+        try {
+            _entity.InvokeMethod(
+                Disable_MethodName
+                , new object[] { null! } );
+        }
+        catch (ManagementException e) {
+            return
+                Result.Fail(
+                    new Error( $"Entity not found or wrong key. Exception when invoke method {Disable_MethodName}" )
+                    .CausedBy( e ) );
+        }
+
+        return Result.Ok();
+    }
+
+    public static Result<PnpEntity> EntityOrNone( string where )
+    {
+        Result<PnpEntity> entity =
+            Result.Fail( $"No entity WHERE=`{where}`" );
 
         try {
             var searcher =
@@ -141,6 +180,29 @@ public class PnpEntity
         catch { }
 
         return entity;
+    }
+
+    public static IEnumerable<PnpEntity> EntitiesOrNone( string where )
+    {
+        IEnumerable<PnpEntity> entities =
+            Enumerable.Empty<PnpEntity>();
+
+        try {
+            var searcher =
+                new ManagementObjectSearcher(
+                    Select_Win32PnpEntity_Where
+                    + where );
+
+            var collection = searcher.Get();
+
+            entities =
+                collection
+                .Cast<ManagementBaseObject>()
+                .Select( o => ToPnpEntity( o ) );
+        }
+        catch { }
+
+        return entities;
     }
 
     /// <summary>
@@ -173,26 +235,20 @@ public class PnpEntity
     /// <param name="name">Part of the device name</param>
     /// <returns>List of found entities or empty list</returns>
     public static IEnumerable<PnpEntity> LikeFriendlyName( string name )
-    {
-        IEnumerable<PnpEntity> entities = Enumerable.Empty<PnpEntity>();
+        => EntitiesOrNone( where:
+            $"{Name_FieldName} LIKE '%{name}%'" );
 
-        try {
-            var searcher =
-                new ManagementObjectSearcher(
-                    Select_Win32PnpEntity_Where
-                    + $"{Name_FieldName} LIKE '%{name}%'" );
-
-            var collection = searcher.Get();
-
-            entities =
-                collection
-                .Cast<ManagementBaseObject>()
-                .Select( o => ToPnpEntity( o ) );
-        }
-        catch { }
-
-        return entities;
-    }
+    /// <summary>
+    /// Find one or more entitiesby given name within Bluetooth class
+    /// </summary>
+    /// <param name="name">Part of the device name</param>
+    /// <param name="className">Exact PNPClass name of the devices</param>
+    /// <returns>List of found entities or empty list</returns>
+    public static IEnumerable<PnpEntity> LikeFriendlyNameForClass(
+        string name
+        , string className )
+        => EntitiesOrNone( where:
+            $"PNPClass = '{className}' AND {Name_FieldName} LIKE '%{name}%'" );
 
     private static PnpEntity ToPnpEntity(
         ManagementBaseObject entity )
@@ -217,6 +273,8 @@ public class PnpEntity
     public const string PnpDeviceId_FieldName = "PNPDeviceID";
 
     public const string GetDeviceProperties_MethodName = "GetDeviceProperties";
+    public const string Enable_MethodName = "Enable";
+    public const string Disable_MethodName = "Disable";
 
     public const string DeviceProperty_BatteryLevel
         = "{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2";
