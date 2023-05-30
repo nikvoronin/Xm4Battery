@@ -18,14 +18,15 @@ namespace Xm4Battery
             var xm4result = Xm4Entity.Create();
             if (xm4result.IsFailed) return 1;
 
+            Xm4Entity xm4 = xm4result.Value;
+
             _notifyIconControl = new() {
                 Text = NotifyIcon_BatteryLevelTitle,
                 Visible = true,
                 Icon = CreateIconForLevel( DisconnectedLevel ),
-                ContextMenuStrip = CreateContextMenu(),
+                ContextMenuStrip = CreateContextMenu( xm4 ),
             };
 
-            Xm4Entity xm4 = xm4result.Value;
             Xm4Poller statePoll = new( xm4 );
             statePoll.ConnectionChanged += Xm4state_ConnectionChanged;
             statePoll.BatteryLevelChanged += Xm4state_BatteryLevelChanged;
@@ -44,26 +45,25 @@ namespace Xm4Battery
             => new WindowsPrincipal( WindowsIdentity.GetCurrent() )
             .IsInRole( WindowsBuiltInRole.Administrator );
 
-        private static ContextMenuStrip CreateContextMenu()
+        private static ContextMenuStrip CreateContextMenu( Xm4Entity xm4 )
         {
-            ContextMenuStrip contextMenu = new();
+            ArgumentNullException.ThrowIfNull( xm4 );
 
+            ContextMenuStrip contextMenu = new();
             contextMenu.Items.AddRange( new ToolStripItem[] {
                 new ToolStripMenuItem(
-                    "&Connect",
-                    null, ( sender, args ) => {
-                        // TODO: do connect
-                    } ) {
+                    "&Connect", null,
+                    ( sender, args ) => xm4.TryConnect() )
+                {
                     Name = ConnectCtxMenuItem,
                     Enabled = true,
                     Visible = IsAdministrator
                 },
 
                 new ToolStripMenuItem(
-                    "&Disconnect",
-                    null, ( sender, args ) => {
-                        // TODO: do disconnect
-                    } ) {
+                    "&Disconnect", null,
+                    ( sender, args ) => xm4.TryDisconnect() )
+                {
                     Name = DisconnectCtxMenuItem,
                     Enabled = false,
                     Visible = IsAdministrator
@@ -164,6 +164,7 @@ namespace Xm4Battery
         {
             menu.Items[ConnectCtxMenuItem]
                 .Enabled = !connected;
+
             menu.Items[DisconnectCtxMenuItem]
                 .Enabled = connected;
         }
