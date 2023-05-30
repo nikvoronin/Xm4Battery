@@ -42,10 +42,15 @@ System requirements: Windows 10 x64, .NET 6.0.
 - **1** red - 10%
 - **X** - headphones disconnected, gray background. Tooltip shows the last known battery level and the last connected date/time.
 
-`Right Mouse Button` opens context menu:
+`Right Mouse Button` opens a context menu:
 
-- About - lead to this page.
-- Quit - close and unload application at all.
+- Connect - tries connect already paired headphones. ⚠
+- Disconnect - tries disconnect headphones (not unpair, just disconnect). ⚠
+- About - leads to this page.
+- Quit - closes and unloads application at all.
+
+> ⚠ **Connect / Disconnect** will appear if the app is run as administrator.\
+> ⚠ These functions may cause system artefacts.
 
 ### Tray Icon Mods
 
@@ -313,7 +318,7 @@ Now we can use `Windows.Devices.Radios` namespace:
 using Windows.Devices.Radios;
 ```
 
-> Be aware, this one could switch off system bluethooth radio **at all** (not only enable or disable). Use it on your own risk!
+> Be aware, this one could switch off system bluetooth radio **at all** (not only enable or disable). Use it on your own risk!
 
 ```csharp
 public static async Task OsEnableBluetooth()
