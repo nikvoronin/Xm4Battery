@@ -289,8 +289,60 @@ Contains the same data as the [DEVPKEY_Bluetooth_LastConnectedTime](#devpkey_blu
 - Key = `{2BD67D8B-8BEB-48D5-87E0-6CDA3428040A} 5`
 - Type = 16 (FileTime)
 
+## Windows Radio
+
+### Preparation
+
+There is a way to use UWP functions from desktop application. Just setup a `TargetFramework` in `YourProject.csproj` to use specific version of dotNet-framework-windows-only like: `netX.x-windows10.0.xxxxx.x`. For example:
+
+```xml
+<PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows10.0.17763.0</TargetFramework>
+    ...
+```
+
+### Switch system bluetooth on and off
+
+Now we can use `Windows.Devices.Radios` namespace:
+
+```csharp
+using Windows.Devices.Radios;
+```
+
+> Be aware, this one could switch off system bluethooth radio **at all** (not only enable or disable). Use it on your own risk!
+
+```csharp
+public static async Task OsEnableBluetooth()
+    => InternalBluetoothState( enable: true );
+
+public static async Task OsDisableBluetooth()
+    => InternalBluetoothState( enable: false );
+
+private async Task InternalBluetoothState( bool enable )
+{
+    var result = await Radio.RequestAccessAsync();
+    if (result != RadioAccessStatus.Allowed) return;
+
+    var bluetooth =
+        (await Radio.GetRadiosAsync())
+        .FirstOrDefault(
+            radio => radio.Kind == RadioKind.Bluetooth );
+
+    await bluetooth?.SetStateAsync(
+        enable ? RadioState.On
+        : RadioState.Off
+        );
+}
+```
+
+### Notes
+
+We can also use `Windows.Devices.Bluetooth` namespace or even `Windows.Devices.***` for other peripheral devices.
+
 ## Links
 
 - [Enumerating windows device](https://www.codeproject.com/articles/14412/enumerating-windows-device). Enumerating the device using the SetupDi* API provided with WinXP. CodeProject // 17 Jun 2006
-- [How to get the details for each enumerated device?](https://social.msdn.microsoft.com/Forums/en-US/65086709-cee8-4efa-a794-b32979abb0ea/how-to-get-the-details-for-each-enumerated-device?forum=vbgeneral) MSDN, Archived Forums 421-440, Visual Basic.
-- [Query battery level for WH-1000XM4 wireless headphones](https://gist.github.com/nikvoronin/e8fc8a1631dd0e851f1ab821d0e3cf01) by PowerShell script.
+- Visual Basic: [How to get the details for each enumerated device?](https://social.msdn.microsoft.com/Forums/en-US/65086709-cee8-4efa-a794-b32979abb0ea/how-to-get-the-details-for-each-enumerated-device?forum=vbgeneral) MSDN, Archived Forums 421-440.
+- PowerShell: [Query battery level for WH-1000XM4 wireless headphones](https://gist.github.com/nikvoronin/e8fc8a1631dd0e851f1ab821d0e3cf01). GitHub gist.
+- PowerShell: [Enable/disable already paired bluetooth devices](https://stackoverflow.com/questions/62502414/how-to-connect-to-a-paired-audio-bluetooth-device-using-windows-uwp-api/71539568#71539568). StackOverflow. How to connect to a paired audio Bluetooth device using Windows UWP API?
