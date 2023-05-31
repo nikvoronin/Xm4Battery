@@ -29,19 +29,19 @@ namespace Xm4Battery
 
             statePoll.ConnectionChanged +=
                 ( sender, connected ) => {
-                    ConnectionChanged
+                    UpdateUi
                         ( ToXm4Entity( sender )
                         , notifyIconCtrl
-                        , connected
+                        , connectionStatus: connected
                         );
                 };
 
             statePoll.BatteryLevelChanged +=
                 ( sender, level ) => {
-                    BatteryLevelChanged
+                    UpdateUi
                         ( ToXm4Entity( sender )
                         , notifyIconCtrl
-                        , level
+                        , batteryLevel: level
                         );
                 };
 
@@ -174,34 +174,22 @@ namespace Xm4Battery
             return icon;
         }
 
-        private static void BatteryLevelChanged
-            ( Xm4Entity xm4
-            , NotifyIcon notifyIconCtrl
-            , int level )
-            => UpdateUi(
-                xm4
-                , notifyIconCtrl
-                , xm4?.IsConnected ?? false
-                , level
-            );
-
-        private static void ConnectionChanged
-            ( Xm4Entity xm4
-            , NotifyIcon notifyIconCtrl
-            , bool connected )
-            => UpdateUi(
-                xm4
-                , notifyIconCtrl
-                , connected
-                , xm4?.BatteryLevel ?? DisconnectedLevel
-            );
-
         private static void UpdateUi(
             Xm4Entity xm4
             , NotifyIcon notifyIconCtrl
-            , bool connected
-            , int level )
+            , bool? connectionStatus = null
+            , int? batteryLevel = null )
         {
+            var connected =
+                connectionStatus
+                ?? xm4?.IsConnected
+                ?? false;
+
+            var level =
+                batteryLevel
+                ?? xm4?.BatteryLevel
+                ?? DisconnectedLevel;
+
             var items = notifyIconCtrl.ContextMenuStrip.Items;
             items[ConnectCtxMenuItemName].Enabled = !connected;
             items[DisconnectCtxMenuItemName].Enabled = connected;
