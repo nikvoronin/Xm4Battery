@@ -28,18 +28,18 @@ namespace Xm4Battery
             Xm4Poller statePoll = new( xm4 );
 
             statePoll.ConnectionChanged +=
-                ( sender, connected ) => {
+                ( _, connected ) => {
                     UpdateUi
-                        ( ToXm4Entity( sender )
+                        ( xm4
                         , notifyIconCtrl
                         , connectionStatus: connected
                         );
                 };
 
             statePoll.BatteryLevelChanged +=
-                ( sender, level ) => {
+                ( _, level ) => {
                     UpdateUi
-                        ( ToXm4Entity( sender )
+                        ( xm4
                         , notifyIconCtrl
                         , batteryLevel: level
                         );
@@ -53,11 +53,7 @@ namespace Xm4Battery
             notifyIconCtrl.Dispose();
             statePoll.Stop();
 
-            return 0;
-
-            static Xm4Entity ToXm4Entity( object? sender )
-                => sender as Xm4Entity
-                ?? throw new ArgumentNullException( nameof( sender ) );
+            return ExitOk_ErrorLevel;
         }
 
         private static ContextMenuStrip CreateContextMenu( Xm4Entity xm4 )
@@ -211,11 +207,15 @@ namespace Xm4Battery
         const string DisconnectCtxMenuItemName = nameof( DisconnectCtxMenuItemName );
         const int NotifyIconDefault_WidthPx = 32;
         const int NotifyIconDefault_HeightPx = 32;
-        const int DisconnectedLevel = 0;
+
+        const int DisconnectedLevel = 0; 
         const string NotifyIcon_BatteryLevelTitle = "XM4 Battery Level";
+
         const string AppName = "Xm4Battery";
         const string AppVersion = "3.6.1";
         const string GithubProjectUrl = "https://github.com/nikvoronin/WmiPnp";
+
         const int Xm4NotFound_ErrorLevel = 1;
+        const int ExitOk_ErrorLevel = 0;
     }
 }
