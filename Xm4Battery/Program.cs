@@ -12,7 +12,8 @@ namespace Xm4Battery
             ApplicationConfiguration.Initialize();
 
             var xm4result = Xm4Entity.Create();
-            if (xm4result.IsFailed) return 1;
+            if (xm4result.IsFailed)
+                return Xm4NotFound_ErrorLevel;
 
             Xm4Entity xm4 = xm4result.Value;
 
@@ -59,13 +60,13 @@ namespace Xm4Battery
                 ?? throw new ArgumentNullException( nameof( sender ) );
         }
 
-        private static bool IsAdministrator
-            => new WindowsPrincipal( WindowsIdentity.GetCurrent() )
-            .IsInRole( WindowsBuiltInRole.Administrator );
-
         private static ContextMenuStrip CreateContextMenu( Xm4Entity xm4 )
         {
             ArgumentNullException.ThrowIfNull( xm4 );
+
+            bool runasAdmin =
+                new WindowsPrincipal( WindowsIdentity.GetCurrent() )
+                .IsInRole( WindowsBuiltInRole.Administrator );
 
             ContextMenuStrip contextMenu = new();
             contextMenu.Items.AddRange( new ToolStripItem[] {
@@ -77,7 +78,7 @@ namespace Xm4Battery
                 {
                     Name = ConnectCtxMenuItemName,
                     Enabled = true,
-                    Visible = IsAdministrator
+                    Visible = runasAdmin
                 },
 
                 new ToolStripMenuItem(
@@ -88,11 +89,11 @@ namespace Xm4Battery
                 {
                     Name = DisconnectCtxMenuItemName,
                     Enabled = false,
-                    Visible = IsAdministrator
+                    Visible = runasAdmin
                 },
 
                 new ToolStripSeparator() {
-                    Visible = IsAdministrator
+                    Visible = runasAdmin
                 },
 
                 new ToolStripMenuItem(
@@ -227,5 +228,6 @@ namespace Xm4Battery
         const string AppName = "Xm4Battery";
         const string AppVersion = "3.6.1";
         const string GithubProjectUrl = "https://github.com/nikvoronin/WmiPnp";
+        const int Xm4NotFound_ErrorLevel = 1;
     }
 }
