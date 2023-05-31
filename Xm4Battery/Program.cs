@@ -6,10 +6,6 @@ namespace Xm4Battery
 {
     internal static class Program
     {
-#pragma warning disable CS8618
-        static NotifyIcon _notifyIconControl;
-#pragma warning restore CS8618
-
         [STAThread]
         static int Main()
         {
@@ -20,25 +16,47 @@ namespace Xm4Battery
 
             Xm4Entity xm4 = xm4result.Value;
 
-            _notifyIconControl = new() {
-                Text = NotifyIcon_BatteryLevelTitle,
-                Visible = true,
-                Icon = CreateIconForLevel( DisconnectedLevel ),
-                ContextMenuStrip = CreateContextMenu( xm4 ),
-            };
+            NotifyIcon notifyIconCtrl =
+                new() {
+                    Text = NotifyIcon_BatteryLevelTitle,
+                    Visible = true,
+                    Icon = CreateIconForLevel( DisconnectedLevel ),
+                    ContextMenuStrip = CreateContextMenu( xm4 ),
+                };
 
             Xm4Poller statePoll = new( xm4 );
-            statePoll.ConnectionChanged += Xm4state_ConnectionChanged;
-            statePoll.BatteryLevelChanged += Xm4state_BatteryLevelChanged;
+
+            statePoll.ConnectionChanged +=
+                ( sender, connected ) => {
+                    ConnectionChanged
+                        ( ToXm4Entity( sender )
+                        , notifyIconCtrl
+                        , connected
+                        );
+                };
+
+            statePoll.BatteryLevelChanged +=
+                ( sender, level ) => {
+                    BatteryLevelChanged
+                        ( ToXm4Entity( sender )
+                        , notifyIconCtrl
+                        , level
+                        );
+                };
+
             statePoll.Start();
 
             Application.Run();
 
-            _notifyIconControl.Visible = false;
-            _notifyIconControl.Dispose();
+            notifyIconCtrl.Visible = false;
+            notifyIconCtrl.Dispose();
             statePoll.Stop();
 
             return 0;
+
+            static Xm4Entity ToXm4Entity( object? sender )
+                => sender as Xm4Entity
+                ?? throw new ArgumentNullException( nameof( sender ) );
         }
 
         private static bool IsAdministrator
@@ -52,19 +70,23 @@ namespace Xm4Battery
             ContextMenuStrip contextMenu = new();
             contextMenu.Items.AddRange( new ToolStripItem[] {
                 new ToolStripMenuItem(
-                    "&Connect", null,
-                    ( sender, args ) => xm4.TryConnect() )
+                    "&Connect",
+                    null, (_,_) => {
+                        xm4.TryConnect();
+                    })
                 {
-                    Name = ConnectCtxMenuItem,
+                    Name = ConnectCtxMenuItemName,
                     Enabled = true,
                     Visible = IsAdministrator
                 },
 
                 new ToolStripMenuItem(
-                    "&Disconnect", null,
-                    ( sender, args ) => xm4.TryDisconnect() )
+                    "&Disconnect",
+                    null, (_,_) => {
+                        xm4.TryDisconnect();
+                    } )
                 {
-                    Name = DisconnectCtxMenuItem,
+                    Name = DisconnectCtxMenuItemName,
                     Enabled = false,
                     Visible = IsAdministrator
                 },
@@ -75,7 +97,7 @@ namespace Xm4Battery
 
                 new ToolStripMenuItem(
                     $"&About {AppName} {AppVersion}",
-                    null, ( sender, args ) => {
+                    null, (_,_) => {
                         try {
                             Process.Start(
                                 new ProcessStartInfo(
@@ -88,7 +110,7 @@ namespace Xm4Battery
 
                 new ToolStripMenuItem(
                     "&Quit",
-                    null, ( sender, args ) => {
+                    null, (_,_) => {
                         Application.Exit();
                     } ),
             } );
@@ -111,7 +133,6 @@ namespace Xm4Battery
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             // icon background
-
             var brush =
                 level switch {
                     > 0 and <= 10 => Brushes.Red,
@@ -126,7 +147,6 @@ namespace Xm4Battery
                 1, 1, iw - 2, ih - 2 );
 
             // icon text: battery level or status
-
             var iconText =
                 level switch {
                     100 => "F", // Fully charged
@@ -146,46 +166,46 @@ namespace Xm4Battery
                 , iw / 2 - sizeS.Width / 2
                 , ih / 2 - sizeS.Height / 2 - 1 );
 
-            IntPtr hIcon = icoBitmap.GetHicon();
-            Icon icon = Icon.FromHandle( hIcon );
+            Icon icon =
+                Icon.FromHandle(
+                    icoBitmap.GetHicon() );
 
             return icon;
         }
 
-        private static void Xm4state_BatteryLevelChanged( object? sender, int level )
+        private static void BatteryLevelChanged
+            ( Xm4Entity xm4
+            , NotifyIcon notifyIconCtrl
+            , int level )
+            => UpdateUi(
+                xm4
+                , notifyIconCtrl
+                , xm4?.IsConnected ?? false
+                , level
+            );
+
+        private static void ConnectionChanged
+            ( Xm4Entity xm4
+            , NotifyIcon notifyIconCtrl
+            , bool connected )
+            => UpdateUi(
+                xm4
+                , notifyIconCtrl
+                , connected
+                , xm4?.BatteryLevel ?? DisconnectedLevel
+            );
+
+        private static void UpdateUi(
+            Xm4Entity xm4
+            , NotifyIcon notifyIconCtrl
+            , bool connected
+            , int level )
         {
-            var xm4 = sender as Xm4Entity;
-            var connected = xm4?.IsConnected ?? false;
+            var items = notifyIconCtrl.ContextMenuStrip.Items;
+            items[ConnectCtxMenuItemName].Enabled = !connected;
+            items[DisconnectCtxMenuItemName].Enabled = connected;
 
-            UpdateNotifyIcon( xm4!, connected, level );
-        }
-
-        private static void UpdateContextMenuItems( ContextMenuStrip menu, bool connected )
-        {
-            menu.Items[ConnectCtxMenuItem]
-                .Enabled = !connected;
-
-            menu.Items[DisconnectCtxMenuItem]
-                .Enabled = connected;
-        }
-
-        private static void Xm4state_ConnectionChanged( object? sender, bool connected )
-        {
-            var xm4 = sender as Xm4Entity;
-            var level = xm4?.BatteryLevel ?? DisconnectedLevel;
-
-            UpdateContextMenuItems(
-                _notifyIconControl.ContextMenuStrip
-                , connected );
-            UpdateNotifyIcon( xm4!, connected, level );
-        }
-
-        private static void UpdateNotifyIcon(
-            Xm4Entity xm4,
-            bool connected,
-            int level )
-        {
-            _notifyIconControl.Icon =
+            notifyIconCtrl.Icon =
                 CreateIconForLevel(
                     connected ? level
                     : DisconnectedLevel );
@@ -194,11 +214,12 @@ namespace Xm4Battery
                 connected ? string.Empty
                 : $"\n{xm4!.LastConnectedTime.Value:F}";
 
-            _notifyIconControl.Text = $"{NotifyIcon_BatteryLevelTitle} ⚡{level}%{at}";
+            notifyIconCtrl.Text =
+                $"{NotifyIcon_BatteryLevelTitle} ⚡{level}%{at}";
         }
 
-        const string ConnectCtxMenuItem = nameof( ConnectCtxMenuItem );
-        const string DisconnectCtxMenuItem = nameof( DisconnectCtxMenuItem );
+        const string ConnectCtxMenuItemName = nameof( ConnectCtxMenuItemName );
+        const string DisconnectCtxMenuItemName = nameof( DisconnectCtxMenuItemName );
         const int NotifyIconDefault_WidthPx = 32;
         const int NotifyIconDefault_HeightPx = 32;
         const int DisconnectedLevel = 0;

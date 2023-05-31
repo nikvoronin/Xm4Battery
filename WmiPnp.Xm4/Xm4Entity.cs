@@ -91,7 +91,10 @@ namespace WmiPnp.Xm4
             }
         }
 
-        private IEnumerable<PnpEntity> _bluetoothDevices
+        /// <summary>
+        /// Find all bluetooth sub-devices related to headphones
+        /// </summary>
+        private IEnumerable<PnpEntity> BluetoothDevices
             => PnpEntity.LikeFriendlyNameForClass(
                 name: Headphones_PnpEntity_FriendlyName,
                 className: Bluetooth_PnpClassName );
@@ -102,7 +105,7 @@ namespace WmiPnp.Xm4
         /// </summary>
         public void TryConnect()
         {
-            foreach (var bt in _bluetoothDevices) {
+            foreach (var bt in BluetoothDevices) {
                 bt.Disable();
                 bt.Enable();
             }
@@ -114,11 +117,9 @@ namespace WmiPnp.Xm4
         /// </summary>
         public void TryDisconnect()
         {
-            var lst = _bluetoothDevices.ToList();
-            lst.Reverse();
-            foreach (var bt in lst) {
+            foreach (var bt in BluetoothDevices.Reverse()) { // TODO: Is reverse meaningful?
                 bt.Disable();
-                Thread.Sleep( 100 ); // TODO: Is it meaningful?
+                Thread.Sleep( 100 ); // TODO: Is pause meaningful?
                 bt.Disable();
             }
         }
