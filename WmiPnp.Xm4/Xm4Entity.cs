@@ -16,35 +16,36 @@ namespace WmiPnp.Xm4
 
         public static Result<Xm4Entity> Create()
             => CreateBy(
-                HandsFree_PnpEntity_FriendlyName,
-                Headphones_PnpEntity_FriendlyName );
+                HandsFree_PnpEntity_FriendlyNameGeneral,
+                Headphones_PnpEntity_FriendlyNameGeneral );
 
         public static Result<Xm4Entity> CreateBy(
-            string handsfreeNameExact,
-            string headphonesNameExact )
+            string handsfreeName,
+            string headphonesName )
         {
-            var hfResult =
+            handsfreeName ??= HandsFree_PnpEntity_FriendlyNameGeneral;
+            headphonesName ??= Headphones_PnpEntity_FriendlyNameGeneral;
+
+            var handsfree =
                 PnpEntity
-                .ByFriendlyName(
-                    handsfreeNameExact
-                    ?? HandsFree_PnpEntity_FriendlyName );
+                .ByFriendlyName( handsfreeName );
 
-            if ( hfResult.IsFailed )
-                return Result.Fail( $"Can not create {HandsFree_PnpEntity_FriendlyName} entity" );
+            if ( handsfree.IsFailed )
+                return Result.Fail(
+                    $"Can not create {handsfreeName} entity" );
 
-            var xm4result =
+            var xm4headphones =
                 PnpEntity
-                .ByFriendlyName(
-                    headphonesNameExact
-                    ?? Headphones_PnpEntity_FriendlyName );
+                .ByFriendlyName( headphonesName );
 
-            if ( xm4result.IsFailed )
-                return Result.Fail( $"Can not create {Headphones_PnpEntity_FriendlyName} entity" );
+            if ( xm4headphones.IsFailed )
+                return Result.Fail(
+                    $"Can not create {headphonesName} entity" );
 
             return
                 new Xm4Entity(
-                    hfResult.Value,
-                    xm4result.Value );
+                    handsfree.Value
+                    , xm4headphones.Value );
         }
 
         public static Result<Xm4Entity> CreateUnsafe(
@@ -59,7 +60,7 @@ namespace WmiPnp.Xm4
                 var batteryLevel =
                     _handsFree.GetDeviceProperty(
                         PnpEntity.DeviceProperty_BatteryLevel )
-                    .Value;
+                    .ValueOrDefault;
 
                 return (byte)( batteryLevel.Data ?? 0 );
             }
@@ -96,7 +97,7 @@ namespace WmiPnp.Xm4
         /// </summary>
         private IEnumerable<PnpEntity> BluetoothDevices
             => PnpEntity.LikeFriendlyNameForClass(
-                name: Headphones_PnpEntity_FriendlyName,
+                name: Headphones_PnpEntity_FriendlyNameGeneral,
                 className: Bluetooth_PnpClassName );
 
         /// <summary>
@@ -124,10 +125,15 @@ namespace WmiPnp.Xm4
             }
         }
 
-        public const string HandsFree_PnpEntity_FriendlyName
-            = "WH-1000XM4 Hands-Free AG"; // Battery level related
-        public const string Headphones_PnpEntity_FriendlyName
-            = "WH-1000XM4"; // Headphones state related
+        //// TODO: candidate to remove, WH-1000XM4 only
+        //public const string HandsFree_PnpEntity_FriendlyName
+        //    = "WH-1000XM4 Hands-Free AG"; // Battery level related
+        //public const string Headphones_PnpEntity_FriendlyName
+        //    = "WH-1000XM4"; // Headphones state related
+        public const string HandsFree_PnpEntity_FriendlyNameGeneral
+            = "W_-1000XM_ Hands-Free AG"; // Battery level related
+        public const string Headphones_PnpEntity_FriendlyNameGeneral
+            = "W_-1000XM_"; // Headphones state related
 
         public const string Bluetooth_PnpClassName = "Bluetooth";
     }

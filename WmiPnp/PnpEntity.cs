@@ -207,7 +207,7 @@ public class PnpEntity
     /// <param name="name">Full name of a device</param>
     /// <returns>PnpEntity or Fail</returns>
     public static Result<PnpEntity> ByFriendlyName( string name )
-        => EntityOrNone( where: $"{Name_FieldName}='{name}'" );
+        => EntityOrNone( where: $"{Name_FieldName} LIKE '{name}'" );
 
     /// <summary>
     /// Find entity by exact equal device id
