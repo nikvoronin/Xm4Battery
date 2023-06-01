@@ -2,12 +2,12 @@
 
 > WMI = Windows Management Interface.
 
-The primary goal of the project is to get battery level of `WH-1000XM4` headphones.
+The primary goal of the project is to get battery level of `WH-1000XM4` headphones. Perhaps the app might also work with similar models of headphones such as WH-1000XM3, WF-1000XM3 or WF-1000XM4.
 
 ![emoji_flash_bullet_battery_level_v23-5-2](https://user-images.githubusercontent.com/11328666/235766399-44585bee-0e8f-4d21-b96a-81b58b9e83d2.jpg)
 
 - [Xm4Battery Application](#xm4battery-application)
-  - [Interface](#interface)
+  - [User Interface](#user-interface)
   - [Tray Icon Mods](#tray-icon-mods)
 - [Xm4Poller](#xm4poller)
   - [Start-Stop Polling](#start-stop-polling)
@@ -29,11 +29,11 @@ The primary goal of the project is to get battery level of `WH-1000XM4` headphon
 
 ## Xm4Battery Application
 
-WinForms window-less trayicon application. Ready to run app is available at the [Latest Release](https://github.com/nikvoronin/WmiPnp/releases/latest) section.
+The Windows Forms, window-less and trayicon application. Ready to run app is available under the [Latest Release](https://github.com/nikvoronin/WmiPnp/releases/latest) section.
 
 System requirements: Windows 10 x64, .NET 6.0.
 
-### Interface
+### User Interface
 
 - **F** - 100% or fully charged
 - **9..4** - 90..40%
@@ -49,12 +49,13 @@ System requirements: Windows 10 x64, .NET 6.0.
 - About - leads to this page.
 - Quit - closes and unloads application at all.
 
-> ⚠ **Connect / Disconnect** will appear if the app is run as administrator.\
-> ⚠ These functions may cause system artefacts.
+>⚠ **Connect / Disconnect** items appear if the app is run as an administrator.\
+>⚠ These functions may cause system artefacts or unusual behavior of Volume Control, Sound Mixer, Bluetooth Device Manager, etc.\
+>⚠ Especially the Disconnect item. Connect is a law-abiding one.
 
 ### Tray Icon Mods
 
-Background colors defined at the `CreateIconForLevel` method:
+Background color is defined in the `CreateIconForLevel` method:
 
 ```csharp
 var brush =
@@ -67,7 +68,7 @@ var brush =
     };
 ```
 
-Font for notify icon (battery level and headphones status):
+Font for notification icon text (battery level or headphones status):
 
 ```csharp
 static readonly Font _notifyIconFont
@@ -76,7 +77,7 @@ static readonly Font _notifyIconFont
 
 ## Xm4Poller
 
-Automatically updates status of xm4 headphones.
+Automatically updates status of headphones.
 
 ### Start-Stop Polling
 
@@ -135,7 +136,7 @@ bool connected = _xm4.IsConnected;
 
 ### What Is The Last Connected Time?
 
-We can not get the last connected time if headphones is online and connected. This property has meaning only when headphones are DISconnected.
+We don't know how to get the last connected time if headphones is online and already connected. This property is valid only if headphones are DISconnected.
 
 ```csharp
 Result<DateTime> dt = _xm4.LastConnectedTime;
@@ -151,7 +152,7 @@ else
 
 ### Headphones Battery Level
 
-It can get the actual battery level if headphones are connected OR the last known level if headphones are not connected.
+It can get the actual battery level if headphones are connected. Otherwise, headphones are DISconnected, it returns the last known level.
 
 ```csharp
 int level = _xm4.BatteryLevel;
@@ -216,7 +217,7 @@ foreach( var p in properties ) {
 }
 ```
 
-The same but with a cached list of the last updated properties
+Same thing but with a cached list of the last updated properties
 
 ```csharp
 _ = btDevice.UpdateProperties();
@@ -264,6 +265,8 @@ Key = {83da6326-97a6-4088-9453-a1923f573b29} 103
 - `WH-1000XM4 Hands-Free AG` - exact name for PnpEntity to get a **BATTERY LEVEL** only.
 - `WH-1000XM4` - exact name for PnpEntity to get a **STATE** of the xm4.
 
+> Actually, the app utilize templates like `W_-1000XM_` to generalize model of headphones (WH-1000XM3, WF-1000XM4, etc.)
+
 <!-- omit in toc -->
 ### DEVPKEY_Device_DevNodeStatus
 
@@ -279,7 +282,7 @@ Key = {83da6326-97a6-4088-9453-a1923f573b29} 103
 <!-- omit in toc -->
 ### DEVPKEY_Bluetooth_LastConnectedTime
 
-This is only property to retrieve a last connection date-time of xm4. This property presents only when headphones are DISconnected.
+This is only property to retrieve the last connection date-time of headphones. This property appears only when headphones are DISconnected.
 
 - Key = `{2BD67D8B-8BEB-48D5-87E0-6CDA3428040A} 11`
 - KeyName = DEVPKEY_Bluetooth_LastConnectedTime
@@ -318,7 +321,7 @@ Now we can use `Windows.Devices.Radios` namespace:
 using Windows.Devices.Radios;
 ```
 
-> Be aware, this one could switch off system bluetooth radio **at all** (not only enable or disable). Use it on your own risk!
+>⚠ Be aware, this one could switch off system bluetooth radio **at all** (not only enable or disable). Use it on your own risk!
 
 ```csharp
 public static async Task OsEnableBluetooth()
