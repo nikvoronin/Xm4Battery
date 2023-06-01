@@ -321,7 +321,8 @@ Now we can use `Windows.Devices.Radios` namespace:
 using Windows.Devices.Radios;
 ```
 
->⚠ Be aware, this one could switch off system bluetooth radio **at all** (not only enable or disable). Use it on your own risk!
+>⚠ Be aware, this one could switch off system bluetooth radio **at all** (not only enable or disable).\
+>⚠ Use this on your own risk!
 
 ```csharp
 public static async Task OsEnableBluetooth()
