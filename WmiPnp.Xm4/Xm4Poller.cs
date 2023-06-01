@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace WmiPnp.Xm4
+﻿namespace WmiPnp.Xm4
 {
     public class Xm4Poller : IDisposable
     {
