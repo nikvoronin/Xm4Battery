@@ -210,7 +210,7 @@ namespace Xm4Battery
         const string NotifyIcon_BatteryLevelTitle = "XM4 Battery Level";
 
         const string AppName = "Xm4Battery";
-        const string AppVersion = "3.6.1";
+        const string AppVersion = "3.6.3";
         const string GithubProjectUrl = "https://github.com/nikvoronin/WmiPnp";
 
         const int Xm4NotFound_ErrorLevel = 1;
