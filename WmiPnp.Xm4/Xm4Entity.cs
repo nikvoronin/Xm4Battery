@@ -95,7 +95,7 @@ namespace WmiPnp.Xm4
         /// <summary>
         /// Find all bluetooth sub-devices related to headphones
         /// </summary>
-        private IEnumerable<PnpEntity> BluetoothDevices
+        private static IEnumerable<PnpEntity> BluetoothDevices
             => PnpEntity.LikeFriendlyNameForClass(
                 name: Headphones_PnpEntity_FriendlyNameGeneral,
                 className: Bluetooth_PnpClassName );
@@ -104,7 +104,7 @@ namespace WmiPnp.Xm4
         /// Try connect already paired bluetooth headphones.
         /// Application have to be runned under the Administrative rights
         /// </summary>
-        public void TryConnect()
+        public static void TryConnect()
         {
             foreach (var bt in BluetoothDevices) {
                 bt.Disable();
@@ -116,7 +116,7 @@ namespace WmiPnp.Xm4
         /// Try disconnect already paired bluetooth headphones.
         /// Application have to be runned under the Administrative rights
         /// </summary>
-        public void TryDisconnect()
+        public static void TryDisconnect()
         {
             foreach (var bt in BluetoothDevices.Reverse()) { // TODO: Is reverse meaningful?
                 bt.Disable();

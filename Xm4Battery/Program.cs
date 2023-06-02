@@ -22,7 +22,7 @@ namespace Xm4Battery
                     Text = NotifyIcon_BatteryLevelTitle,
                     Visible = true,
                     Icon = CreateIconForLevel( DisconnectedLevel ),
-                    ContextMenuStrip = CreateContextMenu( xm4 ),
+                    ContextMenuStrip = CreateContextMenu(),
                 };
 
             Xm4Poller statePoll = new( xm4 );
@@ -56,10 +56,8 @@ namespace Xm4Battery
             return ExitOk_ErrorLevel;
         }
 
-        private static ContextMenuStrip CreateContextMenu( Xm4Entity xm4 )
+        private static ContextMenuStrip CreateContextMenu()
         {
-            ArgumentNullException.ThrowIfNull( xm4 );
-
             bool runasAdmin =
                 new WindowsPrincipal( WindowsIdentity.GetCurrent() )
                 .IsInRole( WindowsBuiltInRole.Administrator );
@@ -69,7 +67,7 @@ namespace Xm4Battery
                 new ToolStripMenuItem(
                     "&Connect",
                     null, (_,_) => {
-                        xm4.TryConnect();
+                        Xm4Entity.TryConnect();
                     })
                 {
                     Name = ConnectCtxMenuItemName,
@@ -80,7 +78,7 @@ namespace Xm4Battery
                 new ToolStripMenuItem(
                     "&Disconnect",
                     null, (_,_) => {
-                        xm4.TryDisconnect();
+                        Xm4Entity.TryDisconnect();
                     } )
                 {
                     Name = DisconnectCtxMenuItemName,
