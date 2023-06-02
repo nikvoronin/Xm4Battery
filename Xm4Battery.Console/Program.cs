@@ -13,9 +13,9 @@ if (!xm4.IsConnected) {
         .IsInRole( WindowsBuiltInRole.Administrator );
 
     if (administrator) {
-        Console.WriteLine( "Admin here: re/connect headphones..." );
+        Console.WriteLine( "Admin here: re/connecting headphones..." );
 
-        xm4.TryConnect();
+        Xm4Entity.TryConnect();
     }
 }
 
