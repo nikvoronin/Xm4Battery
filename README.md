@@ -18,20 +18,23 @@ The primary goal of the project is to get battery level of `WH-1000XM4` headphon
   - [Is Connected or Not?](#is-connected-or-not)
   - [What Is The Last Connected Time?](#what-is-the-last-connected-time)
   - [Headphones Battery Level](#headphones-battery-level)
+  - [Re/Connect Already Paired](#reconnect-already-paired)
 - [PnpEntity](#pnpentity)
   - [How To Find PNP Device?](#how-to-find-pnp-device)
   - [Get / Update Specific Device Property](#get--update-specific-device-property)
   - [Enumerate Device Properties](#enumerate-device-properties)
+  - [Enable-Disable Device](#enable-disable-device)
 - [Device Specific Properties](#device-specific-properties)
 - [XM4 Related Properties](#xm4-related-properties)
 - [Windows Radio](#windows-radio)
-- [Links](#links)
+- [References](#references)
 
 ## Xm4Battery Application
 
-The Windows Forms, window-less and trayicon application. Ready to run app is available under the [Latest Release](https://github.com/nikvoronin/WmiPnp/releases/latest) section.
+The Windows Forms, trayiconed and window-less application at once.\
+Ready to run app is available under the [Latest Release](https://github.com/nikvoronin/WmiPnp/releases/latest) section.
 
-System requirements: Windows 10 x64, .NET 6.0.
+System requirements: Windows 10 x64, [.NET Desktop Runtime 6.0](https://dotnet.microsoft.com/en-us/download/dotnet/6.0).
 
 ### User Interface
 
@@ -92,7 +95,8 @@ statePoll.ConnectionChanged += Xm4state_ConnectionChanged;
 statePoll.BatteryLevelChanged += Xm4state_BatteryLevelChanged;
 statePoll.Start();
 
-Application.Run(); // run WinForms app, for ex
+// starts main loop of window-less WinForms app
+Application.Run();
 
 // application was closed, quit
 statePoll.Stop();
@@ -101,7 +105,9 @@ statePoll.Stop();
 ### Connection Changed
 
 ```csharp
-private static void Xm4state_ConnectionChanged( object? sender, bool connected )
+private static void Xm4state_ConnectionChanged(
+    object? sender
+    , bool connected )
 {
     var xm4 = sender as Xm4Entity;
     ...
@@ -110,7 +116,9 @@ private static void Xm4state_ConnectionChanged( object? sender, bool connected )
 ### Battery Level Changed
 
 ```csharp
-private static void Xm4state_BatteryLevelChanged( object? sender, int batteryLevel )
+private static void Xm4state_BatteryLevelChanged
+    object? sender
+    , int batteryLevel )
 {
     var xm4 = sender as Xm4Entity;
     ...
@@ -158,13 +166,21 @@ It can get the actual battery level if headphones are connected. Otherwise, head
 int level = _xm4.BatteryLevel;
 ```
 
+### Re/Connect Already Paired
+
+When headphones are used with multiple sources (laptop, pc, smartphone, etc) you have to reconnect headphones from time to time. So headphones are already paired but disconnected. In this case `WmiPnp` has experimental `Xm4Entity.TryConnect()` and very unstable `Xm4Entity.TryDisconnect()`. Both want the application run as administrator. Otherwise these functions are ignored.
+
+If you are curious to find out about turn off bluetooth at all, see topic about [Windows Radio](#windows-radio).
+
 ## PnpEntity
 
-First, we should know the `name` or `device id` of the device we are working with or at least a part of the device name.
+First, we should know a `name` or `device id` of the device we are working with or at least a part of the device name.
 
-- ByFriendlyName ( exact a friendly name )
-- ByDeviceId ( exact a device id, like `{GUID} pid` )
-- LikeFriendlyName ( a part of a friendly name ) - returns a list of founded devices `IEnumerable<PnpEntity>` or empty list otherwise.
+- ByFriendlyName - exact a friendly name.
+- ByDeviceId - exact a device id, like `{GUID} pid`.
+- LikeFriendlyName - a part of a friendly name. Returns a list of founded devices `IEnumerable<PnpEntity>` or empty list otherwise.
+- EntityOrNone - a `where` part of WQL request to retrieve exact a single device only.
+- EntitiesOrNone - a `where` part of WQL request to retrieve zero, one or several devices at once.
 
 All of methods produce instances of `PnpEntity` or `Result.Fail` if the given device was not found.
 
@@ -224,6 +240,18 @@ _ = btDevice.UpdateProperties();
 
 foreach( var p in btDevice.Properties ) {
     ...
+```
+
+### Enable-Disable Device
+
+Some devices could be enabled or disabled.
+
+```csharp
+...
+PnpEntity btDevice = result.Value;
+
+btDevice.Disable();
+btDevice.Enable();
 ```
 
 ## Device Specific Properties
@@ -348,12 +376,9 @@ private async Task InternalBluetoothState( bool enable )
 }
 ```
 
-<!-- omit in toc -->
-### Notes
+> We can also use `Windows.Devices.Bluetooth` namespace or even `Windows.Devices.***` for other peripheral devices.
 
-We can also use `Windows.Devices.Bluetooth` namespace or even `Windows.Devices.***` for other peripheral devices.
-
-## Links
+## References
 
 - [Enumerating windows device](https://www.codeproject.com/articles/14412/enumerating-windows-device). Enumerating the device using the SetupDi* API provided with WinXP. CodeProject // 17 Jun 2006
 - Visual Basic: [How to get the details for each enumerated device?](https://social.msdn.microsoft.com/Forums/en-US/65086709-cee8-4efa-a794-b32979abb0ea/how-to-get-the-details-for-each-enumerated-device?forum=vbgeneral) MSDN, Archived Forums 421-440.
