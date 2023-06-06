@@ -2,7 +2,7 @@
 
 > WMI = Windows Management Interface.
 
-The primary goal of the project is to get battery level of `WH-1000XM4` headphones. Perhaps the app might also work with similar models of headphones such as WH-1000XM3, WF-1000XM3 or WF-1000XM4.
+The primary goal of the project is to get battery level of `WH-1000XM4` headphones. Perhaps `Xm4Battery` might also works with similar models of headphones such as WH-1000XM3, WF-1000XM3 or WF-1000XM4.
 
 ![emoji_flash_bullet_battery_level_v23-5-2](https://user-images.githubusercontent.com/11328666/235766399-44585bee-0e8f-4d21-b96a-81b58b9e83d2.jpg)
 
@@ -350,7 +350,7 @@ using Windows.Devices.Radios;
 ```
 
 >⚠ Be aware, this one could switch off system bluetooth radio **at all** (not only enable or disable).\
->⚠ Use this on your own risk!
+>⚠ Use at your own risk!
 
 ```csharp
 public static async Task OsEnableBluetooth()
