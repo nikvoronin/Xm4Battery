@@ -114,7 +114,7 @@ namespace Xm4Battery
         }
 
         static readonly Font _notifyIconFont
-            = new( "Segoe UI", 16, FontStyle.Regular );
+            = new( "Segoe UI", 10, FontStyle.Regular );
 
         private static Icon CreateIconForLevel( int level )
         {
@@ -139,7 +139,7 @@ namespace Xm4Battery
 
             g.FillRectangle(
                 brush,
-                1, 1, iw - 2, ih - 2 );
+                0, 0, iw - 1, ih - 1 );
 
             // icon text: battery level or status
             var iconText =
@@ -159,7 +159,7 @@ namespace Xm4Battery
                 , _notifyIconFont
                 , Brushes.Black
                 , iw / 2 - sizeS.Width / 2
-                , ih / 2 - sizeS.Height / 2 - 1 );
+                , ih / 2 - sizeS.Height / 2 );
 
             Icon icon =
                 Icon.FromHandle(
@@ -203,14 +203,14 @@ namespace Xm4Battery
 
         const string ConnectCtxMenuItemName = nameof( ConnectCtxMenuItemName );
         const string DisconnectCtxMenuItemName = nameof( DisconnectCtxMenuItemName );
-        const int NotifyIconDefault_WidthPx = 32;
-        const int NotifyIconDefault_HeightPx = 32;
+        const int NotifyIconDefault_WidthPx = 20;
+        const int NotifyIconDefault_HeightPx = 20;
 
         const int DisconnectedLevel = 0; 
         const string NotifyIcon_BatteryLevelTitle = "XM4 Battery Level";
 
         const string AppName = "Xm4Battery";
-        const string AppVersion = "3.6.3";
+        const string AppVersion = "3.6.6";
         const string GithubProjectUrl = "https://github.com/nikvoronin/WmiPnp";
 
         const int Xm4NotFound_ErrorLevel = 1;
