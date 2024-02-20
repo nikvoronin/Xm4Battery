@@ -36,6 +36,11 @@ Ready to run app is available under the [Latest Release](https://github.com/nikv
 
 System requirements: Windows 10 x64, [.NET Desktop Runtime 6.0](https://dotnet.microsoft.com/en-us/download/dotnet/6.0).
 
+| Headphones  | Win 10 Pro | Win 11   |
+| ----------- | ---------- | -------- |
+| WH-1000_XM4 | Yes        | Expected |
+| WH-1000_XM3 | Yes        | Unknown  |
+
 ### User Interface
 
 - **F** - 100% or fully charged
