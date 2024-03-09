@@ -389,3 +389,5 @@ private async Task InternalBluetoothState( bool enable )
 - [How to get the details for each enumerated device?](https://social.msdn.microsoft.com/Forums/en-US/65086709-cee8-4efa-a794-b32979abb0ea/how-to-get-the-details-for-each-enumerated-device?forum=vbgeneral) MSDN, Archived Forums 421-440. `Visual Basic`
 - [Query battery level for WH-1000XM4 wireless headphones](https://gist.github.com/nikvoronin/e8fc8a1631dd0e851f1ab821d0e3cf01). GitHub gist. `PowerShell`
 - [Enable/disable already paired bluetooth devices](https://stackoverflow.com/questions/62502414/how-to-connect-to-a-paired-audio-bluetooth-device-using-windows-uwp-api/71539568#71539568). StackOverflow. How to connect to a paired audio Bluetooth device using Windows UWP API? `PowerShell`
+- [Talking to robots (or other devices) using Bluetooth from a Windows Runtime app](https://blogs.windows.com/windowsdeveloper/2014/05/07/talking-to-robots-or-other-devices-using-bluetooth-from-a-windows-runtime-app/). `Windows.Devices.Bluetooth.Rfcomm` namespace // May 7, 2014
+- [My Bluetooth headset can now be switched on and off from the command line](https://superuser.com/a/1815325). `PowerShell`
