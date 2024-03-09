@@ -19,16 +19,19 @@ if (!xm4.IsConnected) {
     }
 }
 
-string wave = new( ' ', 18 );
+var wave = new string( ' ', 18 );
 Console.WriteLine( "Press any key to stop polling..." );
 while (!Console.KeyAvailable) {
     var status =
         xm4.IsConnected ? $"{DateTime.Now:T}"
         : "Disconnected / Last Known";
 
-    wave = xm4.IsConnected ? (Random.Shared.Next(0, 2) == 0 ? ">" : " ") + wave[..^1] : new( ' ', 18 );
+    wave =
+        xm4.IsConnected 
+        ? (Random.Shared.Next(0, 2) == 0 ? ">" : " ") + wave[..^1] 
+        : new( ' ', 18 );
 
     Console.Write( $"\r[{status}] Battery Level: {xm4.BatteryLevel}%  {wave}" );
 
-    Thread.Sleep( 1000 );
+    Thread.Sleep( TimeSpan.FromSeconds(1) );
 }

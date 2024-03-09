@@ -46,8 +46,7 @@ public class PnpEntity
                     keyName: p.ValueOf( DeviceProperty.KeyName_PropertyField ),
                     type: (uint)p.GetPropertyValue( DeviceProperty.Type_PropertyField ),
                     data: p.GetPropertyValue( DeviceProperty.Data_PropertyField )
-                    )
-                )
+                    ) )
             ?? Enumerable.Empty<DeviceProperty>();
 
         return Properties;
@@ -78,15 +77,14 @@ public class PnpEntity
         try {
             _entity.InvokeMethod( GetDeviceProperties_MethodName, args );
         }
-        catch ( ManagementException e ) {
-            return
-                Result.Fail(
-                    new Error( $"Entity not found or wrong key. Exception when invoke method {GetDeviceProperties_MethodName}" )
-                    .CausedBy( e ) );
+        catch (ManagementException e) {
+            return Result.Fail(
+                new Error( $"Entity not found or wrong key. Exception when invoke method {GetDeviceProperties_MethodName}" )
+                .CausedBy( e ) );
         }
 
-        ManagementBaseObject? ss = ( args[1] as ManagementBaseObject[] )?[0];
-        if ( ss is null )
+        ManagementBaseObject? ss = (args[1] as ManagementBaseObject[])?[0];
+        if (ss is null)
             return Result.Fail( $"Method {GetDeviceProperties_MethodName} returns nothing." );
 
         var ps =
@@ -104,7 +102,7 @@ public class PnpEntity
             typeValue == (uint)DataType.Empty
             || dataValue is null;
 
-        if ( noValidDataValue )
+        if (noValidDataValue)
             return Result.Fail( $"No valid data value: type={typeValue}; data:`{dataValue}`." );
 
         DeviceProperty dp = new(
@@ -125,10 +123,9 @@ public class PnpEntity
             _entity.InvokeMethod( Enable_MethodName, null, null );
         }
         catch (ManagementException e) {
-            return
-                Result.Fail(
-                    new Error( $"Entity not found or wrong key. Exception when invoke method {Enable_MethodName}" )
-                    .CausedBy( e ) );
+            return Result.Fail(
+                new Error( $"Entity not found or wrong key. Exception when invoke method {Enable_MethodName}" )
+                .CausedBy( e ) );
         }
 
         return Result.Ok();
@@ -142,10 +139,9 @@ public class PnpEntity
             _entity.InvokeMethod( Disable_MethodName, null, null );
         }
         catch (ManagementException e) {
-            return
-                Result.Fail(
-                    new Error( $"Entity not found or wrong key. Exception when invoke method {Disable_MethodName}" )
-                    .CausedBy( e ) );
+            return Result.Fail(
+                new Error( $"Entity not found or wrong key. Exception when invoke method {Disable_MethodName}" )
+                .CausedBy( e ) );
         }
 
         return Result.Ok();
@@ -170,7 +166,7 @@ public class PnpEntity
                 .FirstOrDefault();
 
             var deviceFound = mo is not null;
-            if ( deviceFound )
+            if (deviceFound)
                 entity = ToPnpEntity( mo! );
         }
         catch { }
@@ -217,7 +213,7 @@ public class PnpEntity
     /// <returns>PnpEntity or Fail</returns>
     public static Result<PnpEntity> ByDeviceId( string id, bool duplicateSlashes = true )
     {
-        if ( duplicateSlashes )
+        if (duplicateSlashes)
             id = id.Replace( "\\", "\\\\" );
 
         return

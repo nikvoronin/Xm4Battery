@@ -44,8 +44,8 @@ namespace WmiPnp.Xm4
 
             return
                 new Xm4Entity(
-                    handsfree.Value
-                    , xm4headphones.Value );
+                    handsfree.Value, 
+                    xm4headphones.Value );
         }
 
         public static Result<Xm4Entity> CreateUnsafe(
@@ -79,7 +79,7 @@ namespace WmiPnp.Xm4
         public Result<DateTime> LastConnectedTime {
             get {
                 var dtResult =
-                    _xm4.GetDeviceProperty(
+                    _xm4.GetDeviceProperty( 
                         PnpEntity.DeviceProperty_LastConnectedTime );
 
                 return
