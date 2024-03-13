@@ -111,8 +111,8 @@ statePoll.Stop();
 
 ```csharp
 private static void Xm4state_ConnectionChanged(
-    object? sender
-    , bool connected )
+    object? sender,
+    bool connected )
 {
     var xm4 = sender as Xm4Entity;
     ...
@@ -122,8 +122,8 @@ private static void Xm4state_ConnectionChanged(
 
 ```csharp
 private static void Xm4state_BatteryLevelChanged
-    object? sender
-    , int batteryLevel )
+    object? sender,
+    int batteryLevel )
 {
     var xm4 = sender as Xm4Entity;
     ...
