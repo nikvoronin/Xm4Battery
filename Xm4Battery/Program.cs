@@ -2,222 +2,227 @@
 using System.Security.Principal;
 using WmiPnp.Xm4;
 
-namespace Xm4Battery
+namespace Xm4Battery;
+
+internal static class Program
 {
-    internal static class Program
+    [STAThread]
+    static int Main()
     {
-        [STAThread]
-        static int Main()
-        {
-            ApplicationConfiguration.Initialize();
+        ApplicationConfiguration.Initialize();
 
-            var xm4result = Xm4Entity.Create();
-            if (xm4result.IsFailed)
-                return Xm4NotFound_ErrorLevel;
+        var xm4result = Xm4Entity.Create();
+        if (xm4result.IsFailed)
+            return (int)ErrorLevel.Xm4NotFound;
 
-            Xm4Entity xm4 = xm4result.Value;
+        Xm4Entity xm4 = xm4result.Value;
 
-            NotifyIcon notifyIconCtrl =
-                new() {
-                    Text = NotifyIcon_BatteryLevelTitle,
-                    Visible = true,
-                    Icon = CreateIconForLevel( DisconnectedLevel ),
-                    ContextMenuStrip = CreateContextMenu()
-                };
+        NotifyIcon notifyIconCtrl =
+            new() {
+                Text = NotifyIcon_BatteryLevelTitle,
+                Visible = true,
+                Icon = CreateIconForLevel( DisconnectedLevel ),
+                ContextMenuStrip = CreateContextMenu()
+            };
 
-            Xm4Poller statePoll = new( xm4 );
+        Xm4Poller statePoll = new( xm4 );
 
-            statePoll.ConnectionChanged +=
-                ( _, connected ) => {
-                    UpdateUi(
-                        xm4,
-                        notifyIconCtrl,
-                        connectionStatus: connected );
-                };
+        statePoll.ConnectionChanged +=
+            ( _, connected ) => {
+                UpdateUi(
+                    xm4,
+                    notifyIconCtrl,
+                    connectionStatus: connected );
+            };
 
-            statePoll.BatteryLevelChanged +=
-                ( _, level ) => {
-                    UpdateUi(
-                        xm4,
-                        notifyIconCtrl,
-                        batteryLevel: level );
-                };
+        statePoll.BatteryLevelChanged +=
+            ( _, level ) => {
+                UpdateUi(
+                    xm4,
+                    notifyIconCtrl,
+                    batteryLevel: level );
+            };
 
-            statePoll.Start();
+        statePoll.Start();
 
-            Application.Run();
+        Application.Run();
 
-            notifyIconCtrl.Visible = false;
-            notifyIconCtrl.Dispose();
-            statePoll.Stop();
+        notifyIconCtrl.Visible = false;
+        notifyIconCtrl.Dispose();
+        statePoll.Stop();
 
-            return ExitOk_ErrorLevel;
-        }
+        return (int)ErrorLevel.ExitOk;
+    }
 
-        private static ContextMenuStrip CreateContextMenu()
-        {
-            bool runasAdmin =
-                new WindowsPrincipal( WindowsIdentity.GetCurrent() )
-                .IsInRole( WindowsBuiltInRole.Administrator );
+    private static ContextMenuStrip CreateContextMenu()
+    {
+        bool runasAdmin =
+            new WindowsPrincipal( WindowsIdentity.GetCurrent() )
+            .IsInRole( WindowsBuiltInRole.Administrator );
 
-            ContextMenuStrip contextMenu = new();
-            contextMenu.Items.AddRange( new ToolStripItem[] {
-                new ToolStripMenuItem(
-                    "&Connect",
-                    null,
-                    (_,_) => {
-                        Xm4Entity.TryConnect();
-                    } )
-                {
-                    Name = ConnectCtxMenuItemName,
-                    Enabled = true,
-                    Visible = runasAdmin
-                },
+        ContextMenuStrip contextMenu = new();
+        contextMenu.Items.AddRange( new ToolStripItem[] {
+            new ToolStripMenuItem(
+                "&Connect",
+                null,
+                (_,_) => {
+                    Xm4Entity.TryConnect();
+                } )
+            {
+                Name = ConnectCtxMenuItemName,
+                Enabled = true,
+                Visible = runasAdmin
+            },
 
-                new ToolStripMenuItem(
-                    "&Disconnect",
-                    null,
-                    (_,_) => {
-                        Xm4Entity.TryDisconnect();
-                    } )
-                {
-                    Name = DisconnectCtxMenuItemName,
-                    Enabled = false,
-                    Visible = runasAdmin
-                },
+            new ToolStripMenuItem(
+                "&Disconnect",
+                null,
+                (_,_) => {
+                    Xm4Entity.TryDisconnect();
+                } )
+            {
+                Name = DisconnectCtxMenuItemName,
+                Enabled = false,
+                Visible = runasAdmin
+            },
 
-                new ToolStripSeparator() {
-                    Visible = runasAdmin
-                },
+            new ToolStripSeparator() {
+                Visible = runasAdmin
+            },
 
-                new ToolStripMenuItem(
-                    $"&About {AppName} {AppVersion}",
-                    null,
-                    (_,_) => {
-                        try {
-                            Process.Start(
-                                new ProcessStartInfo(
-                                    "cmd",
-                                    $"/c start {GithubProjectUrl}")
-                                {
-                                    CreateNoWindow = true
-                                });
-                        } catch {}
-                    } ),
+            new ToolStripMenuItem(
+                $"&About {AppName} {AppVersion}",
+                null,
+                (_,_) => {
+                    try {
+                        Process.Start(
+                            new ProcessStartInfo(
+                                "cmd",
+                                $"/c start {GithubProjectUrl}")
+                            {
+                                CreateNoWindow = true
+                            });
+                    } catch {}
+                } ),
 
-                new ToolStripSeparator(),
+            new ToolStripSeparator(),
 
-                new ToolStripMenuItem(
-                    "&Quit",
-                    null, (_,_) => {
-                        Application.Exit();
-                    } ),
-            } );
+            new ToolStripMenuItem(
+                "&Quit",
+                null, (_,_) => {
+                    Application.Exit();
+                } ),
+        } );
 
-            return contextMenu;
-        }
+        return contextMenu;
+    }
 
-        static readonly Font _notifyIconFont
-            = new( "Segoe UI", 10, FontStyle.Regular );
+    static readonly Font _notifyIconFont
+        = new( "Segoe UI", 10, FontStyle.Regular );
 
-        private static Icon CreateIconForLevel( int level )
-        {
-            const int iw = NotifyIconDefault_WidthPx;
-            const int ih = NotifyIconDefault_HeightPx;
+    private static Icon CreateIconForLevel( int level )
+    {
+        const int iw = NotifyIconDefault_WidthPx;
+        const int ih = NotifyIconDefault_HeightPx;
 
-            using Bitmap icoBitmap = new( iw, ih );
-            using var g = Graphics.FromImage( icoBitmap );
-            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBilinear;
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+        using Bitmap icoBitmap = new( iw, ih );
+        using var g = Graphics.FromImage( icoBitmap );
+        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBilinear;
+        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+        g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
 
-            // icon background
-            var brush =
-                level switch {
-                    > 0 and <= 10 => Brushes.Red,
-                    > 0 and <= 20 => Brushes.Orange,
-                    > 0 and <= 30 => Brushes.Yellow,
-                    <= 0 => Brushes.Gray,
-                    _ => Brushes.White
-                };
+        level = 40;
 
-            g.FillRectangle(
-                brush,
-                0, 0, iw - 1, ih - 1 );
+        // icon background
+        var brush =
+            level switch {
+                > 0 and <= 10 => Brushes.Red,
+                > 0 and <= 20 => Brushes.Orange,
+                > 0 and <= 30 => Brushes.Yellow,
+                <= 0 => Brushes_WhiteA100,
+                _ => Brushes.White
+            };
 
-            // icon text: battery level or status
-            var iconText =
-                level switch {
-                    100 => "F", // Fully charged
-                    > 0 and < 100 => level.ToString()[..^1],
-                    _ => "X" // Disconnected
-                };
+        g.FillRectangle(
+            brush,
+            0, 0, iw - 1, ih - 1 );
 
-            var sizeS =
-                g.MeasureString(
-                    iconText,
-                    _notifyIconFont );
+        // icon text: battery level or status
+        var iconText =
+            level switch {
+                100 => "F", // Full charged
+                > 0 and < 100 => level.ToString()[..^1],
+                _ => "X" // Disconnected
+            };
 
-            g.DrawString(
+        var sizeS =
+            g.MeasureString(
                 iconText,
-                _notifyIconFont,
-                Brushes.Black,
-                iw / 2 - sizeS.Width / 2,
-                ih / 2 - sizeS.Height / 2 );
+                _notifyIconFont );
 
-            Icon icon =
-                Icon.FromHandle(
-                    icoBitmap.GetHicon() );
+        g.DrawString(
+            iconText,
+            _notifyIconFont,
+            Brushes.Black,
+            iw / 2 - sizeS.Width / 2,
+            ih / 2 - sizeS.Height / 2 );
 
-            return icon;
-        }
+        return
+            Icon.FromHandle(
+                icoBitmap.GetHicon() );
+    }
 
-        private static void UpdateUi(
-            Xm4Entity xm4,
-            NotifyIcon notifyIconCtrl,
-            bool? connectionStatus = null,
-            int? batteryLevel = null )
-        {
-            var connected =
-                connectionStatus
-                ?? xm4?.IsConnected
-                ?? false;
+    private static void UpdateUi(
+        Xm4Entity xm4,
+        NotifyIcon notifyIconCtrl,
+        bool? connectionStatus = null,
+        int? batteryLevel = null )
+    {
+        var connected =
+            connectionStatus
+            ?? xm4?.IsConnected
+            ?? false;
 
-            var level =
-                batteryLevel
-                ?? xm4?.BatteryLevel
-                ?? DisconnectedLevel;
+        var level =
+            batteryLevel
+            ?? xm4?.BatteryLevel
+            ?? DisconnectedLevel;
 
-            var items = notifyIconCtrl.ContextMenuStrip.Items;
-            items[ConnectCtxMenuItemName].Enabled = !connected;
-            items[DisconnectCtxMenuItemName].Enabled = connected;
+        var items = notifyIconCtrl.ContextMenuStrip.Items;
+        items[ConnectCtxMenuItemName].Enabled = !connected;
+        items[DisconnectCtxMenuItemName].Enabled = connected;
 
-            notifyIconCtrl.Icon =
-                CreateIconForLevel(
-                    connected ? level
-                    : DisconnectedLevel );
+        notifyIconCtrl.Icon =
+            CreateIconForLevel(
+                connected ? level
+                : DisconnectedLevel );
 
-            var at =
-                connected ? string.Empty
-                : $"\n{xm4!.LastConnectedTime.Value:F}";
+        var at =
+            connected ? string.Empty
+            : $"\n{xm4!.LastConnectedTime.Value:F}";
 
-            notifyIconCtrl.Text =
-                $"{NotifyIcon_BatteryLevelTitle} ⚡{level}%{at}";
-        }
+        notifyIconCtrl.Text =
+            $"{NotifyIcon_BatteryLevelTitle} ⚡{level}%{at}";
+    }
 
-        const string ConnectCtxMenuItemName = nameof( ConnectCtxMenuItemName );
-        const string DisconnectCtxMenuItemName = nameof( DisconnectCtxMenuItemName );
-        const int NotifyIconDefault_WidthPx = 20;
-        const int NotifyIconDefault_HeightPx = 20;
+    static readonly SolidBrush Brushes_WhiteA100 =
+        new( Color.FromArgb( 100, Color.White ) );
 
-        const int DisconnectedLevel = 0;
-        const string NotifyIcon_BatteryLevelTitle = "XM4 Battery Level";
+    const string ConnectCtxMenuItemName = nameof( ConnectCtxMenuItemName );
+    const string DisconnectCtxMenuItemName = nameof( DisconnectCtxMenuItemName );
+    const int NotifyIconDefault_WidthPx = 20;
+    const int NotifyIconDefault_HeightPx = 20;
 
-        const string AppName = "Xm4Battery";
-        const string AppVersion = "4.1.11";
-        const string GithubProjectUrl = "https://github.com/nikvoronin/WmiPnp";
+    const int DisconnectedLevel = 0;
+    const string NotifyIcon_BatteryLevelTitle = "XM4 Battery Level";
 
-        const int Xm4NotFound_ErrorLevel = 1;
-        const int ExitOk_ErrorLevel = 0;
+    const string AppName = "Xm4Battery";
+    const string AppVersion = "4.6.17";
+    const string GithubProjectUrl = "https://github.com/nikvoronin/WmiPnp";
+
+    internal enum ErrorLevel
+    {
+        ExitOk = 0,
+        Xm4NotFound = 1
     }
 }
