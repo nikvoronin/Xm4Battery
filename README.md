@@ -34,21 +34,21 @@ The primary goal of the project is to get battery level of `WH-1000XM4` headphon
 The Windows Forms, trayiconed and window-less application at once.\
 Ready to run app is available under the [Latest Release](https://github.com/nikvoronin/WmiPnp/releases/latest) section.
 
-System requirements: Windows 10 x64, [.NET Desktop Runtime 6.0](https://dotnet.microsoft.com/en-us/download/dotnet/6.0).
+__System requirements:__ Windows 10 x64, [.NET Desktop Runtime 6.0](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
 
-| Headphones  | Win 10 Pro | Win 11   |
-| ----------- | ---------- | -------- |
-| WH-1000_XM4 | Yes        | Expected |
-| WH-1000_XM3 | Yes        | Unknown  |
+| Headphones  | Win 10 | Win 11  |
+| ----------- | ------ | ------- |
+| WH-1000_XM4 | Yes    | Yes?    |
+| WH-1000_XM3 | Yes    | Unknown |
 
 ### User Interface
 
-- **F** - 100% or fully charged
-- **9..4** - 90..40%
-- **3** yellow - 30%
-- **2** orange - 20%
-- **1** red - 10%
-- **X** - headphones disconnected, gray background. Tooltip shows the last known battery level and the last connected date/time.
+- __F__ - 100% or fully charged
+- __9..4__ - 90..40%
+- __3__ yellow - 30%
+- __2__ orange - 20%
+- __1__ red - 10%
+- __X__ - headphones disconnected, gray background. Tooltip shows the last known battery level and the last connected date/time.
 
 `Right Mouse Button` opens a context menu:
 
@@ -57,11 +57,13 @@ System requirements: Windows 10 x64, [.NET Desktop Runtime 6.0](https://dotnet.m
 - About - leads to this page.
 - Quit - closes and unloads application at all.
 
->⚠ **Connect / Disconnect** items appear if the app is run as an administrator.\
+>⚠ __Connect / Disconnect__ items appear if the app is run as an administrator.\
 >⚠ These functions may cause system artefacts or unusual behavior of Volume Control, Sound Mixer, Bluetooth Device Manager, etc.\
 >⚠ Especially the Disconnect item. Connect is a law-abiding one.
 
 ### Tray Icon Mods
+
+>The app icon is currently adjusted to 125% display scale. Other scale factors may lead to uglifying tray icon.
 
 Background color is defined in the `CreateIconForLevel` method:
 
@@ -71,7 +73,7 @@ var brush =
         > 0 and <= 10 => Brushes.Red,
         > 0 and <= 20 => Brushes.Orange,
         > 0 and <= 30 => Brushes.Yellow,
-        <= 0 => Brushes.Gray,
+        <= 0 => Brushes_WhiteA100,
         _ => Brushes.White
     };
 ```
@@ -295,8 +297,8 @@ Key = {83da6326-97a6-4088-9453-a1923f573b29} 103
 
 ## XM4 Related Properties
 
-- `WH-1000XM4 Hands-Free AG` - exact name for PnpEntity to get a **BATTERY LEVEL** only.
-- `WH-1000XM4` - exact name for PnpEntity to get a **STATE** of the xm4.
+- `WH-1000XM4 Hands-Free AG` - exact name for PnpEntity to get a __BATTERY LEVEL__ only.
+- `WH-1000XM4` - exact name for PnpEntity to get a __STATE__ of the xm4.
 
 > Actually, the app utilize templates like `W_-1000XM_` to generalize model of headphones (WH-1000XM3, WF-1000XM4, etc.)
 
@@ -354,7 +356,7 @@ Now we can use `Windows.Devices.Radios` namespace:
 using Windows.Devices.Radios;
 ```
 
->⚠ Be aware, this one could switch off system bluetooth radio **at all** (not only enable or disable).\
+>⚠ Be aware, this one could switch off system bluetooth radio __at all__ (not only enable or disable).\
 >⚠ Use at your own risk!
 
 ```csharp
