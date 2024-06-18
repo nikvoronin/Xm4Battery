@@ -43,12 +43,12 @@ __System requirements:__ Windows 10 x64, [.NET Desktop Runtime 6.0](https://dotn
 
 ### User Interface
 
-- __F__ - 100% or fully charged
-- __9..4__ - 90..40%
+- __F__ - 100% or full charged
+- __4..9__ - 40..90%
 - __3__ yellow - 30%
 - __2__ orange - 20%
-- __1__ red - 10%
-- __X__ - headphones disconnected, gray background. Tooltip shows the last known battery level and the last connected date/time.
+- __!__ red - 10%
+- __X__ - headphones disconnected, transparent background. A tooltip displays the last known battery level and the last known date/time of the headphone connection.
 
 `Right Mouse Button` opens a context menu:
 
@@ -63,26 +63,38 @@ __System requirements:__ Windows 10 x64, [.NET Desktop Runtime 6.0](https://dotn
 
 ### Tray Icon Mods
 
+The real icon size is 256x256 pixels. It is automatically scaled by system depend on display scaling factor.
+
 >The app icon is currently adjusted to 125% display scale. Other scale factors may lead to uglifying tray icon.
 
-Background color is defined in the `CreateIconForLevel` method:
+Icon text color and background are defined in the `CreateIconForLevel` method:
 
 ```csharp
-var brush =
+// icon background color
+var iconBackgroundBrush =
     level switch {
-        > 0 and <= 10 => Brushes.Red,
-        > 0 and <= 20 => Brushes.Orange,
-        > 0 and <= 30 => Brushes.Yellow,
-        <= 0 => Brushes_WhiteA100,
-        _ => Brushes.White
+        <= DisconnectedLevel => Brushes.Transparent,
+        <= 10 => Brushes.Red,
+        <= 20 => Brushes.Orange,
+        <= 30 => Brushes.Yellow,
+        _ => Brushes.White // 40..100(F)
+    };
+
+// icon text color
+var iconTextBrush =
+    level switch {
+        <= DisconnectedLevel => Brushes.WhiteSmoke,
+        //<= 10 => Brushes.Magenta,
+        //<= 20 => Brushes.Cyan,
+        _ => Brushes.Black
     };
 ```
 
-Font for notification icon text (battery level or headphones status):
+Font of the notification icon text (battery level or headphones status):
 
 ```csharp
 static readonly Font _notifyIconFont
-    = new ( "Segoe UI", 16, FontStyle.Regular );
+    = new ( "Segoe UI", 124, FontStyle.Regular );
 ```
 
 ## Xm4Poller
