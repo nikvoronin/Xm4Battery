@@ -43,7 +43,7 @@ __System requirements:__ Windows 10 x64, [.NET Desktop Runtime 6.0](https://dotn
 
 ### User Interface
 
-- __F__ - 100% or full charged
+- __F__ - 100% fully charged
 - __4..9__ - 40..90%
 - __3__ yellow - 30%
 - __2__ orange - 20%
