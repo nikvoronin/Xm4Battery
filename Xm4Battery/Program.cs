@@ -13,6 +13,12 @@ internal static class Program
         ApplicationConfiguration.Initialize();
         Application.SetHighDpiMode( HighDpiMode.PerMonitorV2 );
 
+        AppDomain.CurrentDomain.UnhandledException += ( _, e ) =>
+            LogException( (Exception)e.ExceptionObject );
+
+        Application.SetUnhandledExceptionMode( UnhandledExceptionMode.CatchException );
+        Application.ThreadException += ( _, e ) => LogException( e.Exception );
+
         var xm4result = Xm4Entity.Create();
         if (xm4result.IsFailed)
             return (int)ErrorLevel.Xm4NotFound;
@@ -53,13 +59,11 @@ internal static class Program
             .IsInRole( WindowsBuiltInRole.Administrator );
 
         ContextMenuStrip contextMenu = new();
-        contextMenu.Items.AddRange( new ToolStripItem[] {
+        contextMenu.Items.AddRange( [
             new ToolStripMenuItem(
                 "&Connect",
                 null,
-                (_,_) => {
-                    Xm4Entity.TryConnect();
-                } )
+                (_,_) => Xm4Entity.TryConnect() )
             {
                 Name = ConnectCtxMenuItemName,
                 Enabled = true,
@@ -69,9 +73,7 @@ internal static class Program
             new ToolStripMenuItem(
                 "&Disconnect",
                 null,
-                (_,_) => {
-                    Xm4Entity.TryDisconnect();
-                } )
+                (_,_) => Xm4Entity.TryDisconnect() )
             {
                 Name = DisconnectCtxMenuItemName,
                 Enabled = false,
@@ -101,16 +103,15 @@ internal static class Program
 
             new ToolStripMenuItem(
                 "&Quit",
-                null, (_,_) => {
-                    Application.Exit();
-                } ),
-        } );
+                null,
+                (_,_) => Application.Exit() ),
+        ] );
 
         return contextMenu;
     }
 
-    static readonly Font _notifyIconFont
-        = new( "Segoe UI", 124, FontStyle.Regular );
+    static readonly Font _notifyIconFont =
+        new( "Segoe UI", 124, FontStyle.Regular );
 
     private static Icon CreateIconForLevel( int level )
     {
@@ -192,7 +193,7 @@ internal static class Program
                 currentState.Connected ? currentState.BatteryLevel
                 : DisconnectedLevel );
 
-        if(prevIcon is not null)
+        if (prevIcon is not null)
             DestroyIcon( prevIcon.Handle );
 
         var at =
@@ -202,6 +203,11 @@ internal static class Program
         notifyIconCtrl.Text =
             $"{NotifyIcon_BatteryLevelTitle} ⚡{currentState.BatteryLevel}%{at}";
     }
+
+    private static void LogException( Exception exception ) =>
+        File.AppendAllText(
+            $"{AppName}_{AppVersion}_exceptions.log",
+            $"{DateTime.UtcNow:u} {exception}\n" );
 
     static readonly Pen Pens_WhiteSmokeW24 =
         new( Color.WhiteSmoke, 24f );
