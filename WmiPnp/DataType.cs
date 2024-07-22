@@ -65,7 +65,7 @@
     public static class DataTypeExtensions
     {
         /// <summary>
-        /// TRUE if a value of DataType is reserved
+        /// <see langword="true"> if value of <see cref="DataType"> is reserved.
         /// </summary>
         public static bool Reserved( this uint dt )
             => ( dt >= 26 && dt <= 4097 )

@@ -13,8 +13,7 @@ public class PnpEntity
     public string? PnpDeviceId;
 
     private ManagementObject? _entity = null;
-    public IEnumerable<DeviceProperty> Properties { get; private set; }
-        = Enumerable.Empty<DeviceProperty>();
+    public IEnumerable<DeviceProperty> Properties { get; private set; } = [];
 
     /// <summary>
     /// Update and store device properties in <see cref="Properties" /> field.
@@ -47,7 +46,7 @@ public class PnpEntity
                     type: (uint)p.GetPropertyValue( DeviceProperty.Type_PropertyField ),
                     data: p.GetPropertyValue( DeviceProperty.Data_PropertyField )
                     ) )
-            ?? Enumerable.Empty<DeviceProperty>();
+            ?? [];
 
         return Properties;
     }
@@ -176,8 +175,7 @@ public class PnpEntity
 
     public static IEnumerable<PnpEntity> EntitiesOrNone( string where )
     {
-        IEnumerable<PnpEntity> entities =
-            Enumerable.Empty<PnpEntity>();
+        IEnumerable<PnpEntity> entities = [];
 
         try {
             var searcher =
@@ -202,8 +200,8 @@ public class PnpEntity
     /// </summary>
     /// <param name="name">Full name of a device</param>
     /// <returns>PnpEntity or Fail</returns>
-    public static Result<PnpEntity> ByFriendlyName( string name )
-        => EntityOrNone( where: $"{Name_FieldName} LIKE '{name}'" );
+    public static Result<PnpEntity> ByFriendlyName( string name ) =>
+        EntityOrNone( where: $"{Name_FieldName} LIKE '{name}'" );
 
     /// <summary>
     /// Find entity by exact equal device id
@@ -216,9 +214,8 @@ public class PnpEntity
         if (duplicateSlashes)
             id = id.Replace( "\\", "\\\\" );
 
-        return
-            EntityOrNone(
-                where: $"{DeviceId_FieldName}='{id}' OR {PnpDeviceId_FieldName}='{id}'" );
+        return EntityOrNone(
+            where: $"{DeviceId_FieldName}='{id}' OR {PnpDeviceId_FieldName}='{id}'" );
     }
 
     /// <summary>
@@ -226,9 +223,8 @@ public class PnpEntity
     /// </summary>
     /// <param name="name">Part of the device name</param>
     /// <returns>List of found entities or empty list</returns>
-    public static IEnumerable<PnpEntity> LikeFriendlyName( string name )
-        => EntitiesOrNone( where:
-            $"{Name_FieldName} LIKE '%{name}%'" );
+    public static IEnumerable<PnpEntity> LikeFriendlyName( string name ) =>
+        EntitiesOrNone( where: $"{Name_FieldName} LIKE '%{name}%'" );
 
     /// <summary>
     /// Find one or more entitiesby given name within Bluetooth class
@@ -237,10 +233,10 @@ public class PnpEntity
     /// <param name="className">Exact PNPClass name of the devices</param>
     /// <returns>List of found entities or empty list</returns>
     public static IEnumerable<PnpEntity> LikeFriendlyNameForClass(
-        string name
-        , string className )
-        => EntitiesOrNone( where:
-            $"PNPClass = '{className}' AND {Name_FieldName} LIKE '%{name}%'" );
+        string name,
+        string className )
+        => EntitiesOrNone(
+            where: $"PNPClass = '{className}' AND {Name_FieldName} LIKE '%{name}%'" );
 
     private static PnpEntity ToPnpEntity(
         ManagementBaseObject entity )
@@ -250,8 +246,7 @@ public class PnpEntity
             ClassGuid = entity.ValueOf( ClassGuid_FieldName ),
             DeviceId = entity.ValueOf( DeviceId_FieldName ),
             PnpDeviceId = entity.ValueOf( PnpDeviceId_FieldName ),
-            _entity =
-                entity as ManagementObject
+            _entity = entity as ManagementObject
                 ?? throw new NotSupportedException( "Not a ManagementObject." ),
         };
 
