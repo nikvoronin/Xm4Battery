@@ -109,38 +109,33 @@ if ( xm4result.IsFailed ) return 1;
 
 Xm4Entity xm4 = xm4result.Value;
 
-Xm4Poller statePoll = new ( xm4 );
-statePoll.ConnectionChanged += Xm4state_ConnectionChanged;
-statePoll.BatteryLevelChanged += Xm4state_BatteryLevelChanged;
-statePoll.Start();
+var statePoller = new Xm4Poller ( 
+    xm4,
+    ( previousState, newState ) => {
+        // this handler is called when xm4 state changed:
+        // connection status or/and battery charge level.
+        // previousState <> newState - always unequal!
+        UpdateUi_ForExample(newState);
+    } );
+
+statePoller.Start();
 
 // starts main loop of window-less WinForms app
 Application.Run();
 
 // application was closed, quit
-statePoll.Stop();
+statePoller.Stop();
 ```
 
-### Connection Changed
+### Xm4State
 
 ```csharp
-private static void Xm4state_ConnectionChanged(
-    object? sender,
-    bool connected )
-{
-    var xm4 = sender as Xm4Entity;
-    ...
-```
+namespace WmiPnp.Xm4;
 
-### Battery Level Changed
-
-```csharp
-private static void Xm4state_BatteryLevelChanged
-    object? sender,
-    int batteryLevel )
+public readonly record struct Xm4State
 {
-    var xm4 = sender as Xm4Entity;
-    ...
+    public readonly bool Connected { get; init; }   // true if connected, false - otherwise.
+    public readonly int BatteryLevel { get; init; } // battery charge level
 ```
 
 ## Xm4Entity
@@ -222,7 +217,8 @@ if ( result.IsSuccess ) { // device found
 PnpEntity btDevice = result.Value;
 
 Result<DeviceProperty> propertyResult =
-    btDevice.GetDeviceProperty( PnpEntity.DeviceProperty_IsConnected );
+    btDevice.GetDeviceProperty(
+        PnpEntity.DeviceProperty_IsConnected );
 
 if ( propertyResult.IsSuccess ) {
     DeviceProperty dp = propertyResult.Value;
@@ -372,11 +368,11 @@ using Windows.Devices.Radios;
 >⚠ Use at your own risk!
 
 ```csharp
-public static async Task OsEnableBluetooth()
-    => InternalBluetoothState( enable: true );
+public static async Task OsEnableBluetooth() =>
+    InternalBluetoothState( enable: true );
 
-public static async Task OsDisableBluetooth()
-    => InternalBluetoothState( enable: false );
+public static async Task OsDisableBluetooth() =>
+    InternalBluetoothState( enable: false );
 
 private async Task InternalBluetoothState( bool enable )
 {
@@ -390,8 +386,7 @@ private async Task InternalBluetoothState( bool enable )
 
     await bluetooth?.SetStateAsync(
         enable ? RadioState.On
-        : RadioState.Off
-        );
+        : RadioState.Off );
 }
 ```
 
