@@ -27,11 +27,11 @@ while (!Console.KeyAvailable) {
         : "Disconnected / Last Known";
 
     wave =
-        xm4.IsConnected 
-        ? (Random.Shared.Next(0, 2) == 0 ? ">" : " ") + wave[..^1] 
+        xm4.IsConnected
+        ? (Random.Shared.Next( 0, 2 ) == 0 ? ">" : " ") + wave[..^1]
         : new( ' ', 18 );
 
     Console.Write( $"\r[{status}] Battery Level: {xm4.BatteryLevel}%  {wave}" );
 
-    Thread.Sleep( TimeSpan.FromSeconds(1) );
+    Thread.Sleep( TimeSpan.FromSeconds( 1 ) );
 }

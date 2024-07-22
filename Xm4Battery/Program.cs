@@ -27,27 +27,16 @@ internal static class Program
                 ContextMenuStrip = CreateContextMenu()
             };
 
-        Xm4Poller statePoll = new( xm4 );
+        var statePoller = new Xm4Poller(
+            xm4,
+            ( _, state ) => UpdateUi(
+                xm4,
+                notifyIconCtrl,
+                state ) );
 
-        statePoll.ConnectionChanged +=
-            ( _, connected ) => {
-                UpdateUi(
-                    xm4,
-                    notifyIconCtrl,
-                    connectionStatus: connected );
-            };
-
-        statePoll.BatteryLevelChanged +=
-            ( _, level ) => {
-                UpdateUi(
-                    xm4,
-                    notifyIconCtrl,
-                    batteryLevel: level );
-            };
-
-        statePoll.Start();
+        statePoller.Start();
         Application.Run();
-        statePoll.Stop();
+        statePoller.Stop();
 
         notifyIconCtrl.Visible = false;
         var prevIcon = notifyIconCtrl.Icon;
@@ -190,38 +179,28 @@ internal static class Program
     private static void UpdateUi(
         Xm4Entity xm4,
         NotifyIcon notifyIconCtrl,
-        bool? connectionStatus = null,
-        int? batteryLevel = null )
+        Xm4State currentState )
     {
-        var connected =
-            connectionStatus
-            ?? xm4?.IsConnected
-            ?? false;
-
-        var level =
-            batteryLevel
-            ?? xm4?.BatteryLevel
-            ?? DisconnectedLevel;
-
-        var items = notifyIconCtrl.ContextMenuStrip.Items;
-        items[ConnectCtxMenuItemName].Enabled = !connected;
-        items[DisconnectCtxMenuItemName].Enabled = connected;
+        var items = notifyIconCtrl.ContextMenuStrip!.Items;
+        items[ConnectCtxMenuItemName]!.Enabled = !currentState.Connected;
+        items[DisconnectCtxMenuItemName]!.Enabled = currentState.Connected;
 
         var prevIcon = notifyIconCtrl.Icon;
 
         notifyIconCtrl.Icon =
             CreateIconForLevel(
-                connected ? level
+                currentState.Connected ? currentState.BatteryLevel
                 : DisconnectedLevel );
 
-        DestroyIcon( prevIcon.Handle );
+        if(prevIcon is not null)
+            DestroyIcon( prevIcon.Handle );
 
         var at =
-            connected ? string.Empty
+            currentState.Connected ? string.Empty
             : $"\n{xm4!.LastConnectedTime.Value:F}";
 
         notifyIconCtrl.Text =
-            $"{NotifyIcon_BatteryLevelTitle} ⚡{level}%{at}";
+            $"{NotifyIcon_BatteryLevelTitle} ⚡{currentState.BatteryLevel}%{at}";
     }
 
     static readonly Pen Pens_WhiteSmokeW24 =
@@ -236,7 +215,7 @@ internal static class Program
     const string NotifyIcon_BatteryLevelTitle = "XM4 Battery Level";
 
     const string AppName = "Xm4Battery";
-    const string AppVersion = "4.6.18";
+    const string AppVersion = "4.7.22";
     const string GithubProjectUrl = "https://github.com/nikvoronin/WmiPnp";
 
     internal enum ErrorLevel
