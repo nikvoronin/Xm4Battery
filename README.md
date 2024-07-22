@@ -34,7 +34,7 @@ The primary goal of the project is to get battery level of `WH-1000XM4` headphon
 The Windows Forms, trayiconed and window-less application at once.\
 Ready to run app is available under the [Latest Release](https://github.com/nikvoronin/WmiPnp/releases/latest) section.
 
-__System requirements:__ Windows 10 x64, [.NET Desktop Runtime 6.0](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
+__System requirements:__ Windows 10 x64, [.NET Desktop Runtime 8.0](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 
 | Headphones  | Win 10 | Win 11  |
 | ----------- | ------ | ------- |
