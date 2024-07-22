@@ -1,98 +1,90 @@
-﻿namespace WmiPnp.Xm4
+﻿namespace WmiPnp.Xm4;
+
+using StateChangedHandler = Action<Xm4State, Xm4State>;
+
+public class Xm4Poller : IDisposable
 {
-    public class Xm4Poller : IDisposable
+    public Xm4Poller( 
+        Xm4Entity xm4,
+        StateChangedHandler? stateChangedHandler )
     {
-        // TODO: create options with public access
-        private static readonly TimeSpan PollInterval
-            = TimeSpan.FromSeconds( 1 );
-        private static readonly TimeSpan BatteryLevel_UpdateInterval
-            = TimeSpan.FromMinutes( 1 );
-        private const int LinearBackoffFactor = 2;
+        _xm4 = xm4 ?? throw new ArgumentNullException( nameof( xm4 ) );
+        _stateChangedHandler = stateChangedHandler;
 
+    }
 
-        private readonly Xm4Entity _xm4;
-        private CancellationTokenSource? _cts = null;
+    public void Dispose() => Stop();
 
-        public event EventHandler<bool>? ConnectionChanged;
-        public event EventHandler<int>? BatteryLevelChanged;
+    public void Start()
+    {
+        if (_cts is not null) return;
 
-        public Xm4Poller( Xm4Entity xm4 )
-        {
-            _xm4 = xm4 ?? throw new ArgumentNullException( nameof( xm4 ) );
-        }
+        _cts = new();
+        Thread thread = new( ThreadWorker );
+        thread.Start( _cts.Token );
+    }
 
-        public void Dispose() => Stop();
+    private void ThreadWorker( object? o )
+    {
+        CancellationToken token =
+            (CancellationToken)(o ?? CancellationToken.None);
 
-        public void Start()
-        {
-            if ( _cts is not null ) return;
+        Xm4State lastState = default;
 
-            _cts = new();
-            Thread thread = new( ThreadWorker );
-            thread.Start( _cts.Token );
-        }
+        DateTimeOffset lastUpdatedTime = DateTimeOffset.MinValue;
+        TimeSpan currentUpdateInterval = TimeSpan.FromSeconds( 1 );
 
-        private void ThreadWorker( object? o )
-        {
-            CancellationToken token =
-                (CancellationToken)( o ?? CancellationToken.None );
+        while (!token.IsCancellationRequested) {
+            Xm4State currentState = lastState with {
+                Connected = _xm4.IsConnected
+            };
 
-            int batteryLevel = -1;
-            bool connected = false;
-            DateTimeOffset lastUpdatedTime = DateTimeOffset.MinValue;
-            TimeSpan currentUpdateInterval = TimeSpan.FromSeconds( 1 );
+            var connectionChanged =
+                currentState.Connected != lastState.Connected;
+            if (connectionChanged)
+                currentUpdateInterval = TimeSpan.FromSeconds( 1 );
 
-            while ( !token.IsCancellationRequested ) {
-                var currentConnection = _xm4.IsConnected;
+            if (token.IsCancellationRequested) break;
 
-                var connectionChanged =
-                    connected != currentConnection;
-                if (connectionChanged) {
-                    currentUpdateInterval = TimeSpan.FromSeconds( 1 );
-                    OnConnectionChanged( currentConnection );
+            var updateBatteryLevel =
+                (DateTimeOffset.UtcNow - lastUpdatedTime) > currentUpdateInterval
+                || lastState.BatteryLevel < 1
+                || connectionChanged;
+
+            if (updateBatteryLevel) {
+                // Pause a little after headphones connected ('connection' is true)
+                // but before start updating battery level
+                if (currentUpdateInterval < BatteryLevel_UpdateInterval)
+                    currentUpdateInterval *= LinearBackoffFactor;
+
+                currentState = currentState with {
+                    BatteryLevel = _xm4.BatteryLevel
+                };
+
+                if (currentState != lastState) {
+                    _stateChangedHandler?.Invoke(
+                        lastState,
+                        currentState );
                 }
 
-                connected = currentConnection;
-
-                if ( token.IsCancellationRequested ) break;
-
-                var updateBatteryLevel =
-                    ( DateTimeOffset.UtcNow - lastUpdatedTime ) > currentUpdateInterval
-                    || batteryLevel < 1
-                    || connectionChanged;
-
-                if ( updateBatteryLevel ) {
-                    // Pause a little after headphones connected ('connection' is true)
-                    // but before start updating battery level
-                    if (currentUpdateInterval < BatteryLevel_UpdateInterval)
-                        currentUpdateInterval *= LinearBackoffFactor;
-
-                    var currentLevel = _xm4.BatteryLevel;
-
-                    if ( batteryLevel != currentLevel )
-                        OnBatteryLevelChanged( currentLevel );
-
-                    batteryLevel = currentLevel;
-
-                    lastUpdatedTime = DateTimeOffset.UtcNow;
-                }
-
-                Thread.Sleep( PollInterval );
+                lastUpdatedTime = DateTimeOffset.UtcNow;
+                lastState = currentState;
             }
-        }
 
-        public void Stop() => _cts?.Cancel();
-
-        private void OnConnectionChanged( bool connected )
-        {
-            var eh = ConnectionChanged;
-            eh?.Invoke( _xm4, connected );
-        }
-
-        private void OnBatteryLevelChanged( int level )
-        {
-            var eh = BatteryLevelChanged;
-            eh?.Invoke( _xm4, level );
+            Thread.Sleep( PollingInterval );
         }
     }
+
+    public void Stop() => _cts?.Cancel();
+
+    // TODO: create options with public access
+    private static readonly TimeSpan PollingInterval
+        = TimeSpan.FromSeconds( 1 );
+    private static readonly TimeSpan BatteryLevel_UpdateInterval
+        = TimeSpan.FromMinutes( 1 );
+    private const int LinearBackoffFactor = 2;
+
+    private readonly Xm4Entity _xm4;
+    private CancellationTokenSource? _cts;
+    private readonly StateChangedHandler? _stateChangedHandler;
 }
