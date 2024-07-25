@@ -4,7 +4,7 @@ using StateChangedHandler = Action<Xm4State, Xm4State>;
 
 public class Xm4Poller : IDisposable
 {
-    public Xm4Poller( 
+    public Xm4Poller(
         Xm4Entity xm4,
         StateChangedHandler? stateChangedHandler )
     {

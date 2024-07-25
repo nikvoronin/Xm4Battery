@@ -12,7 +12,7 @@ public class PnpEntity
     public string? DeviceId;
     public string? PnpDeviceId;
 
-    private ManagementObject? _entity = null;
+    private ManagementObject? _entity;
     public IEnumerable<DeviceProperty> Properties { get; private set; } = [];
 
     /// <summary>
@@ -188,7 +188,7 @@ public class PnpEntity
             entities =
                 collection
                 .Cast<ManagementBaseObject>()
-                .Select( o => ToPnpEntity( o ) );
+                .Select( ToPnpEntity );
         }
         catch { }
 
@@ -262,19 +262,6 @@ public class PnpEntity
     public const string GetDeviceProperties_MethodName = "GetDeviceProperties";
     public const string Enable_MethodName = "Enable";
     public const string Disable_MethodName = "Disable";
-
-    public const string DeviceProperty_BatteryLevel
-        = "{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2";
-    public const string DeviceProperty_IsConnected
-        = "{83DA6326-97A6-4088-9453-A1923F573B29} 15";
-
-    public const string DEVPKEY_Bluetooth_LastConnectedTime
-        = "DEVPKEY_Bluetooth_LastConnectedTime";
-    public const string DeviceProperty_LastConnectedTime
-        = "{2BD67D8B-8BEB-48D5-87E0-6CDA3428040A} 11";
-
-    public const string DEVPKEY_Bluetooth_LastConnectedTime2
-        = "{2BD67D8B-8BEB-48D5-87E0-6CDA3428040A} 5";
 }
 
 public static class ManagementObjectExtensions

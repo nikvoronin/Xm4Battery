@@ -59,7 +59,7 @@ public sealed class Xm4Entity
         get {
             var batteryLevel =
                 _handsFree.GetDeviceProperty(
-                    PnpEntity.DeviceProperty_BatteryLevel )
+                    DeviceProperty_BatteryLevel )
                 .ValueOrDefault;
 
             return (byte)(batteryLevel.Data ?? 0);
@@ -70,7 +70,7 @@ public sealed class Xm4Entity
         get {
             var connected =
                 _xm4.GetDeviceProperty(
-                    PnpEntity.DeviceProperty_IsConnected )
+                    DeviceProperty_IsConnected )
                 .Value;
             return (bool)(connected.Data ?? false);
         }
@@ -80,7 +80,7 @@ public sealed class Xm4Entity
         get {
             var dtResult =
                 _xm4.GetDeviceProperty(
-                    PnpEntity.DeviceProperty_LastConnectedTime );
+                    DeviceProperty_LastConnectedTime );
 
             return
                 dtResult.IsSuccess
@@ -120,7 +120,7 @@ public sealed class Xm4Entity
     {
         foreach (var bt in BluetoothDevices.Reverse()) { // TODO: Is reverse meaningful?
             bt.Disable();
-            Thread.Sleep( 100 ); // TODO: Is pause meaningful?
+            Thread.Sleep( 100 ); // TODO: Is this pause meaningful?
             bt.Disable();
         }
     }
@@ -131,4 +131,17 @@ public sealed class Xm4Entity
         = "W_-1000XM_"; // Know how to get headphones' state
 
     public const string Bluetooth_PnpClassName = "Bluetooth";
+
+    public const string DeviceProperty_BatteryLevel
+        = "{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2";
+    public const string DeviceProperty_IsConnected
+        = "{83DA6326-97A6-4088-9453-A1923F573B29} 15";
+
+    public const string DEVPKEY_Bluetooth_LastConnectedTime
+        = "DEVPKEY_Bluetooth_LastConnectedTime";
+    public const string DeviceProperty_LastConnectedTime
+        = "{2BD67D8B-8BEB-48D5-87E0-6CDA3428040A} 11";
+
+    public const string DEVPKEY_Bluetooth_LastConnectedTime2
+        = "{2BD67D8B-8BEB-48D5-87E0-6CDA3428040A} 5";
 }
