@@ -57,33 +57,34 @@ public sealed class PnpEntity
             ?? [];
     }
 
-    public bool TryUpdateProperty( ref DeviceProperty deviceProperty )
+    /// <summary>
+    /// Try get device property.
+    /// </summary>
+    /// <param name="key">
+    /// <see cref="DeviceProperty.Key"/> or <see cref="DeviceProperty.KeyName"/>.
+    /// </param>
+    /// <param name="deviceProperty">
+    /// New device property with updated <see cref="DeviceProperty.Data"/> field.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if successfull.
+    /// </returns>
+    public bool TryGetDeviceProperty(
+        string key,
+        out DeviceProperty deviceProperty )
     {
-        var result = GetDeviceProperty( deviceProperty.Key );
-
-        if (result.IsSuccess)
-            deviceProperty =
-                deviceProperty.With( result.ValueOrDefault?.Data );
+        var result = GetDeviceProperty( key );
+        deviceProperty = result.ValueOrDefault;
 
         return result.IsSuccess;
     }
 
     /// <summary>
-    /// Update device property.
-    /// </summary>
-    /// <param name="deviceProperty">Device property.</param>
-    /// <returns>
-    /// New device property with updated <see cref="DeviceProperty.Data"/> field.
-    /// </returns>
-    public Result<DeviceProperty> UpdateProperty(
-        DeviceProperty deviceProperty )
-        => GetDeviceProperty( deviceProperty.Key );
-
-    /// <summary>
     /// Get device property.
     /// </summary>
-    /// <param name="key">DeviceProperty .Key or .KeyName.</param>
-    /// <returns></returns>
+    /// <param name="key">
+    /// <see cref="DeviceProperty.Key"/> or <see cref="DeviceProperty.KeyName"/>.
+    /// </param>
     public Result<DeviceProperty> GetDeviceProperty( string key )
     {
         var args = new object[] { new string[] { key }, null! };
@@ -92,7 +93,7 @@ public sealed class PnpEntity
         }
         catch (ManagementException e) {
             return Result.Fail(
-                new Error( $"_entity not found or wrong key. Exception when invoke method {GetDeviceProperties_MethodName}" )
+                new Error( $"Entity not found or wrong key. Exception when invoke method {GetDeviceProperties_MethodName}" )
                 .CausedBy( e ) );
         }
 
@@ -139,8 +140,6 @@ public sealed class PnpEntity
     /// </returns>
     public Result Enable()
     {
-        ArgumentNullException.ThrowIfNull( _entity );
-
         try {
             _entity.InvokeMethod( Enable_MethodName, null, null );
         }
@@ -164,14 +163,12 @@ public sealed class PnpEntity
     /// </returns>
     public Result Disable()
     {
-        ArgumentNullException.ThrowIfNull( _entity );
-
         try {
             _entity.InvokeMethod( Disable_MethodName, null, null );
         }
         catch (ManagementException e) {
             return Result.Fail(
-                new Error( $"_entity not found or wrong key. Exception when invoke method {Disable_MethodName}" )
+                new Error( $"Entity not found or wrong key. Exception when invoke method {Disable_MethodName}" )
                 .CausedBy( e ) );
         }
 
