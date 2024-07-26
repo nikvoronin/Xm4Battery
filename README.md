@@ -132,10 +132,10 @@ statePoller.Stop();
 ```csharp
 namespace WmiPnp.Xm4;
 
-public readonly record struct Xm4State
+public record  Xm4State
 {
-    public readonly bool Connected { get; init; }   // true if connected, false - otherwise.
-    public readonly int BatteryLevel { get; init; } // battery charge level
+    public bool Connected   // true if connected, false - otherwise.
+    public int BatteryLevel // battery charge level
 ```
 
 ## Xm4Entity
@@ -143,7 +143,7 @@ public readonly record struct Xm4State
 ### Create XM4 Instance
 
 ```csharp
-var xm4result = Xm4Entity.Create();
+var xm4result = Xm4Entity.CreateDefault();
 if ( xm4result.IsFailed ) return; // headphones did not found at all
 
 Xm4Entity _xm4 = xm4result.Value;
@@ -192,7 +192,8 @@ First, we should know a `name` or `device id` of the device we are working with 
 
 - ByFriendlyName - exact a friendly name.
 - ByDeviceId - exact a device id, like `{GUID} pid`.
-- LikeFriendlyName - a part of a friendly name. Returns a list of founded devices `IEnumerable<PnpEntity>` or empty list otherwise.
+- FindByFriendlyName - a part of a friendly name. Returns a list of founded devices `IEnumerable<PnpEntity>` or empty list otherwise.
+- FindByNameForExactClass - same as `FindByFriendlyName` but with exact class name equality.
 - EntityOrNone - a `where` part of WQL request to retrieve exact a single device only.
 - EntitiesOrNone - a `where` part of WQL request to retrieve zero, one or several devices at once.
 
@@ -218,19 +219,23 @@ PnpEntity btDevice = result.Value;
 
 Result<DeviceProperty> propertyResult =
     btDevice.GetDeviceProperty(
-        PnpEntity.DeviceProperty_IsConnected );
+        Xm4Entity.DeviceProperty_IsConnected );
 
 if ( propertyResult.IsSuccess ) {
     DeviceProperty dp = propertyResult.Value;
 
     while ( !Console.KeyAvailable ) {
-        bool connected = (bool)(dp.Data ?? false);
+        bool updated = btDevice.TryGetDeviceProperty( dp.Key, out dp );
+        if (updated) {
+            bool connected = (bool)(dp.Data ?? false);
 
-        Console.WriteLine(
-            $"{btDevice.Name} is {(connected ? "connected" : "disconnected")}" );
+            Console.WriteLine(
+                $"{btDevice.Name} is {(connected ? "connected" : "disconnected")}" );
+        }
 
-        btDevice.UpdateProperty( dp );
-    }    
+        // wait a little before the next attempt
+        Thread.Sleep( TimeSpan.FromSeconds( 1 ) );
+    }
 }
 ```
 
@@ -240,21 +245,12 @@ if ( propertyResult.IsSuccess ) {
 ...
 PnpEntity btDevice = result.Value;
 
-IEnumerable<DeviceProperty> properties = btDevice.UpdateProperties();
+IEnumerable<DeviceProperty> properties = btDevice.GetProperties();
 
 foreach( var p in properties ) {
     Console.WriteLine( $"{p.KeyName}: {p.Data}" );
     ...
 }
-```
-
-Same thing but with a cached list of the last updated properties
-
-```csharp
-_ = btDevice.UpdateProperties();
-
-foreach( var p in btDevice.Properties ) {
-    ...
 ```
 
 ### Enable-Disable Device
