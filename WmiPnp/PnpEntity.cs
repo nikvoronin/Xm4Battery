@@ -3,26 +3,35 @@ using System.Management;
 
 namespace WmiPnp;
 
-public class PnpEntity
+public sealed class PnpEntity
 {
-    public string? Name;
-    public string? Description;
+    public readonly string? Name;
+    public readonly string? Description;
 
-    public string? ClassGuid;
-    public string? DeviceId;
-    public string? PnpDeviceId;
+    public readonly string? ClassGuid;
+    public readonly string? DeviceId;
+    public readonly string? PnpDeviceId;
 
-    private ManagementObject? _entity;
-    public IEnumerable<DeviceProperty> Properties { get; private set; } = [];
+    private PnpEntity( ManagementBaseObject entity )
+    {
+        Name = entity.ValueOf( Name_FieldName );
+        Description = entity.ValueOf( Description_FieldName );
+        ClassGuid = entity.ValueOf( ClassGuid_FieldName );
+        DeviceId = entity.ValueOf( DeviceId_FieldName );
+        PnpDeviceId = entity.ValueOf( PnpDeviceId_FieldName );
+
+        _entity = entity as ManagementObject
+            ?? throw new NotSupportedException( "Not a ManagementObject." );
+    }
 
     /// <summary>
-    /// Update and store device properties in <see cref="Properties" /> field.
+    /// Get values of device properties.
     /// </summary>
-    /// <returns>List of device properties with current data.</returns>
-    public IEnumerable<DeviceProperty> UpdateProperties()
+    /// <returns>
+    /// Collection of device properties with current data or empty.
+    /// </returns>
+    public IEnumerable<DeviceProperty> GetProperties()
     {
-        ArgumentNullException.ThrowIfNull( _entity );
-
         ManagementBaseObject inParams =
             _entity.GetMethodParameters( GetDeviceProperties_MethodName );
 
@@ -35,9 +44,8 @@ public class PnpEntity
             .FirstOrDefault()
             ?.Value as ManagementBaseObject[];
 
-        Properties =
-            mbos
-            ?.Cast<ManagementBaseObject>()
+        return
+            mbos?.Cast<ManagementBaseObject>()
             .Select( p =>
                 new DeviceProperty(
                     deviceId: p.ValueOf( DeviceProperty.DeviceID_PropertyField ),
@@ -47,38 +55,44 @@ public class PnpEntity
                     data: p.GetPropertyValue( DeviceProperty.Data_PropertyField )
                     ) )
             ?? [];
-
-        return Properties;
     }
 
-    public Result<DeviceProperty> UpdateProperty( DeviceProperty deviceProperty )
+    public bool TryUpdateProperty( ref DeviceProperty deviceProperty )
     {
         var result = GetDeviceProperty( deviceProperty.Key );
 
-        deviceProperty.Data =
-            result.ValueOrDefault?.Data;
+        if (result.IsSuccess)
+            deviceProperty =
+                deviceProperty.With( result.ValueOrDefault?.Data );
 
-        return
-            result.IsSuccess ? deviceProperty
-            : result;
+        return result.IsSuccess;
     }
 
     /// <summary>
-    /// Get device property
+    /// Update device property.
     /// </summary>
-    /// <param name="key">Device property --key or --keyName</param>
+    /// <param name="deviceProperty">Device property.</param>
+    /// <returns>
+    /// New device property with updated <see cref="DeviceProperty.Data"/> field.
+    /// </returns>
+    public Result<DeviceProperty> UpdateProperty(
+        DeviceProperty deviceProperty )
+        => GetDeviceProperty( deviceProperty.Key );
+
+    /// <summary>
+    /// Get device property.
+    /// </summary>
+    /// <param name="key">DeviceProperty .Key or .KeyName.</param>
     /// <returns></returns>
     public Result<DeviceProperty> GetDeviceProperty( string key )
     {
-        ArgumentNullException.ThrowIfNull( _entity ); // TODO do not allow mandatory fields to be a null
-
         var args = new object[] { new string[] { key }, null! };
         try {
             _entity.InvokeMethod( GetDeviceProperties_MethodName, args );
         }
         catch (ManagementException e) {
             return Result.Fail(
-                new Error( $"Entity not found or wrong key. Exception when invoke method {GetDeviceProperties_MethodName}" )
+                new Error( $"_entity not found or wrong key. Exception when invoke method {GetDeviceProperties_MethodName}" )
                 .CausedBy( e ) );
         }
 
@@ -114,6 +128,15 @@ public class PnpEntity
         return dp;
     }
 
+    /// <summary>
+    /// Enable device.
+    /// </summary>
+    /// <remarks>
+    /// System Administrator right needed.
+    /// </remarks>
+    /// <returns>
+    /// <see cref="Result"> of operation.
+    /// </returns>
     public Result Enable()
     {
         ArgumentNullException.ThrowIfNull( _entity );
@@ -123,13 +146,22 @@ public class PnpEntity
         }
         catch (ManagementException e) {
             return Result.Fail(
-                new Error( $"Entity not found or wrong key. Exception when invoke method {Enable_MethodName}" )
+                new Error( $"_entity not found or wrong key. Exception when invoke method {Enable_MethodName}" )
                 .CausedBy( e ) );
         }
 
         return Result.Ok();
     }
 
+    /// <summary>
+    /// Disable device.
+    /// </summary>
+    /// <remarks>
+    /// System Administrator right needed.
+    /// </remarks>
+    /// <returns>
+    /// <see cref="Result"> of operation.
+    /// </returns>
     public Result Disable()
     {
         ArgumentNullException.ThrowIfNull( _entity );
@@ -139,7 +171,7 @@ public class PnpEntity
         }
         catch (ManagementException e) {
             return Result.Fail(
-                new Error( $"Entity not found or wrong key. Exception when invoke method {Disable_MethodName}" )
+                new Error( $"_entity not found or wrong key. Exception when invoke method {Disable_MethodName}" )
                 .CausedBy( e ) );
         }
 
@@ -166,7 +198,7 @@ public class PnpEntity
 
             var deviceFound = mo is not null;
             if (deviceFound)
-                entity = ToPnpEntity( mo! );
+                entity = Result.Ok( new PnpEntity( mo! ) );
         }
         catch { }
 
@@ -188,7 +220,7 @@ public class PnpEntity
             entities =
                 collection
                 .Cast<ManagementBaseObject>()
-                .Select( ToPnpEntity );
+                .Select( mo => new PnpEntity( mo ) );
         }
         catch { }
 
@@ -196,7 +228,7 @@ public class PnpEntity
     }
 
     /// <summary>
-    /// Find exact one entity by given name
+    /// Find exact one entity for given name
     /// </summary>
     /// <param name="name">Full name of a device</param>
     /// <returns>PnpEntity or Fail</returns>
@@ -223,7 +255,7 @@ public class PnpEntity
     /// </summary>
     /// <param name="name">Part of the device name</param>
     /// <returns>List of found entities or empty list</returns>
-    public static IEnumerable<PnpEntity> LikeFriendlyName( string name ) =>
+    public static IEnumerable<PnpEntity> FindByFriendlyName( string name ) =>
         EntitiesOrNone( where: $"{Name_FieldName} LIKE '%{name}%'" );
 
     /// <summary>
@@ -232,23 +264,13 @@ public class PnpEntity
     /// <param name="name">Part of the device name</param>
     /// <param name="className">Exact PNPClass name of the devices</param>
     /// <returns>List of found entities or empty list</returns>
-    public static IEnumerable<PnpEntity> LikeFriendlyNameForClass(
+    public static IEnumerable<PnpEntity> FindByNameForExactClass(
         string name,
         string className )
         => EntitiesOrNone(
             where: $"PNPClass = '{className}' AND {Name_FieldName} LIKE '%{name}%'" );
 
-    private static PnpEntity ToPnpEntity(
-        ManagementBaseObject entity )
-        => new() {
-            Name = entity.ValueOf( Name_FieldName ),
-            Description = entity.ValueOf( Description_FieldName ),
-            ClassGuid = entity.ValueOf( ClassGuid_FieldName ),
-            DeviceId = entity.ValueOf( DeviceId_FieldName ),
-            PnpDeviceId = entity.ValueOf( PnpDeviceId_FieldName ),
-            _entity = entity as ManagementObject
-                ?? throw new NotSupportedException( "Not a ManagementObject." ),
-        };
+    private readonly ManagementObject _entity;
 
     const string Select_Win32PnpEntity_Where =
        "Select Name,Description,ClassGuid,DeviceID,PNPDeviceID From Win32_PnPEntity WHERE ";
@@ -264,7 +286,7 @@ public class PnpEntity
     public const string Disable_MethodName = "Disable";
 }
 
-public static class ManagementObjectExtensions
+file static class ManagementObjectExtensions
 {
     public static string ValueOf(
         this ManagementBaseObject o,

@@ -1,7 +1,7 @@
 ﻿using System.Security.Principal;
 using WmiPnp.Xm4;
 
-var xm4result = Xm4Entity.Create();
+var xm4result = Xm4Entity.CreateDefault();
 if (xm4result.IsFailed) return;
 
 Xm4Entity xm4 = xm4result.Value;

@@ -29,7 +29,7 @@ public class Xm4Poller : IDisposable
         CancellationToken token =
             (CancellationToken)(o ?? CancellationToken.None);
 
-        Xm4State lastState = default;
+        Xm4State lastState = new();
 
         DateTimeOffset lastUpdatedTime = DateTimeOffset.MinValue;
         TimeSpan currentUpdateInterval = TimeSpan.FromSeconds( 1 );

@@ -14,12 +14,12 @@ public sealed class Xm4Entity
         _xm4 = xm4;
     }
 
-    public static Result<Xm4Entity> Create() =>
-        CreateBy(
+    public static Result<Xm4Entity> CreateDefault() =>
+        Create(
             HandsFree_PnpEntity_FriendlyNameGeneral,
             Headphones_PnpEntity_FriendlyNameGeneral );
 
-    public static Result<Xm4Entity> CreateBy(
+    public static Result<Xm4Entity> Create(
         string handsfreeName,
         string headphonesName )
     {
@@ -27,16 +27,14 @@ public sealed class Xm4Entity
         headphonesName ??= Headphones_PnpEntity_FriendlyNameGeneral;
 
         var handsfree =
-            PnpEntity
-            .ByFriendlyName( handsfreeName );
+            PnpEntity.ByFriendlyName( handsfreeName );
 
         if (handsfree.IsFailed)
             return Result.Fail(
                 $"Can not create {handsfreeName} entity" );
 
         var xm4headphones =
-            PnpEntity
-            .ByFriendlyName( headphonesName );
+            PnpEntity.ByFriendlyName( headphonesName );
 
         if (xm4headphones.IsFailed)
             return Result.Fail(
@@ -95,8 +93,8 @@ public sealed class Xm4Entity
     /// <summary>
     /// Find all bluetooth sub-devices related to headphones
     /// </summary>
-    private static IEnumerable<PnpEntity> BluetoothDevices
-        => PnpEntity.LikeFriendlyNameForClass(
+    private static IEnumerable<PnpEntity> BluetoothDevices =>
+        PnpEntity.FindByNameForExactClass(
             name: Headphones_PnpEntity_FriendlyNameGeneral,
             className: Bluetooth_PnpClassName );
 

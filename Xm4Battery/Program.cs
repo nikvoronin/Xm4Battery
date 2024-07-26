@@ -19,7 +19,7 @@ internal static class Program
         Application.SetUnhandledExceptionMode( UnhandledExceptionMode.CatchException );
         Application.ThreadException += ( _, e ) => LogException( e.Exception );
 
-        var xm4result = Xm4Entity.Create();
+        var xm4result = Xm4Entity.CreateDefault();
         if (xm4result.IsFailed)
             return (int)ErrorLevel.Xm4NotFound;
 
@@ -221,7 +221,7 @@ internal static class Program
     const string NotifyIcon_BatteryLevelTitle = "XM4 Battery Level";
 
     const string AppName = "Xm4Battery";
-    const string AppVersion = "4.7.25";
+    const string AppVersion = "4.7.26";
     const string GithubProjectUrl = "https://github.com/nikvoronin/WmiPnp";
 
     internal enum ErrorLevel
