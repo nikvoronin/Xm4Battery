@@ -6,30 +6,29 @@ The primary goal of the project is to get battery level of `WH-1000XM4` headphon
 
 ![emoji_flash_bullet_battery_level_v23-5-2](https://user-images.githubusercontent.com/11328666/235766399-44585bee-0e8f-4d21-b96a-81b58b9e83d2.jpg)
 
-- [Xm4Battery Application](#xm4battery-application)
-  - [User Interface](#user-interface)
-  - [Tray Icon Mods](#tray-icon-mods)
+- [Xm4Battery Desktop Application](#xm4battery-desktop-application)
+    - [User interface](#user-interface)
+    - [Tray icon mods](#tray-icon-mods)
 - [Xm4Poller](#xm4poller)
-  - [Start-Stop Polling](#start-stop-polling)
-  - [Connection Changed](#connection-changed)
-  - [Battery Level Changed](#battery-level-changed)
+    - [Start and stop device polling](#start-and-stop-device-polling)
+    - [Xm4State](#xm4state)
 - [Xm4Entity](#xm4entity)
-  - [Create XM4 Instance](#create-xm4-instance)
-  - [Is Connected or Not?](#is-connected-or-not)
-  - [What Is The Last Connected Time?](#what-is-the-last-connected-time)
-  - [Headphones Battery Level](#headphones-battery-level)
-  - [Re/Connect Already Paired](#reconnect-already-paired)
+    - [Create XM4 instance](#create-xm4-instance)
+    - [Is connected or not?](#is-connected-or-not)
+    - [What was the last connected time?](#what-was-the-last-connected-time)
+    - [Headphones battery level](#headphones-battery-level)
+    - [Re/Connect already paired](#reconnect-already-paired)
 - [PnpEntity](#pnpentity)
-  - [How To Find PNP Device?](#how-to-find-pnp-device)
-  - [Get / Update Specific Device Property](#get--update-specific-device-property)
-  - [Enumerate Device Properties](#enumerate-device-properties)
-  - [Enable-Disable Device](#enable-disable-device)
-- [Device Specific Properties](#device-specific-properties)
-- [XM4 Related Properties](#xm4-related-properties)
+    - [How To find PNP-device?](#how-to-find-pnp-device)
+    - [Get and update a specific property of a device](#get-and-update-a-specific-property-of-a-device)
+    - [Enumerate all properties of device](#enumerate-all-properties-of-device)
+    - [Enable or disable device](#enable-or-disable-device)
+- [Device specific properties](#device-specific-properties)
+- [XM4 related properties](#xm4-related-properties)
 - [Windows Radio](#windows-radio)
 - [References](#references)
 
-## Xm4Battery Application
+## Xm4Battery Desktop Application
 
 The Windows Forms, trayiconed and window-less application at once.\
 Ready to run app is available under the [Latest Release](https://github.com/nikvoronin/WmiPnp/releases/latest) section.
@@ -41,7 +40,7 @@ __System requirements:__ Windows 10 x64, [.NET Desktop Runtime 8.0](https://dotn
 | WH-1000_XM4 | Yes    | Yes?    |
 | WH-1000_XM3 | Yes    | Unknown |
 
-### User Interface
+### User interface
 
 - __F__ - 100% fully charged
 - __4..9__ - 40..90%
@@ -61,7 +60,7 @@ __System requirements:__ Windows 10 x64, [.NET Desktop Runtime 8.0](https://dotn
 >⚠ These functions may cause system artefacts or unusual behavior of Volume Control, Sound Mixer, Bluetooth Device Manager, etc.\
 >⚠ Especially the Disconnect item. Connect is a law-abiding one.
 
-### Tray Icon Mods
+### Tray icon mods
 
 The real icon size is 256x256 pixels. It is automatically scaled by system depend on display scaling factor.
 
@@ -101,7 +100,7 @@ static readonly Font _notifyIconFont
 
 Automatically updates status of headphones.
 
-### Start-Stop Polling
+### Start and stop device polling
 
 ```csharp
 var xm4result = Xm4Entity.Create();
@@ -132,7 +131,7 @@ statePoller.Stop();
 ```csharp
 namespace WmiPnp.Xm4;
 
-public record  Xm4State
+public record Xm4State
 {
     public bool Connected   // true if connected, false - otherwise.
     public int BatteryLevel // battery charge level
@@ -140,7 +139,7 @@ public record  Xm4State
 
 ## Xm4Entity
 
-### Create XM4 Instance
+### Create XM4 instance
 
 ```csharp
 var xm4result = Xm4Entity.CreateDefault();
@@ -149,14 +148,14 @@ if ( xm4result.IsFailed ) return; // headphones did not found at all
 Xm4Entity _xm4 = xm4result.Value;
 ```
 
-### Is Connected or Not?
+### Is connected or not?
 
 ```csharp
 ...
 bool connected = _xm4.IsConnected;
 ```
 
-### What Is The Last Connected Time?
+### What was the last connected time?
 
 We don't know how to get the last connected time if headphones is online and already connected. This property is valid only if headphones are DISconnected.
 
@@ -172,7 +171,7 @@ else
     var it_is_true = _xm4.LastConnectedTime.IsFailed; // can not get the last connected time
 ```
 
-### Headphones Battery Level
+### Headphones battery level
 
 It can get the actual battery level if headphones are connected. Otherwise, headphones are DISconnected, it returns the last known level.
 
@@ -180,7 +179,7 @@ It can get the actual battery level if headphones are connected. Otherwise, head
 int level = _xm4.BatteryLevel;
 ```
 
-### Re/Connect Already Paired
+### Re/Connect already paired
 
 When headphones are used with multiple sources (laptop, pc, smartphone, etc) you have to reconnect headphones from time to time. So headphones are already paired but disconnected. In this case `WmiPnp` has experimental `Xm4Entity.TryConnect()` and very unstable `Xm4Entity.TryDisconnect()`. Both want the application run as administrator. Otherwise these functions are ignored.
 
@@ -199,7 +198,7 @@ First, we should know a `name` or `device id` of the device we are working with 
 
 All of methods produce instances of `PnpEntity` or `Result.Fail` if the given device was not found.
 
-### How To Find PNP Device?
+### How To find PNP-device?
 
 ```csharp
 Result<PnpEntity> result =
@@ -211,35 +210,31 @@ if ( result.IsSuccess ) { // device found
 }
 ```
 
-### Get / Update Specific Device Property
+### Get and update a specific property of a device
 
 ```csharp
 ...
 PnpEntity btDevice = result.Value;
 
-Result<DeviceProperty> propertyResult =
-    btDevice.GetDeviceProperty(
-        Xm4Entity.DeviceProperty_IsConnected );
+while ( !Console.KeyAvailable ) {
+    Result<DeviceProperty> propertyResult =
+        btDevice.GetDeviceProperty(
+            Xm4Entity.DeviceProperty_IsConnected );
 
-if ( propertyResult.IsSuccess ) {
-    DeviceProperty dp = propertyResult.Value;
+    if ( propertyResult.IsSuccess ) {
+        DeviceProperty dp = propertyResult.Value;
+        bool connected = (bool)(dp.Data ?? false);
 
-    while ( !Console.KeyAvailable ) {
-        bool updated = btDevice.TryGetDeviceProperty( dp.Key, out dp );
-        if (updated) {
-            bool connected = (bool)(dp.Data ?? false);
-
-            Console.WriteLine(
-                $"{btDevice.Name} is {(connected ? "connected" : "disconnected")}" );
-        }
-
-        // wait a little before the next attempt
-        Thread.Sleep( TimeSpan.FromSeconds( 1 ) );
+        Console.WriteLine(
+            $"{btDevice.Name} is {(connected ? "connected" : "disconnected")}" );
     }
+
+    // wait a little before the next attempt
+    Thread.Sleep( TimeSpan.FromSeconds( 1 ) );
 }
 ```
 
-### Enumerate Device Properties
+### Enumerate all properties of device
 
 ```csharp
 ...
@@ -253,7 +248,7 @@ foreach( var p in properties ) {
 }
 ```
 
-### Enable-Disable Device
+### Enable or disable device
 
 Some devices could be enabled or disabled.
 
@@ -265,12 +260,12 @@ btDevice.Disable();
 btDevice.Enable();
 ```
 
-## Device Specific Properties
+## Device specific properties
 
 > Key = {GUID} pid
 
 <!-- omit in toc -->
-### Battery Level
+### Battery level
 
 - Key = `{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2`
 - Type = 3 (Byte)
@@ -278,7 +273,7 @@ btDevice.Enable();
 `Data` is in percents
 
 <!-- omit in toc -->
-### Is Connected
+### Is connected or not
 
 - Key = `{83DA6326-97A6-4088-9453-A1923F573B29} 15`
 - Type = 17 (Boolean)
@@ -286,7 +281,7 @@ btDevice.Enable();
 Data = False → device is disconnected
 
 <!-- omit in toc -->
-### Last Arrival Date
+### Last arrival date
 
 - Key = `{83DA6326-97A6-4088-9453-A1923F573B29} 102`
 - KeyName = DEVPKEY_Device_LastArrivalDate
@@ -295,11 +290,11 @@ Data = False → device is disconnected
 Data = 20230131090906.098359+180 → 2023 Jan 31, 9:09:06 GMT+3
 
 <!-- omit in toc -->
-### Last Removal Date
+### Last removal date
 
 Key = {83da6326-97a6-4088-9453-a1923f573b29} 103
 
-## XM4 Related Properties
+## XM4 related properties
 
 - `WH-1000XM4 Hands-Free AG` - exact name for PnpEntity to get a __BATTERY LEVEL__ only.
 - `WH-1000XM4` - exact name for PnpEntity to get a __STATE__ of the xm4.
@@ -330,7 +325,7 @@ This is only property to retrieve the last connection date-time of headphones. T
 For ex.: Data = 20230131090906.098359+180 → 2023 Jan 31, 9:09:06, GMT+3
 
 <!-- omit in toc -->
-### ?Last Connected Time
+### ?Last connected time
 
 Contains the same data as the [DEVPKEY_Bluetooth_LastConnectedTime](#devpkey_bluetooth_lastconnectedtime) property. Same behavior.
 
