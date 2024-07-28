@@ -58,26 +58,18 @@ public sealed class PnpEntity
     }
 
     /// <summary>
-    /// Try get device property.
+    /// Get device property.
     /// </summary>
-    /// <param name="key">
-    /// <see cref="DeviceProperty.Key"/> or <see cref="DeviceProperty.KeyName"/>.
-    /// </param>
     /// <param name="deviceProperty">
-    /// New device property with updated <see cref="DeviceProperty.Data"/> field.
+    /// An instanec of <see cref="DeviceProperty"/>.
     /// </param>
-    /// <returns>
-    /// <see langword="true"/> if successfull.
-    /// </returns>
-    public bool TryGetDeviceProperty(
-        string key,
-        out DeviceProperty deviceProperty )
-    {
-        var result = GetDeviceProperty( key );
-        deviceProperty = result.ValueOrDefault;
-
-        return result.IsSuccess;
-    }
+    /// <return>
+    /// A device property with the same id
+    /// but with updated <see cref="DeviceProperty.Data"/> field.
+    /// </return>
+    public Result<DeviceProperty> GetDeviceProperty(
+        DeviceProperty deviceProperty )
+        => GetDeviceProperty( deviceProperty.Key );
 
     /// <summary>
     /// Get device property.

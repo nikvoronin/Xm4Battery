@@ -16,6 +16,10 @@ public record DeviceProperty
 
         object? data = null )
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace( deviceId );
+        ArgumentException.ThrowIfNullOrWhiteSpace( key );
+        ArgumentException.ThrowIfNullOrWhiteSpace( keyName );
+
         DeviceId = deviceId;
         Key = key;
         Type = type;
@@ -28,16 +32,9 @@ public record DeviceProperty
         string deviceId,
         string key,
         uint type,
-
         object? data = null )
-    {
-        DeviceId = deviceId;
-        Key = key;
-        Type = type;
-
-        KeyName = key;
-        Data = data;
-    }
+        : this( deviceId, key, key, type, data )
+    { }
 
     public const string Type_PropertyField = "Type";
     public const string DeviceID_PropertyField = "DeviceID";
