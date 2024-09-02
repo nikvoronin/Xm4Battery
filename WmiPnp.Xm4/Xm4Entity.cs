@@ -60,7 +60,7 @@ public sealed class Xm4Entity
                     DeviceProperty_BatteryLevel )
                 .ValueOrDefault;
 
-            return (byte)(batteryLevel.Data ?? 0);
+            return (byte)(batteryLevel?.Data ?? 0);
         }
     }
 
@@ -69,8 +69,8 @@ public sealed class Xm4Entity
             var connected =
                 _xm4.GetDeviceProperty(
                     DeviceProperty_IsConnected )
-                .Value;
-            return (bool)(connected.Data ?? false);
+                .ValueOrDefault;
+            return (bool)(connected?.Data ?? false);
         }
     }
 
