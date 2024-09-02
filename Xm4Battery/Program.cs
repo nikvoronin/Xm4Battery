@@ -182,9 +182,21 @@ internal static class Program
         NotifyIcon notifyIconCtrl,
         Xm4State currentState )
     {
-        var items = notifyIconCtrl.ContextMenuStrip!.Items;
-        items[ConnectCtxMenuItemName]!.Enabled = !currentState.Connected;
-        items[DisconnectCtxMenuItemName]!.Enabled = currentState.Connected;
+        ArgumentNullException.ThrowIfNull( xm4 );
+        ArgumentNullException.ThrowIfNull( notifyIconCtrl );
+        ArgumentNullException.ThrowIfNull( currentState );
+
+        var items = notifyIconCtrl.ContextMenuStrip?.Items
+            ?? throw new InvalidOperationException(
+                "Can not get itens of the context menu strip. Context menu is null." );
+
+        if (items[ConnectCtxMenuItemName] is not null
+            and var connectCtxMenuItem)
+                connectCtxMenuItem.Enabled = !currentState.Connected;
+
+        if (items[DisconnectCtxMenuItemName] is not null
+            and var disconnectCtxMenuItemName)
+                disconnectCtxMenuItemName.Enabled = currentState.Connected;
 
         var prevIcon = notifyIconCtrl.Icon;
 
@@ -221,7 +233,7 @@ internal static class Program
     const string NotifyIcon_BatteryLevelTitle = "XM4 Battery Level";
 
     const string AppName = "Xm4Battery";
-    const string AppVersion = "4.7.28";
+    const string AppVersion = "4.9.2";
     const string GithubProjectUrl = "https://github.com/nikvoronin/WmiPnp";
 
     internal enum ErrorLevel
