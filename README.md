@@ -1,4 +1,6 @@
-# WMI for Plug-and-Play Devices
+# Xm4Battery
+
+--over WMI for plug-and-play devices
 
 > WMI = Windows Management Interface.
 
@@ -6,7 +8,7 @@ The primary goal of the project is to get battery level of `WH-1000XM4` headphon
 
 ![emoji_flash_bullet_battery_level_v23-5-2](https://user-images.githubusercontent.com/11328666/235766399-44585bee-0e8f-4d21-b96a-81b58b9e83d2.jpg)
 
-- [Xm4Battery Desktop Application](#xm4battery-desktop-application)
+- [Desktop Application](#desktop-application)
     - [User interface](#user-interface)
     - [Tray icon mods](#tray-icon-mods)
 - [Xm4Poller](#xm4poller)
@@ -28,7 +30,7 @@ The primary goal of the project is to get battery level of `WH-1000XM4` headphon
 - [Windows Radio](#windows-radio)
 - [References](#references)
 
-## Xm4Battery Desktop Application
+## Desktop Application
 
 The Windows Forms, trayiconed and window-less application at once.\
 Ready to run app is available under the [Latest Release](https://github.com/nikvoronin/WmiPnp/releases/latest) section.
