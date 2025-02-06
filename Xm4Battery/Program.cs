@@ -29,7 +29,11 @@ internal static class Program
             new NotifyIcon {
                 Text = NotifyIcon_BatteryLevelTitle,
                 Visible = true,
-                Icon = CreateIconForLevel( DisconnectedLevel ),
+                Icon = CreateXmIcon(
+                    new() {
+                        BatteryLevel = DisconnectedLevel,
+                        Connected = false
+                    } ),
                 ContextMenuStrip = CreateContextMenu()
             };
 
@@ -113,7 +117,7 @@ internal static class Program
     static readonly Font _notifyIconFont =
         new( "Segoe UI", 124, FontStyle.Regular );
 
-    private static Icon CreateIconForLevel( int level )
+    private static Icon CreateXmIcon( Xm4State state )
     {
         const int iw = NotifyIconDefault_WidthPx;
         const int ih = NotifyIconDefault_HeightPx;
@@ -124,22 +128,26 @@ internal static class Program
         g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
         g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
 
+        var uiBatteryLevel =
+            state.Connected ? state.BatteryLevel
+            : DisconnectedLevel;
+
         // icon background color
         var iconBackgroundBrush =
-            level switch {
+            uiBatteryLevel switch {
                 <= DisconnectedLevel => Brushes.Transparent,
-                <= 10 => Brushes.Red,
-                <= 20 => Brushes.Orange,
-                <= 30 => Brushes.Yellow,
+                <= CriticalPowerLevel => Brushes.Red,
+                <= LowPowerLevel => Brushes.Orange,
+                <= WarningPowerLevel => Brushes.Yellow,
                 _ => Brushes.White // 40..100(F)
             };
 
         // icon text color
         var iconTextBrush =
-            level switch {
+            uiBatteryLevel switch {
                 <= DisconnectedLevel => Brushes.WhiteSmoke,
-                //<= 10 => Brushes.Magenta,
-                //<= 20 => Brushes.Cyan,
+                //<= LowPowerLevel => Brushes.Magenta,
+                //<= WarningLevel => Brushes.Cyan,
                 _ => Brushes.Black
             };
 
@@ -153,11 +161,11 @@ internal static class Program
 
         // icon text: battery level or status
         var iconText =
-            level switch {
-                <= DisconnectedLevel => "X",
-                <= 10 => "!",
-                100 => "F", // Full charged
-                _ => level.ToString()[..^1], // One digit of charge level 1..9
+            uiBatteryLevel switch {
+                <= DisconnectedLevel => state.BatteryLevel <= WarningPowerLevel ? "%" : "X",
+                <= CriticalPowerLevel => "!",
+                FullPowerLevel => "F",
+                _ => $"{state.BatteryLevel / 10}", // One digit of charge level 1..9
             };
 
         var sizeS =
@@ -192,18 +200,16 @@ internal static class Program
 
         if (items[ConnectCtxMenuItemName] is not null
             and var connectCtxMenuItem)
-                connectCtxMenuItem.Enabled = !currentState.Connected;
+            connectCtxMenuItem.Enabled = !currentState.Connected;
 
         if (items[DisconnectCtxMenuItemName] is not null
             and var disconnectCtxMenuItemName)
-                disconnectCtxMenuItemName.Enabled = currentState.Connected;
+            disconnectCtxMenuItemName.Enabled = currentState.Connected;
 
         var prevIcon = notifyIconCtrl.Icon;
 
         notifyIconCtrl.Icon =
-            CreateIconForLevel(
-                currentState.Connected ? currentState.BatteryLevel
-                : DisconnectedLevel );
+            CreateXmIcon( currentState );
 
         if (prevIcon is not null)
             DestroyIcon( prevIcon.Handle );
@@ -230,10 +236,14 @@ internal static class Program
     const int NotifyIconDefault_HeightPx = 256;
 
     const int DisconnectedLevel = 0;
+    const int CriticalPowerLevel = 10;
+    const int LowPowerLevel = 20;
+    const int WarningPowerLevel = 30;
+    const int FullPowerLevel = 100;
     const string NotifyIcon_BatteryLevelTitle = "XM4 Battery Level";
 
     const string AppName = "Xm4Battery";
-    const string AppVersion = "4.9.5";
+    const string AppVersion = "5.2.6";
     const string GithubProjectUrl = "https://github.com/nikvoronin/Xm4Battery";
 
     internal enum ErrorLevel

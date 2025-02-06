@@ -49,7 +49,10 @@ __System requirements:__ Windows 10 x64, [.NET Desktop Runtime 8.0](https://dotn
 - __3__ yellow - 30%
 - __2__ orange - 20%
 - __!__ red - 10%
-- __X__ - headphones disconnected, transparent background. A tooltip displays the last known battery level and the last known date/time of the headphone connection.
+- __X__ - headphones disconnected.
+- __%__ - headphones disconnected, the last known battery level was low (30% or lower).
+
+When headphones are disconnected, a tooltip displays the last known battery level and the last known date/time of the headphone connection.
 
 `Right Mouse Button` opens a context menu:
 
@@ -68,25 +71,25 @@ The real icon size is 256x256 pixels. It is automatically scaled by system depen
 
 >The app icon is currently adjusted to 125% display scale. Other scale factors may lead to uglifying tray icon.
 
-Icon text color and background are defined in the `CreateIconForLevel` method:
+Icon text color and background are defined in the `CreateXmIcon` method:
 
 ```csharp
 // icon background color
 var iconBackgroundBrush =
-    level switch {
+    uiBatteryLevel switch {
         <= DisconnectedLevel => Brushes.Transparent,
-        <= 10 => Brushes.Red,
-        <= 20 => Brushes.Orange,
-        <= 30 => Brushes.Yellow,
+        <= CriticalPowerLevel => Brushes.Red,
+        <= LowPowerLevel => Brushes.Orange,
+        <= WarningPowerLevel => Brushes.Yellow,
         _ => Brushes.White // 40..100(F)
     };
 
 // icon text color
 var iconTextBrush =
-    level switch {
+    uiBatteryLevel switch {
         <= DisconnectedLevel => Brushes.WhiteSmoke,
-        //<= 10 => Brushes.Magenta,
-        //<= 20 => Brushes.Cyan,
+        //<= LowPowerLevel => Brushes.Magenta,
+        //<= WarningLevel => Brushes.Cyan,
         _ => Brushes.Black
     };
 ```
@@ -94,8 +97,8 @@ var iconTextBrush =
 Font of the notification icon text (battery level or headphones status):
 
 ```csharp
-static readonly Font _notifyIconFont
-    = new ( "Segoe UI", 124, FontStyle.Regular );
+static readonly Font _notifyIconFont =
+    new( "Segoe UI", 124, FontStyle.Regular );
 ```
 
 ## Xm4Poller
