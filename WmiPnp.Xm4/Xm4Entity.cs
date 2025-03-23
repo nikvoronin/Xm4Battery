@@ -60,7 +60,13 @@ public sealed class Xm4Entity
                     DeviceProperty_BatteryLevel )
                 .ValueOrDefault;
 
-            return (byte)(batteryLevel?.Data ?? 0);
+            var data = batteryLevel?.Data;
+
+            return
+                data is null ? 0 
+                : data?.GetType() == typeof( byte ) 
+                    ? (byte)data!
+                    : (int)data!;
         }
     }
 

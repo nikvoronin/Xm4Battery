@@ -146,6 +146,7 @@ internal static class Program
         var iconTextBrush =
             uiBatteryLevel switch {
                 <= DisconnectedLevel => Brushes.WhiteSmoke,
+                <= CriticalPowerLevel => Brushes.White,
                 //<= LowPowerLevel => Brushes.Magenta,
                 //<= WarningLevel => Brushes.Cyan,
                 _ => Brushes.Black
@@ -243,7 +244,7 @@ internal static class Program
     const string NotifyIcon_BatteryLevelTitle = "XM4 Battery Level";
 
     const string AppName = "Xm4Battery";
-    const string AppVersion = "5.2.6";
+    const string AppVersion = "5.3.23-beta";
     const string GithubProjectUrl = "https://github.com/nikvoronin/Xm4Battery";
 
     internal enum ErrorLevel

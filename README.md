@@ -39,7 +39,7 @@ __System requirements:__ Windows 10 x64, [.NET Desktop Runtime 8.0](https://dotn
 
 | Headphones  | Win 10 | Win 11  |
 | ----------- | ------ | ------- |
-| WH-1000_XM4 | Yes    | Yes?    |
+| WH-1000_XM4 | Yes    | Yes     |
 | WH-1000_XM3 | Yes    | Unknown |
 
 ### User interface
@@ -88,6 +88,7 @@ var iconBackgroundBrush =
 var iconTextBrush =
     uiBatteryLevel switch {
         <= DisconnectedLevel => Brushes.WhiteSmoke,
+        <= CriticalPowerLevel => Brushes.White,
         //<= LowPowerLevel => Brushes.Magenta,
         //<= WarningLevel => Brushes.Cyan,
         _ => Brushes.Black
