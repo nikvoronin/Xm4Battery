@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="publish.cmd" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\WmiPnp.Xm4\WmiPnp.Xm4.csproj" />
     <ProjectReference Include="..\WmiPnp\WmiPnp.csproj" />
   </ItemGroup>

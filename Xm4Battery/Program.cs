@@ -215,9 +215,14 @@ internal static class Program
         if (prevIcon is not null)
             DestroyIcon( prevIcon.Handle );
 
+        // a race condition may occur and it happens sometimes
+        // somewhere between getting state and getting last connected time
         var at =
-            currentState.Connected ? string.Empty
-            : $"\n{xm4!.LastConnectedTime.Value:F}";
+            (!currentState.Connected
+                && xm4.LastConnectedTime.ValueOrDefault is DateTime lastConnectedTime
+                && lastConnectedTime > DateTime.MinValue)
+            ? $"\n{lastConnectedTime:F}"
+            : string.Empty;
 
         notifyIconCtrl.Text =
             $"{NotifyIcon_BatteryLevelTitle} ⚡{currentState.BatteryLevel}%{at}";
@@ -244,7 +249,7 @@ internal static class Program
     const string NotifyIcon_BatteryLevelTitle = "XM4 Battery Level";
 
     const string AppName = "Xm4Battery";
-    const string AppVersion = "5.3.23-beta";
+    const string AppVersion = "5.3.24-beta";
     const string GithubProjectUrl = "https://github.com/nikvoronin/Xm4Battery";
 
     internal enum ErrorLevel
