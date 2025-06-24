@@ -4,7 +4,7 @@
 
 > WMI = Windows Management Interface.
 
-The primary goal of the project is to get battery level of `WH-1000XM4` headphones. Perhaps `Xm4Battery` might also works with similar models of headphones such as WH-1000XM3, WF-1000XM3 or WF-1000XM4.
+The primary goal of the project is to get battery level of `WH-1000XM4` headphones. Perhaps `Xm4Battery` might also works with similar models of headphones such as WH-1000XM4, WF-1000XM4 or WH-1000XM3-5-6-etc.
 
 ![emoji_flash_bullet_battery_level_v23-5-2](https://user-images.githubusercontent.com/11328666/235766399-44585bee-0e8f-4d21-b96a-81b58b9e83d2.jpg)
 
@@ -39,8 +39,10 @@ __System requirements:__ Windows 10 x64, [.NET Desktop Runtime 8.0](https://dotn
 
 | Headphones  | Win 10 | Win 11  |
 | ----------- | ------ | ------- |
+| WH-1000_XM6 | ?      | ?       |
+| WH-1000_XM5 | ?      | ?       |
 | WH-1000_XM4 | Yes    | Yes     |
-| WH-1000_XM3 | Yes    | Unknown |
+| WH-1000_XM3 | Yes    | ?       |
 
 ### User interface
 
