@@ -32,10 +32,10 @@ public sealed class PnpEntity
     /// </returns>
     public IEnumerable<DeviceProperty> GetProperties()
     {
-        ManagementBaseObject inParams =
+        using ManagementBaseObject inParams =
             _entity.GetMethodParameters( GetDeviceProperties_MethodName );
 
-        ManagementBaseObject outParams =
+        using ManagementBaseObject outParams =
             _entity.InvokeMethod( GetDeviceProperties_MethodName, inParams, null );
 
         var mbos =
@@ -89,7 +89,7 @@ public sealed class PnpEntity
                 .CausedBy( e ) );
         }
 
-        ManagementBaseObject? ss = (args[1] as ManagementBaseObject[])?[0];
+        using ManagementBaseObject? ss = (args[1] as ManagementBaseObject[])?[0];
         if (ss is null)
             return Result.Fail( $"Method {GetDeviceProperties_MethodName} returns nothing." );
 
@@ -117,6 +117,9 @@ public sealed class PnpEntity
             type: typeValue,
             data: dataValue
         );
+
+        GC.Collect();
+        GC.WaitForFullGCComplete( TimeSpan.FromMilliseconds(100) );
 
         return dp;
     }
@@ -173,12 +176,12 @@ public sealed class PnpEntity
             Result.Fail( $"No entity WHERE=`{where}`" );
 
         try {
-            var searcher =
+            using var searcher =
                 new ManagementObjectSearcher(
                     Select_Win32PnpEntity_Where
                     + where );
 
-            var collection = searcher.Get();
+            using var collection = searcher.Get();
 
             var mo =
                 collection
@@ -199,12 +202,12 @@ public sealed class PnpEntity
         IEnumerable<PnpEntity> entities = [];
 
         try {
-            var searcher =
+            using var searcher =
                 new ManagementObjectSearcher(
                     Select_Win32PnpEntity_Where
                     + where );
 
-            var collection = searcher.Get();
+            using var collection = searcher.Get();
 
             entities =
                 collection

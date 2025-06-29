@@ -21,6 +21,7 @@ public class Xm4Poller : IDisposable
 
         _cts = new();
         Thread thread = new( ThreadWorker );
+        thread.SetApartmentState( ApartmentState.STA );
         thread.Start( _cts.Token );
     }
 
