@@ -1,6 +1,6 @@
 # Xm4Battery
 
---over WMI for plug-and-play devices
+Battery level of WH-1000XM4 headphones and other series models, based on the WMI wrapper for Plug-and-Play devices.
 
 > WMI = Windows Management Interface.
 
@@ -35,7 +35,7 @@ The primary goal of the project is to get battery level of `WH-1000XM4` headphon
 The Windows Forms, trayiconed and window-less application at once.\
 Ready to run app is available under the [Latest Release](https://github.com/nikvoronin/WmiPnp/releases/latest) section.
 
-__System requirements:__ Windows 10 x64, [.NET Desktop Runtime 8.0](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+__System requirements:__ Windows 10 x64, [.NET Desktop Runtime 8.0](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) LTS
 
 | Headphones  | Win 10 | Win 11  |
 | ----------- | ------ | ------- |
