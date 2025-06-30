@@ -114,18 +114,29 @@ internal static class Program
         return contextMenu;
     }
 
-    static readonly Font _notifyIconFont =
-        new( "Segoe UI", 124, FontStyle.Regular );
+    private static readonly float _scalingFactor = DesktopScalingFactor();
+
+    private static float DesktopScalingFactor()
+    {
+        using Graphics g = Graphics.FromHwnd( IntPtr.Zero );
+        return g.DpiX / 96f;
+    }
+
+    private static readonly Font _notifyIconFont =
+        new( "Segoe UI", 12.5f, FontStyle.Regular );
+
+    private static readonly Pen Pens_WhiteSmokeW24 =
+        new( Color.WhiteSmoke, _scalingFactor );
 
     private static Icon CreateXmIcon( Xm4State state )
     {
-        const int iw = NotifyIconDefault_WidthPx;
-        const int ih = NotifyIconDefault_HeightPx;
+        int iw = (int)(NotifyIconDefault_WidthPx * _scalingFactor);
+        int ih = (int)(NotifyIconDefault_HeightPx * _scalingFactor);
 
         using Bitmap icoBitmap = new( iw, ih );
         using var g = Graphics.FromImage( icoBitmap );
-        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBilinear;
-        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
+        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.Default;
         g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
 
         var uiBatteryLevel =
@@ -158,7 +169,7 @@ internal static class Program
 
         g.DrawRectangle(
             Pens_WhiteSmokeW24,
-            0, 0, iw, ih );
+            0, 0, iw - 1, ih - 1 );
 
         // icon text: battery level or status
         var iconText =
@@ -179,7 +190,7 @@ internal static class Program
             _notifyIconFont,
             iconTextBrush,
             iw / 2 - sizeS.Width / 2,
-            ih / 2 - sizeS.Height / 2 );
+            ih / 2 - sizeS.Height / 2 - 1 );
 
         return
             Icon.FromHandle(
@@ -233,13 +244,10 @@ internal static class Program
             $"{AppName}_{AppVersion}_exceptions.log",
             $"{DateTime.UtcNow:u} {exception}\n" );
 
-    static readonly Pen Pens_WhiteSmokeW24 =
-        new( Color.WhiteSmoke, 24f );
-
     const string ConnectCtxMenuItemName = nameof( ConnectCtxMenuItemName );
     const string DisconnectCtxMenuItemName = nameof( DisconnectCtxMenuItemName );
-    const int NotifyIconDefault_WidthPx = 256;
-    const int NotifyIconDefault_HeightPx = 256;
+    const int NotifyIconDefault_WidthPx = 20;
+    const int NotifyIconDefault_HeightPx = 20;
 
     const int DisconnectedLevel = 0;
     const int CriticalPowerLevel = 10;
@@ -249,7 +257,7 @@ internal static class Program
     const string NotifyIcon_BatteryLevelTitle = "XM4 Battery Level";
 
     const string AppName = "Xm4Battery";
-    const string AppVersion = "5.6.29-beta";
+    const string AppVersion = "5.6.30-beta";
     const string GithubProjectUrl = "https://github.com/nikvoronin/Xm4Battery";
 
     internal enum ErrorLevel
