@@ -69,9 +69,9 @@ When headphones are disconnected, a tooltip displays the last known battery leve
 
 ### Tray icon mods
 
-The real icon size is 256x256 pixels. It is automatically scaled by system depend on display scaling factor.
+The real icon size is 20x20 pixels. It is automatically scaled by system depend on display scaling factor.
 
->The app icon is currently adjusted to 125% display scale. Other scale factors may lead to uglifying tray icon.
+>The app icon is currently adjusted to 125% display scaling. Other scaling factors may lead to uglifying tray icon.
 
 Icon text color and background are defined in the `CreateXmIcon` method:
 
@@ -101,7 +101,7 @@ Font of the notification icon text (battery level or headphones status):
 
 ```csharp
 static readonly Font _notifyIconFont =
-    new( "Segoe UI", 124, FontStyle.Regular );
+    new( "Segoe UI", 12.5f, FontStyle.Regular );
 ```
 
 ## Xm4Poller
