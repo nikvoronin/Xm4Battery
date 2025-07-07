@@ -208,7 +208,7 @@ internal static class Program
 
         var items = notifyIconCtrl.ContextMenuStrip?.Items
             ?? throw new InvalidOperationException(
-                "Can not get itens of the context menu strip. Context menu is null." );
+                "Can not get items of the context menu strip. Context menu is null." );
 
         if (items[ConnectCtxMenuItemName] is not null
             and var connectCtxMenuItem)
@@ -257,7 +257,7 @@ internal static class Program
     const string NotifyIcon_BatteryLevelTitle = "XM4 Battery Level";
 
     const string AppName = "Xm4Battery";
-    const string AppVersion = "5.6.30-beta";
+    const string AppVersion = "5.7.7-rc1";
     const string GithubProjectUrl = "https://github.com/nikvoronin/Xm4Battery";
 
     internal enum ErrorLevel
