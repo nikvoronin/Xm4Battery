@@ -393,6 +393,7 @@ private async Task InternalBluetoothState( bool enable )
 
 ## References
 
+- [Sony Headphones Client](https://github.com/Plutoberth/SonyHeadphonesClient/) `public archive`. This project features a PC alternative for the mobile-only Sony Headphones app. `C++` `Windows` `Linux` `macOS`
 - [Enumerating windows device](https://www.codeproject.com/articles/14412/enumerating-windows-device). Enumerating the device using the SetupDi* API provided with WinXP. CodeProject // 17 Jun 2006
 - [How to get the details for each enumerated device?](https://social.msdn.microsoft.com/Forums/en-US/65086709-cee8-4efa-a794-b32979abb0ea/how-to-get-the-details-for-each-enumerated-device?forum=vbgeneral) MSDN, Archived Forums 421-440. `Visual Basic`
 - [Query battery level for WH-1000XM4 wireless headphones](https://gist.github.com/nikvoronin/e8fc8a1631dd0e851f1ab821d0e3cf01). GitHub gist. `PowerShell`
