@@ -12,6 +12,10 @@ internal static class Program
     {
         ApplicationConfiguration.Initialize();
         Application.SetHighDpiMode( HighDpiMode.PerMonitorV2 );
+        Application.EnableVisualStyles();
+#pragma warning disable WFO5001
+        Application.SetColorMode( SystemColorMode.System );
+#pragma warning restore WFO5001
 
         AppDomain.CurrentDomain.UnhandledException += ( _, e ) =>
             LogException( (Exception)e.ExceptionObject );
