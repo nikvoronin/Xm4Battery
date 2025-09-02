@@ -189,7 +189,7 @@ internal static class Program
             iconText,
             _notifyIconFont,
             iconTextBrush,
-            iw / 2 - sizeS.Width / 2,
+            iw / 2 - sizeS.Width / 2 + .5f,
             ih / 2 - sizeS.Height / 2 - 1 );
 
         return
