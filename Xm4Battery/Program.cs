@@ -93,6 +93,21 @@ internal static class Program
             },
 
             new ToolStripMenuItem(
+                "&Launch at Startup",
+                null,
+                (_,_) => {
+                    // TODO: get status of auto-start enable
+                    // invert it
+                    // Store the new one
+                } )
+            {
+                Name = LaunchAtStartupMenuItemName,
+                Checked = false
+            },
+
+            new ToolStripSeparator(),
+
+            new ToolStripMenuItem(
                 $"&About {AppName} {AppVersion}",
                 null,
                 (_,_) => {
@@ -114,6 +129,19 @@ internal static class Program
                 null,
                 (_,_) => Application.Exit() ),
         ] );
+
+        contextMenu.Opening +=
+            ( sender, e ) => {
+                var ctxMenu = sender as ContextMenuStrip;
+
+                if (ctxMenu?.Items[LaunchAtStartupMenuItemName]
+                    is ToolStripMenuItem launchAtStartupCtxMenuItem)
+                {
+                    // TODO: show a real status of auto-start enable
+                    // remove the following line, it is STUB
+                    launchAtStartupCtxMenuItem.Checked = !launchAtStartupCtxMenuItem.Checked;
+                }
+            };
 
         return contextMenu;
     }
@@ -250,6 +278,7 @@ internal static class Program
 
     const string ConnectCtxMenuItemName = nameof( ConnectCtxMenuItemName );
     const string DisconnectCtxMenuItemName = nameof( DisconnectCtxMenuItemName );
+    const string LaunchAtStartupMenuItemName = nameof( LaunchAtStartupMenuItemName );
     const int NotifyIconDefault_WidthPx = 20;
     const int NotifyIconDefault_HeightPx = 20;
 
@@ -261,7 +290,7 @@ internal static class Program
     const string NotifyIcon_BatteryLevelTitle = "XM4 Battery Level";
 
     const string AppName = "Xm4Battery";
-    const string AppVersion = "5.7.7-rc1";
+    const string AppVersion = "5.9.3-rc2";
     const string GithubProjectUrl = "https://github.com/nikvoronin/Xm4Battery";
 
     internal enum ErrorLevel
