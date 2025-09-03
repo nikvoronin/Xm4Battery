@@ -56,16 +56,17 @@ __System requirements:__ Windows 10 x64, [.NET Desktop Runtime 8.0](https://dotn
 
 When headphones are disconnected, a tooltip displays the last known battery level and the last known date/time of the headphone connection.
 
-`Right Mouse Button` opens a context menu:
+🐭 `Right Mouse Button` opens a context menu:
 
 - Connect - tries connect already paired headphones. ⚠
 - Disconnect - tries disconnect headphones (not unpair, just disconnect). ⚠
+- Launch at Startup - automatically launch the application at Windows startup.
 - About - leads to this page.
 - Quit - closes and unloads application at all.
 
 >⚠ __Connect / Disconnect__ items appear if the app is run as an administrator.\
->⚠ These functions may cause system artefacts or unusual behavior of Volume Control, Sound Mixer, Bluetooth Device Manager, etc.\
->⚠ Especially the Disconnect item. Connect is a law-abiding one.
+>⚠* These functions may cause system artefacts or unusual behavior of Volume Control, Sound Mixer, Bluetooth Device Manager, etc.\
+>⚠** Especially the Disconnect item. Connect is a law-abiding one.
 
 ### Tray icon mods
 
