@@ -95,11 +95,7 @@ internal static class Program
             new ToolStripMenuItem(
                 "&Launch at Startup",
                 null,
-                (_,_) => {
-                    // TODO: get status of auto-start enable
-                    // invert it
-                    // Store the new one
-                } )
+                (_,_) => SysRegistry.ToggleLaunchAtStartup() )
             {
                 Name = LaunchAtStartupMenuItemName,
                 Checked = false
@@ -137,9 +133,8 @@ internal static class Program
                 if (ctxMenu?.Items[LaunchAtStartupMenuItemName]
                     is ToolStripMenuItem launchAtStartupCtxMenuItem)
                 {
-                    // TODO: show a real status of auto-start enable
-                    // remove the following line, it is STUB
-                    launchAtStartupCtxMenuItem.Checked = !launchAtStartupCtxMenuItem.Checked;
+                    launchAtStartupCtxMenuItem.Checked =
+                        SysRegistry.IsInSystemStartup();
                 }
             };
 
@@ -289,7 +284,7 @@ internal static class Program
     const int FullPowerLevel = 100;
     const string NotifyIcon_BatteryLevelTitle = "XM4 Battery Level";
 
-    const string AppName = "Xm4Battery";
+    internal const string AppName = "Xm4Battery";
     const string AppVersion = "5.9.3-rc2";
     const string GithubProjectUrl = "https://github.com/nikvoronin/Xm4Battery";
 
