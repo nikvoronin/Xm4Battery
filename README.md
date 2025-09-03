@@ -60,7 +60,7 @@ When headphones are disconnected, a tooltip displays the last known battery leve
 
 - Connect - tries connect already paired headphones. ⚠
 - Disconnect - tries disconnect headphones (not unpair, just disconnect). ⚠
-- Launch at Startup - automatically launch the application at Windows startup.
+- Launch at Startup - toggles whether the application automatically starts when Windows boots up. When ✅enabled, the application will launch automatically upon system startup.
 - About - leads to this page.
 - Quit - closes and unloads application at all.
 
