@@ -58,11 +58,11 @@ When headphones are disconnected, a tooltip displays the last known battery leve
 
 🐭 `Right Mouse Button` opens a context menu:
 
-- Connect - tries connect already paired headphones. ⚠
-- Disconnect - tries disconnect headphones (not unpair, just disconnect). ⚠
-- Launch at Startup - toggles whether the application automatically starts when Windows boots up. When ✅enabled, the application will launch automatically upon system startup.
-- About - leads to this page.
-- Quit - closes and unloads application at all.
+- __Connect__ - tries connect already paired headphones. ⚠
+- __Disconnect__ - tries disconnect headphones (not unpair, just disconnect). ⚠
+- __Launch at Startup__ - toggles whether the application automatically starts when Windows boots up. When ✅enabled, the application will launch automatically upon system startup.
+- __About__ - leads to this page.
+- __Quit__ - closes and unloads application at all.
 
 >⚠ __Connect / Disconnect__ items appear if the app is run as an administrator.\
 >⚠* These functions may cause system artefacts or unusual behavior of Volume Control, Sound Mixer, Bluetooth Device Manager, etc.\
