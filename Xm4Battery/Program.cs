@@ -278,7 +278,7 @@ internal static class Program
     const string NotifyIcon_BatteryLevelTitle = "XM4 Battery Level";
 
     internal const string AppName = "Xm4Battery";
-    const string AppVersion = "5.9.3-rc2";
+    const string AppVersion = "5.10.17-rc2";
     const string GithubProjectUrl = "https://github.com/nikvoronin/Xm4Battery";
 
     internal enum ErrorLevel
