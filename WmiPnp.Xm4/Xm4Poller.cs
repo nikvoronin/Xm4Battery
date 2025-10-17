@@ -62,11 +62,8 @@ public class Xm4Poller : IDisposable
                     BatteryLevel = _xm4.BatteryLevel
                 };
 
-                if (currentState != lastState) {
-                    _stateChangedHandler?.Invoke(
-                        lastState,
-                        currentState );
-                }
+                if (currentState != lastState)
+                    _stateChangedHandler?.Invoke( lastState, currentState );
 
                 lastUpdatedTime = DateTimeOffset.UtcNow;
                 lastState = currentState;
@@ -79,10 +76,8 @@ public class Xm4Poller : IDisposable
     public void Stop() => _cts?.Cancel();
 
     // TODO: create options with public access
-    private static readonly TimeSpan PollingInterval
-        = TimeSpan.FromSeconds( 1 );
-    private static readonly TimeSpan BatteryLevel_UpdateInterval
-        = TimeSpan.FromMinutes( 1 );
+    private static readonly TimeSpan PollingInterval = TimeSpan.FromSeconds( 1 );
+    private static readonly TimeSpan BatteryLevel_UpdateInterval = TimeSpan.FromMinutes( 1 );
     private const int LinearBackoffFactor = 2;
 
     private readonly Xm4Entity _xm4;

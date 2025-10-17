@@ -88,9 +88,7 @@ internal static class Program
                 Visible = runasAdmin
             },
 
-            new ToolStripSeparator() {
-                Visible = runasAdmin
-            },
+            new ToolStripSeparator() { Visible = runasAdmin },
 
             new ToolStripMenuItem(
                 "&Launch at Startup",
@@ -128,11 +126,8 @@ internal static class Program
 
         contextMenu.Opening +=
             ( sender, e ) => {
-                var ctxMenu = sender as ContextMenuStrip;
-
-                if (ctxMenu?.Items[LaunchAtStartupMenuItemName]
-                    is ToolStripMenuItem launchAtStartupCtxMenuItem)
-                {
+                if ((sender as ContextMenuStrip)?.Items[LaunchAtStartupMenuItemName]
+                        is ToolStripMenuItem launchAtStartupCtxMenuItem) {
                     launchAtStartupCtxMenuItem.Checked =
                         SysRegistry.IsInSystemStartup();
                 }
@@ -141,13 +136,11 @@ internal static class Program
         return contextMenu;
     }
 
-    private static readonly float _scalingFactor = DesktopScalingFactor();
-
-    private static float DesktopScalingFactor()
-    {
-        using Graphics g = Graphics.FromHwnd( IntPtr.Zero );
-        return g.DpiX / 96f;
-    }
+    private readonly static float _scalingFactor =
+        new Func<float>( () => {
+            using Graphics g = Graphics.FromHwnd( IntPtr.Zero );
+            return g.DpiX / 96f;
+        } )();
 
     private static readonly Font _notifyIconFont =
         new( "Segoe UI", 12.5f, FontStyle.Regular );
@@ -274,7 +267,7 @@ internal static class Program
     const string ConnectCtxMenuItemName = nameof( ConnectCtxMenuItemName );
     const string DisconnectCtxMenuItemName = nameof( DisconnectCtxMenuItemName );
     const string LaunchAtStartupMenuItemName = nameof( LaunchAtStartupMenuItemName );
-    const int NotifyIconDefault_WidthPx = 20;
+    const int NotifyIconDefault_WidthPx = 20; // at 125% display scaling, 16px ~ 100%
     const int NotifyIconDefault_HeightPx = 20;
 
     const int DisconnectedLevel = 0;

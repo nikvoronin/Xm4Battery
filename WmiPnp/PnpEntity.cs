@@ -21,7 +21,7 @@ public sealed class PnpEntity
         PnpDeviceId = entity.ValueOf( PnpDeviceId_FieldName );
 
         _entity = entity as ManagementObject
-            ?? throw new NotSupportedException( "Not a ManagementObject." );
+            ?? throw new NotSupportedException( $"Not a {nameof( ManagementObject )}." );
     }
 
     /// <summary>
@@ -85,13 +85,15 @@ public sealed class PnpEntity
         }
         catch (ManagementException e) {
             return Result.Fail(
-                new Error( $"Entity not found or wrong key. Exception when invoke method {GetDeviceProperties_MethodName}" )
+                new Error(
+                    $"Entity not found or wrong key. Exception when invoke method {GetDeviceProperties_MethodName}" )
                 .CausedBy( e ) );
         }
 
         using ManagementBaseObject? ss = (args[1] as ManagementBaseObject[])?[0];
         if (ss is null)
-            return Result.Fail( $"Method {GetDeviceProperties_MethodName} returns nothing." );
+            return Result.Fail(
+                $"Method {GetDeviceProperties_MethodName} returns nothing." );
 
         var ps =
             new Dictionary<string, object>(
@@ -109,7 +111,8 @@ public sealed class PnpEntity
             || dataValue is null;
 
         if (noValidDataValue)
-            return Result.Fail( $"No valid data value: type={typeValue}; data:`{dataValue}`." );
+            return Result.Fail(
+                $"No valid data value: type={typeValue}; data:`{dataValue}`." );
 
         DeviceProperty dp = new(
             deviceId: ss.ValueOf( DeviceProperty.DeviceID_PropertyField ),
@@ -118,8 +121,10 @@ public sealed class PnpEntity
             data: dataValue
         );
 
+        // This prevents memory leaks and handle exhaustion
+        // caused by the GC not cleaning up resources for an extended period.
         GC.Collect();
-        GC.WaitForFullGCComplete( TimeSpan.FromMilliseconds(100) );
+        GC.WaitForFullGCComplete( TimeSpan.FromMilliseconds( 100 ) );
 
         return dp;
     }

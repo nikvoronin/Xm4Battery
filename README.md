@@ -32,10 +32,10 @@ The primary goal of the project is to get battery level of `WH-1000XM4` headphon
 
 ## Desktop Application
 
-The Windows Forms, trayiconed and window-less application at once.\
-Ready to run app is available under the [Latest Release](https://github.com/nikvoronin/Xm4Battery/releases/latest) section.
+This Windows Forms application runs as a tray icon with no main window.\
+The ready-to-run version is available in the [Latest Release](https://github.com/nikvoronin/Xm4Battery/releases/latest) section.
 
-__System requirements:__ Windows 10 x64, [.NET Desktop Runtime 8.0](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) LTS
+__System requirements:__ Windows 10 x64, [.NET Desktop Runtime 8.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) LTS
 
 | Headphones  | Win 10 | Win 11  |
 | ----------- | ------ | ------- |
@@ -54,7 +54,7 @@ __System requirements:__ Windows 10 x64, [.NET Desktop Runtime 8.0](https://dotn
 - __X__ - headphones disconnected.
 - __%__ - headphones disconnected, the last known battery level was low (30% or lower).
 
-When headphones are disconnected, a tooltip displays the last known battery level and the last known date/time of the headphone connection.
+When the headphones are disconnected, a tooltip displays their last known battery level and the date and time of their most recent connection.
 
 🐭 `Right Mouse Button` opens a context menu:
 
@@ -166,7 +166,7 @@ bool connected = _xm4.IsConnected;
 
 ### What was the last connected time?
 
-We don't know how to get the last connected time if headphones is online and already connected. This property is valid only if headphones are DISconnected.
+We cannot determine the last connection time while the headphones are online and already connected. This property is only valid when the headphones are DISconnected.
 
 ```csharp
 Result<DateTime> dt = _xm4.LastConnectedTime;
@@ -182,7 +182,7 @@ else
 
 ### Headphones battery level
 
-It can get the actual battery level if headphones are connected. Otherwise, headphones are DISconnected, it returns the last known level.
+It retrieves the current battery level when the headphones are connected; otherwise, when they are disconnected, it returns the last known level.
 
 ```csharp
 int level = _xm4.BatteryLevel;
@@ -190,22 +190,24 @@ int level = _xm4.BatteryLevel;
 
 ### Re/Connect already paired
 
-When headphones are used with multiple sources (laptop, pc, smartphone, etc) you have to reconnect headphones from time to time. So headphones are already paired but disconnected. In this case `WmiPnp` has experimental `Xm4Entity.TryConnect()` and very unstable `Xm4Entity.TryDisconnect()`. Both want the application run as administrator. Otherwise these functions are ignored.
+When headphones are used with multiple devices - such as a laptop, PC, or smartphone - you may need to reconnect them periodically. In this scenario, the headphones are already paired but currently disconnected.
 
-If you are curious to find out about turn off bluetooth at all, see topic about [Windows Radio](#windows-radio).
+For such cases, the `WmiPnp` module includes experimental methods: `Xm4Entity.TryConnect()` and the highly unstable `Xm4Entity.TryDisconnect()`. Both require the application to run with administrator privileges; otherwise, they are silently ignored.
+
+If you're curious about completely turning off Bluetooth, see the section on [Windows Radio](#windows-radio).
 
 ## PnpEntity
 
-First, we should know a `name` or `device id` of the device we are working with or at least a part of the device name.
+First, we need to know either the `name` or the `device id` of the target device - or at least a partial match of its name.
 
-- ByFriendlyName - exact a friendly name.
-- ByDeviceId - exact a device id, like `{GUID} pid`.
-- FindByFriendlyName - a part of a friendly name. Returns a list of founded devices `IEnumerable<PnpEntity>` or empty list otherwise.
-- FindByNameForExactClass - same as `FindByFriendlyName` but with exact class name equality.
-- EntityOrNone - a `where` part of WQL request to retrieve exact a single device only.
-- EntitiesOrNone - a `where` part of WQL request to retrieve zero, one or several devices at once.
+- __ByFriendlyName__ - exact a friendly name.
+- __ByDeviceId__ - exact a device id, like `{GUID} pid`.
+- __FindByFriendlyName__ - a part of a friendly name. Returns a list of founded devices `IEnumerable<PnpEntity>` or empty list otherwise.
+- __FindByNameForExactClass__ - same as `FindByFriendlyName` but with exact class name equality.
+- __EntityOrNone__ - a `where` part of WQL request to retrieve exact a single device only.
+- __EntitiesOrNone__ - a `where` part of WQL request to retrieve zero, one or several devices at once.
 
-All of methods produce instances of `PnpEntity` or `Result.Fail` if the given device was not found.
+All of these methods return either an instance of `PnpEntity` or a `Result.Fail` if the specified device is not found.
 
 ### How To find PNP-device?
 
@@ -259,7 +261,7 @@ foreach( var p in properties ) {
 
 ### Enable or disable device
 
-Some devices could be enabled or disabled.
+Some devices can be enabled or disabled.
 
 ```csharp
 ...
@@ -308,12 +310,12 @@ Key = {83da6326-97a6-4088-9453-a1923f573b29} 103
 - `WH-1000XM4 Hands-Free AG` - exact name for PnpEntity to get a __BATTERY LEVEL__ only.
 - `WH-1000XM4` - exact name for PnpEntity to get a __STATE__ of the xm4.
 
-> Actually, the app utilize templates like `W_-1000XM_` to generalize model of headphones (WH-1000XM3, WF-1000XM4, etc.)
+> The app actually uses naming templates such as `W_-1000XM_` to abstract and match various headphone models (e.g., WH-1000XM3, WF-1000XM4, etc.).
 
 <!-- omit in toc -->
 ### DEVPKEY_Device_DevNodeStatus
 
-> Instead of this bit flags, we can use [Is Connected](#is-connected) property to retrieve a connection status of xm4.
+> Instead of using these bit flags, we can use the [Is Connected](#is-connected-or-not) property to retrieve the connection status of the XM4.
 
 - Key = `{4340A6C5-93FA-4706-972C-7B648008A5A7} 2`
 - KeyName = DEVPKEY_Device_DevNodeStatus
@@ -325,7 +327,7 @@ Key = {83da6326-97a6-4088-9453-a1923f573b29} 103
 <!-- omit in toc -->
 ### DEVPKEY_Bluetooth_LastConnectedTime
 
-This is only property to retrieve the last connection date-time of headphones. This property appears only when headphones are DISconnected.
+This is the only property that provides the last connection date and time of the headphones, and it is available only when the headphones are DISconnected.
 
 - Key = `{2BD67D8B-8BEB-48D5-87E0-6CDA3428040A} 11`
 - KeyName = DEVPKEY_Bluetooth_LastConnectedTime
@@ -336,7 +338,7 @@ For ex.: Data = 20230131090906.098359+180 → 2023 Jan 31, 9:09:06, GMT+3
 <!-- omit in toc -->
 ### ?Last connected time
 
-Contains the same data as the [DEVPKEY_Bluetooth_LastConnectedTime](#devpkey_bluetooth_lastconnectedtime) property. Same behavior.
+Contains the same data as the [DEVPKEY_Bluetooth_LastConnectedTime](#devpkey_bluetooth_lastconnectedtime) property and behaves identically.
 
 - Key = `{2BD67D8B-8BEB-48D5-87E0-6CDA3428040A} 5`
 - Type = 16 (FileTime)
@@ -346,7 +348,9 @@ Contains the same data as the [DEVPKEY_Bluetooth_LastConnectedTime](#devpkey_blu
 <!-- omit in toc -->
 ### Preparation
 
-There is a way to use UWP functions from desktop application. Just setup a `TargetFramework` in `YourProject.csproj` to use specific version of dotNet-framework-windows-only like: `netX.x-windows10.0.xxxxx.x`. For example:
+It is possible to use UWP APIs from a desktop application by setting the `TargetFramework` in your `YourProject.csproj` file to a Windows-specific .NET version, such as `netX.x-windows10.0.xxxxx.x`.
+
+For example:
 
 ```xml
 <PropertyGroup>
@@ -358,13 +362,13 @@ There is a way to use UWP functions from desktop application. Just setup a `Targ
 <!-- omit in toc -->
 ### Switch system bluetooth on and off
 
-Now we can use `Windows.Devices.Radios` namespace:
+With this setup, we can now use the `Windows.Devices.Radios` namespace:
 
 ```csharp
 using Windows.Devices.Radios;
 ```
 
->⚠ Be aware, this one could switch off system bluetooth radio __at all__ (not only enable or disable).\
+>⚠ Be aware: this can completely turn off the system Bluetooth radio - not just enable or disable it.\
 >⚠ Use at your own risk!
 
 ```csharp
