@@ -55,18 +55,17 @@ public sealed class Xm4Entity
 
     public int BatteryLevel {
         get {
-            var batteryLevel =
+            var level =
                 _handsFree.GetDeviceProperty(
                     DeviceProperty_BatteryLevel )
-                .ValueOrDefault;
+                .ValueOrDefault
+                ?.Data;
 
-            var data = batteryLevel?.Data;
-
-            return
-                data is null ? 0 
-                : data?.GetType() == typeof( byte ) 
-                    ? (byte)data!
-                    : (int)data!;
+            return level switch {
+                _ when level is byte byteData => byteData,
+                _ when level is int intData => intData,
+                _ => 0
+            };
         }
     }
 

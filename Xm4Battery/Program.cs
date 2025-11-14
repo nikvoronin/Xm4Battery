@@ -12,6 +12,8 @@ internal static class Program
     {
         ApplicationConfiguration.Initialize();
         Application.SetHighDpiMode( HighDpiMode.PerMonitorV2 );
+        Application.EnableVisualStyles();
+        Application.SetColorMode( SystemColorMode.Dark );
 
         AppDomain.CurrentDomain.UnhandledException += ( _, e ) =>
             LogException( (Exception)e.ExceptionObject );
@@ -19,9 +21,25 @@ internal static class Program
         Application.SetUnhandledExceptionMode( UnhandledExceptionMode.CatchException );
         Application.ThreadException += ( _, e ) => LogException( e.Exception );
 
+    TryAgain:
         var xm4result = Xm4Entity.CreateDefault();
-        if (xm4result.IsFailed)
+        if (xm4result.IsFailed) {
+            var dialogResult =
+                MessageBox.Show(
+                    """
+                    Please pair your headphones with this laptop first, then restart the application.
+
+                    Try again?
+                    """,
+                    "Headphones Not Detected",
+                    MessageBoxButtons.RetryCancel,
+                    MessageBoxIcon.Exclamation);
+
+            if (dialogResult == DialogResult.Retry)
+                goto TryAgain;
+
             return (int)ErrorLevel.Xm4NotFound;
+        }
 
         Xm4Entity xm4 = xm4result.Value;
 
@@ -84,9 +102,18 @@ internal static class Program
                 Visible = runasAdmin
             },
 
-            new ToolStripSeparator() {
-                Visible = runasAdmin
+            new ToolStripSeparator() { Visible = runasAdmin },
+
+            new ToolStripMenuItem(
+                "&Launch at Startup",
+                null,
+                (_,_) => SysRegistry.ToggleLaunchAtStartup() )
+            {
+                Name = LaunchAtStartupMenuItemName,
+                Checked = false
             },
+
+            new ToolStripSeparator(),
 
             new ToolStripMenuItem(
                 $"&About {AppName} {AppVersion}",
@@ -111,16 +138,23 @@ internal static class Program
                 (_,_) => Application.Exit() ),
         ] );
 
+        contextMenu.Opening +=
+            ( sender, e ) => {
+                if ((sender as ContextMenuStrip)?.Items[LaunchAtStartupMenuItemName]
+                        is ToolStripMenuItem launchAtStartupCtxMenuItem) {
+                    launchAtStartupCtxMenuItem.Checked =
+                        SysRegistry.IsInSystemStartup();
+                }
+            };
+
         return contextMenu;
     }
 
-    private static readonly float _scalingFactor = DesktopScalingFactor();
-
-    private static float DesktopScalingFactor()
-    {
-        using Graphics g = Graphics.FromHwnd( IntPtr.Zero );
-        return g.DpiX / 96f;
-    }
+    private readonly static float _scalingFactor =
+        new Func<float>( () => {
+            using Graphics g = Graphics.FromHwnd( IntPtr.Zero );
+            return g.DpiX / 96f;
+        } )();
 
     private static readonly Font _notifyIconFont =
         new( "Segoe UI", 12.5f, FontStyle.Regular );
@@ -189,7 +223,7 @@ internal static class Program
             iconText,
             _notifyIconFont,
             iconTextBrush,
-            iw / 2 - sizeS.Width / 2,
+            iw / 2 - sizeS.Width / 2 + .5f,
             ih / 2 - sizeS.Height / 2 - 1 );
 
         return
@@ -246,7 +280,8 @@ internal static class Program
 
     const string ConnectCtxMenuItemName = nameof( ConnectCtxMenuItemName );
     const string DisconnectCtxMenuItemName = nameof( DisconnectCtxMenuItemName );
-    const int NotifyIconDefault_WidthPx = 20;
+    const string LaunchAtStartupMenuItemName = nameof( LaunchAtStartupMenuItemName );
+    const int NotifyIconDefault_WidthPx = 20; // at 125% display scaling, 16px ~ 100%
     const int NotifyIconDefault_HeightPx = 20;
 
     const int DisconnectedLevel = 0;
@@ -256,8 +291,8 @@ internal static class Program
     const int FullPowerLevel = 100;
     const string NotifyIcon_BatteryLevelTitle = "XM4 Battery Level";
 
-    const string AppName = "Xm4Battery";
-    const string AppVersion = "5.7.7-rc1";
+    internal const string AppName = "Xm4Battery";
+    const string AppVersion = "5.11.14";
     const string GithubProjectUrl = "https://github.com/nikvoronin/Xm4Battery";
 
     internal enum ErrorLevel

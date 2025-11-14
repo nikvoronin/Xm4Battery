@@ -61,13 +61,3 @@ public enum DataType : uint
     TBD = 8217,
     // Reserved 8218..4294967295
 }
-
-public static class DataTypeExtensions
-{
-    /// <summary>
-    /// <see langword="true"> if value of <see cref="DataType"> is reserved.
-    /// </summary>
-    public static bool Reserved( this uint dt )
-        => ( dt >= 26 && dt <= 4097 )
-        || ( dt >= 8218 && dt <= 4294967295 );
-}
