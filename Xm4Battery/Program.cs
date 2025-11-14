@@ -13,9 +13,7 @@ internal static class Program
         ApplicationConfiguration.Initialize();
         Application.SetHighDpiMode( HighDpiMode.PerMonitorV2 );
         Application.EnableVisualStyles();
-#pragma warning disable WFO5001
-        Application.SetColorMode( SystemColorMode.System );
-#pragma warning restore WFO5001
+        Application.SetColorMode( SystemColorMode.Dark );
 
         AppDomain.CurrentDomain.UnhandledException += ( _, e ) =>
             LogException( (Exception)e.ExceptionObject );
@@ -23,9 +21,25 @@ internal static class Program
         Application.SetUnhandledExceptionMode( UnhandledExceptionMode.CatchException );
         Application.ThreadException += ( _, e ) => LogException( e.Exception );
 
+    TryAgain:
         var xm4result = Xm4Entity.CreateDefault();
-        if (xm4result.IsFailed)
+        if (xm4result.IsFailed) {
+            var dialogResult =
+                MessageBox.Show(
+                    """
+                    Please pair your headphones with this laptop first, then restart the application.
+
+                    Try again?
+                    """,
+                    "Headphones Not Detected",
+                    MessageBoxButtons.RetryCancel,
+                    MessageBoxIcon.Exclamation);
+
+            if (dialogResult == DialogResult.Retry)
+                goto TryAgain;
+
             return (int)ErrorLevel.Xm4NotFound;
+        }
 
         Xm4Entity xm4 = xm4result.Value;
 
@@ -278,7 +292,7 @@ internal static class Program
     const string NotifyIcon_BatteryLevelTitle = "XM4 Battery Level";
 
     internal const string AppName = "Xm4Battery";
-    const string AppVersion = "5.10.17-rc2";
+    const string AppVersion = "5.11.14";
     const string GithubProjectUrl = "https://github.com/nikvoronin/Xm4Battery";
 
     internal enum ErrorLevel

@@ -35,7 +35,9 @@ The primary goal of the project is to get battery level of `WH-1000XM4` headphon
 This Windows Forms application runs as a tray icon with no main window.\
 The ready-to-run version is available in the [Latest Release](https://github.com/nikvoronin/Xm4Battery/releases/latest) section.
 
-__System requirements:__ Windows 10 x64, [.NET Desktop Runtime 8.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) LTS
+__System requirements:__ Windows 10 x64, [.NET Desktop Runtime 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) LTS
+
+⚠️ Before starting the application, pair your headphones with your laptop.
 
 | Headphones  | Win 10 | Win 11  |
 | ----------- | ------ | ------- |

@@ -2,7 +2,13 @@
 using WmiPnp.Xm4;
 
 var xm4result = Xm4Entity.CreateDefault();
-if (xm4result.IsFailed) return;
+if (xm4result.IsFailed) {
+    Console.WriteLine(
+        "Headphones not detected! "
+        + "Please pair your headphones with this laptop first, then restart the application." );
+
+    return;
+}
 
 Xm4Entity xm4 = xm4result.Value;
 if (!xm4.IsConnected) {
