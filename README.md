@@ -37,7 +37,7 @@ The ready-to-run version is available in the [Latest Release](https://github.com
 
 __System requirements:__ Windows 10 x64, [.NET Desktop Runtime 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) LTS
 
-⚠️ Before starting the application, pair your headphones with your laptop.
+ℹ️ Before starting the application, pair your headphones with your laptop.
 
 | Headphones  | Win 10 | Win 11  |
 | ----------- | ------ | ------- |
