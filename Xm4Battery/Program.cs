@@ -1,11 +1,8 @@
-﻿using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Security.Principal;
-using WmiPnp.Xm4;
+﻿using WmiPnp.Xm4;
 
 namespace Xm4Battery;
 
-internal static class Program
+internal static partial class Program
 {
     [STAThread]
     static int Main()
@@ -33,7 +30,7 @@ internal static class Program
                     """,
                     "Headphones Not Detected",
                     MessageBoxButtons.RetryCancel,
-                    MessageBoxIcon.Exclamation);
+                    MessageBoxIcon.Exclamation );
 
             if (dialogResult == DialogResult.Retry)
                 goto TryAgain;
@@ -72,163 +69,6 @@ internal static class Program
         DestroyIcon( prevIcon.Handle );
 
         return (int)ErrorLevel.ExitOk;
-    }
-
-    private static ContextMenuStrip CreateContextMenu()
-    {
-        bool runasAdmin =
-            new WindowsPrincipal( WindowsIdentity.GetCurrent() )
-            .IsInRole( WindowsBuiltInRole.Administrator );
-
-        ContextMenuStrip contextMenu = new();
-        contextMenu.Items.AddRange( [
-            new ToolStripMenuItem(
-                "&Connect",
-                null,
-                (_,_) => Xm4Entity.TryConnect() )
-            {
-                Name = ConnectCtxMenuItemName,
-                Enabled = true,
-                Visible = runasAdmin
-            },
-
-            new ToolStripMenuItem(
-                "&Disconnect",
-                null,
-                (_,_) => Xm4Entity.TryDisconnect() )
-            {
-                Name = DisconnectCtxMenuItemName,
-                Enabled = false,
-                Visible = runasAdmin
-            },
-
-            new ToolStripSeparator() { Visible = runasAdmin },
-
-            new ToolStripMenuItem(
-                "&Launch at Startup",
-                null,
-                (_,_) => SysRegistry.ToggleLaunchAtStartup() )
-            {
-                Name = LaunchAtStartupMenuItemName,
-                Checked = false
-            },
-
-            new ToolStripSeparator(),
-
-            new ToolStripMenuItem(
-                $"&About {AppName} {AppVersion}",
-                null,
-                (_,_) => {
-                    try {
-                        Process.Start(
-                            new ProcessStartInfo(
-                                "cmd",
-                                $"/c start {GithubProjectUrl}")
-                            {
-                                CreateNoWindow = true
-                            });
-                    } catch {}
-                } ),
-
-            new ToolStripSeparator(),
-
-            new ToolStripMenuItem(
-                "&Quit",
-                null,
-                (_,_) => Application.Exit() ),
-        ] );
-
-        contextMenu.Opening +=
-            ( sender, e ) => {
-                if ((sender as ContextMenuStrip)?.Items[LaunchAtStartupMenuItemName]
-                        is ToolStripMenuItem launchAtStartupCtxMenuItem) {
-                    launchAtStartupCtxMenuItem.Checked =
-                        SysRegistry.IsInSystemStartup();
-                }
-            };
-
-        return contextMenu;
-    }
-
-    private readonly static float _scalingFactor =
-        new Func<float>( () => {
-            using Graphics g = Graphics.FromHwnd( IntPtr.Zero );
-            return g.DpiX / 96f;
-        } )();
-
-    private static readonly Font _notifyIconFont =
-        new( "Segoe UI", 12.5f, FontStyle.Regular );
-
-    private static readonly Pen Pens_WhiteSmokeW24 =
-        new( Color.WhiteSmoke, _scalingFactor );
-
-    private static Icon CreateXmIcon( Xm4State state )
-    {
-        int iw = (int)(NotifyIconDefault_WidthPx * _scalingFactor);
-        int ih = (int)(NotifyIconDefault_HeightPx * _scalingFactor);
-
-        using Bitmap icoBitmap = new( iw, ih );
-        using var g = Graphics.FromImage( icoBitmap );
-        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
-        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.Default;
-        g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
-
-        var uiBatteryLevel =
-            state.Connected ? state.BatteryLevel
-            : DisconnectedLevel;
-
-        // icon background color
-        var iconBackgroundBrush =
-            uiBatteryLevel switch {
-                <= DisconnectedLevel => Brushes.Transparent,
-                <= CriticalPowerLevel => Brushes.Red,
-                <= LowPowerLevel => Brushes.Orange,
-                <= WarningPowerLevel => Brushes.Yellow,
-                _ => Brushes.White // 40..100(F)
-            };
-
-        // icon text color
-        var iconTextBrush =
-            uiBatteryLevel switch {
-                <= DisconnectedLevel => Brushes.WhiteSmoke,
-                <= CriticalPowerLevel => Brushes.White,
-                //<= LowPowerLevel => Brushes.Magenta,
-                //<= WarningLevel => Brushes.Cyan,
-                _ => Brushes.Black
-            };
-
-        g.FillRectangle(
-            iconBackgroundBrush,
-            0, 0, iw, ih );
-
-        g.DrawRectangle(
-            Pens_WhiteSmokeW24,
-            0, 0, iw - 1, ih - 1 );
-
-        // icon text: battery level or status
-        var iconText =
-            uiBatteryLevel switch {
-                <= DisconnectedLevel => state.BatteryLevel <= WarningPowerLevel ? "%" : "X",
-                <= CriticalPowerLevel => "!",
-                FullPowerLevel => "F",
-                _ => $"{state.BatteryLevel / 10}", // One digit of charge level 1..9
-            };
-
-        var sizeS =
-            g.MeasureString(
-                iconText,
-                _notifyIconFont );
-
-        g.DrawString(
-            iconText,
-            _notifyIconFont,
-            iconTextBrush,
-            iw / 2 - sizeS.Width / 2 + .5f,
-            ih / 2 - sizeS.Height / 2 - 1 );
-
-        return
-            Icon.FromHandle(
-                icoBitmap.GetHicon() );
     }
 
     private static void UpdateUi(
@@ -278,29 +118,18 @@ internal static class Program
             $"{AppName}_{AppVersion}_exceptions.log",
             $"{DateTime.UtcNow:u} {exception}\n" );
 
-    const string ConnectCtxMenuItemName = nameof( ConnectCtxMenuItemName );
-    const string DisconnectCtxMenuItemName = nameof( DisconnectCtxMenuItemName );
-    const string LaunchAtStartupMenuItemName = nameof( LaunchAtStartupMenuItemName );
-    const int NotifyIconDefault_WidthPx = 20; // at 125% display scaling, 16px ~ 100%
-    const int NotifyIconDefault_HeightPx = 20;
-
-    const int DisconnectedLevel = 0;
-    const int CriticalPowerLevel = 10;
-    const int LowPowerLevel = 20;
-    const int WarningPowerLevel = 30;
-    const int FullPowerLevel = 100;
-    const string NotifyIcon_BatteryLevelTitle = "XM4 Battery Level";
+    private const string ConnectCtxMenuItemName = nameof( ConnectCtxMenuItemName );
+    private const string DisconnectCtxMenuItemName = nameof( DisconnectCtxMenuItemName );
+    private const string LaunchAtStartupMenuItemName = nameof( LaunchAtStartupMenuItemName );
+    private const string NotifyIcon_BatteryLevelTitle = "XM4 Battery Level";
 
     internal const string AppName = "Xm4Battery";
-    const string AppVersion = "5.11.14";
-    const string GithubProjectUrl = "https://github.com/nikvoronin/Xm4Battery";
+    private const string AppVersion = "5.12.30";
+    private const string GithubProjectUrl = "https://github.com/nikvoronin/Xm4Battery";
 
     internal enum ErrorLevel
     {
         ExitOk = 0,
         Xm4NotFound = 1
     }
-
-    [DllImport( "user32.dll", CharSet = CharSet.Unicode )]
-    static extern bool DestroyIcon( IntPtr handle );
 }
