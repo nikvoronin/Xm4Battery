@@ -1,7 +1,8 @@
 # Xm4Battery
 
-Battery level of WH-1000XM4 headphones and other series models, based on the WMI wrapper for Plug-and-Play devices.
+Battery level of WH-1000XM4 headphones and other series models, based on the `WMI` wrapper for Plug-and-Play devices.
 
+> [!NOTE]
 > WMI = Windows Management Interface.
 
 The primary goal of the project is to get battery level of `WH-1000XM4` headphones. Perhaps `Xm4Battery` might also works with similar models of headphones such as WH-1000XM4, WF-1000XM4 or WH-1000XM3-5-6-etc.
@@ -37,7 +38,8 @@ The ready-to-run version is available in the [Latest Release](https://github.com
 
 __System requirements:__ Windows 10 x64, [.NET Desktop Runtime 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) LTS
 
-ℹ️ Before starting the application, pair your headphones with your laptop.
+> [!IMPORTANT]
+> Before starting the application, pair your headphones with your laptop.
 
 | Headphones  | Win 10 | Win 11  |
 | ----------- | ------ | ------- |
@@ -66,17 +68,19 @@ When the headphones are disconnected, a tooltip displays their last known batter
 - __About__ - leads to this page.
 - __Quit__ - closes and unloads application at all.
 
->⚠ __Connect / Disconnect__ items appear if the app is run as an administrator.\
->⚠* These functions may cause system artefacts or unusual behavior of Volume Control, Sound Mixer, Bluetooth Device Manager, etc.\
->⚠** Especially the Disconnect item. Connect is a law-abiding one.
+> [!WARNING]
+> __Connect / Disconnect__ items appear if the app is run as an administrator.\
+`*` These functions may cause system artefacts or unusual behavior of Volume Control, Sound Mixer, Bluetooth Device Manager, etc.\
+`**` Especially the Disconnect item. Connect is a law-abiding one.
 
 ### Tray icon mods
 
 The real icon size is 20x20 pixels. It is automatically scaled by system depend on display scaling factor.
 
->The app icon is currently adjusted to 125% display scaling. Other scaling factors may lead to uglifying tray icon.
+> [!NOTE]
+> The app icon is currently adjusted to 125% display scaling. Other scaling factors may lead to uglifying tray icon.
 
-Icon text color and background are defined in the `CreateXmIcon` method:
+Icon text color and background are defined in the `Program.TrayIcon.cs` → `CreateXmIcon` method:
 
 ```csharp
 // icon background color
@@ -312,11 +316,13 @@ Key = {83da6326-97a6-4088-9453-a1923f573b29} 103
 - `WH-1000XM4 Hands-Free AG` - exact name for PnpEntity to get a __BATTERY LEVEL__ only.
 - `WH-1000XM4` - exact name for PnpEntity to get a __STATE__ of the xm4.
 
+> [!NOTE]
 > The app actually uses naming templates such as `W_-1000XM_` to abstract and match various headphone models (e.g., WH-1000XM3, WF-1000XM4, etc.).
 
 <!-- omit in toc -->
 ### DEVPKEY_Device_DevNodeStatus
 
+> [!TIP]
 > Instead of using these bit flags, we can use the [Is Connected](#is-connected-or-not) property to retrieve the connection status of the XM4.
 
 - Key = `{4340A6C5-93FA-4706-972C-7B648008A5A7} 2`
@@ -370,8 +376,9 @@ With this setup, we can now use the `Windows.Devices.Radios` namespace:
 using Windows.Devices.Radios;
 ```
 
->⚠ Be aware: this can completely turn off the system Bluetooth radio - not just enable or disable it.\
->⚠ Use at your own risk!
+> [!WARNING]
+> Be aware: this can completely turn off the system Bluetooth radio - not just enable or disable it.\
+Use at your own risk!
 
 ```csharp
 public static async Task OsEnableBluetooth() =>
@@ -396,6 +403,7 @@ private async Task InternalBluetoothState( bool enable )
 }
 ```
 
+> [!TIP]
 > We can also use `Windows.Devices.Bluetooth` namespace or even `Windows.Devices.***` for other peripheral devices.
 
 ## References
